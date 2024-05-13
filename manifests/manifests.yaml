@@ -11061,8 +11061,10 @@ data:
       qps: 50
       burst: 100
     #pprofBindAddress: :8082
-    #waitForPodsReady:
-    #  enable: true
+    waitForPodsReady:
+     enable: true
+     timeout: 10m
+     blockAdmission: true
     #manageJobsWithoutQueueName: true
     #internalCertManagement:
     #  enable: false
