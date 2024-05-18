@@ -374,7 +374,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(kueue_pending_workloads{status=\"inadmissible\"}) by (cluster_queue)",
+          "expr": "sum by(modelName) (label_replace(kube_pod_container_resource_requests{resource=\"nvidia_com_gpu\", namespace!='kube-system'}, \"kubernetes_node\", \"$1\", \"node\", \"(.+)\") + on(kubernetes_node) group_left() DCGM_FI_DEV_DEC_UTIL{gpu=\"0\"} * 0)",
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
@@ -1318,6 +1318,6 @@
   "timezone": "",
   "title": "Konduktor Dashboard",
   "uid": "Oxed_c6Wz",
-  "version": 7,
+  "version": 2,
   "weekStart": ""
 }
