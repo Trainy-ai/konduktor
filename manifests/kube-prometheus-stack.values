@@ -2019,8 +2019,8 @@ kube-state-metrics:
   rbac:
     create: true
   releaseLabel: true
-  metricAllowlist:
-    - kueue.x-k8s.io/pod-group-name
+  extraArgs:
+    - --metric-labels-allowlist=pods=[kueue.x-k8s.io/pod-group-name]
   prometheus:
     monitor:
       enabled: true

@@ -25,12 +25,87 @@
   "links": [],
   "panels": [
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 30,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "max by (label_kueue_x_k8s_io_pod_group_name) ((sum_over_time(kube_pod_status_phase{phase=\"Pending\"}[7d]) * kube_pod_status_phase{phase=\"Pending\"}\n  + on(namespace, pod) group_left(label_kueue_x_k8s_io_pod_group_name)\n    kube_pod_labels{label_kueue_x_k8s_io_pod_group_name=~\"(.+)\"} * 0\n) > 0) * 30",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Pending workloads",
+      "type": "table"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 8
       },
       "id": 22,
       "panels": [],
@@ -75,7 +150,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 1
+        "y": 9
       },
       "id": 25,
       "options": {
@@ -147,7 +222,7 @@
         "h": 4,
         "w": 5,
         "x": 4,
-        "y": 1
+        "y": 9
       },
       "id": 28,
       "options": {
@@ -216,7 +291,7 @@
         "h": 4,
         "w": 4,
         "x": 9,
-        "y": 1
+        "y": 9
       },
       "id": 23,
       "options": {
@@ -281,7 +356,7 @@
         "h": 4,
         "w": 4,
         "x": 13,
-        "y": 1
+        "y": 9
       },
       "id": 24,
       "options": {
@@ -346,7 +421,7 @@
         "h": 3,
         "w": 24,
         "x": 0,
-        "y": 5
+        "y": 13
       },
       "id": 29,
       "options": {
@@ -415,7 +490,7 @@
         "h": 3,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 16
       },
       "id": 26,
       "options": {
@@ -491,7 +566,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 11
+        "y": 19
       },
       "id": 27,
       "options": {
@@ -532,7 +607,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 27
       },
       "id": 19,
       "panels": [],
@@ -560,7 +635,7 @@
         "h": 8,
         "w": 18,
         "x": 0,
-        "y": 20
+        "y": 28
       },
       "hiddenSeries": false,
       "id": 6,
@@ -672,7 +747,7 @@
         "h": 8,
         "w": 6,
         "x": 18,
-        "y": 20
+        "y": 28
       },
       "id": 21,
       "options": {
@@ -731,7 +806,7 @@
         "h": 8,
         "w": 18,
         "x": 0,
-        "y": 28
+        "y": 36
       },
       "hiddenSeries": false,
       "id": 12,
@@ -821,8 +896,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "#EAB839",
@@ -842,7 +916,7 @@
         "h": 8,
         "w": 6,
         "x": 18,
-        "y": 28
+        "y": 36
       },
       "id": 14,
       "options": {
@@ -897,7 +971,7 @@
         "h": 8,
         "w": 18,
         "x": 0,
-        "y": 36
+        "y": 44
       },
       "hiddenSeries": false,
       "id": 10,
@@ -986,8 +1060,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "#EAB839",
@@ -1007,7 +1080,7 @@
         "h": 8,
         "w": 6,
         "x": 18,
-        "y": 36
+        "y": 44
       },
       "id": 16,
       "options": {
@@ -1064,7 +1137,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 44
+        "y": 52
       },
       "hiddenSeries": false,
       "id": 4,
@@ -1161,7 +1234,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 52
+        "y": 60
       },
       "hiddenSeries": false,
       "id": 2,
@@ -1246,8 +1319,8 @@
       {
         "current": {
           "selected": false,
-          "text": "10.42.0.27:9400",
-          "value": "10.42.0.27:9400"
+          "text": "10.8.3.7:9400",
+          "value": "10.8.3.7:9400"
         },
         "datasource": {
           "type": "prometheus",
@@ -1318,6 +1391,6 @@
   "timezone": "",
   "title": "Konduktor Dashboard",
   "uid": "Oxed_c6Wz",
-  "version": 2,
+  "version": 4,
   "weekStart": ""
 }
