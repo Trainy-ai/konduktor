@@ -1,1 +1,3 @@
 poetry.lock
+docs/build
+.DS_STORE
