@@ -1,6 +1,6 @@
 # Konduktor
 
-Konduktor is an open source Run:AI alternative built on [Kubernetes](kubernetes.io). Konduktor uses existing open source tools to build a platform that makes it easy for ML Researchers to submit batch jobs and for administrative/infra teams to easily manage GPU clusters.
+Konduktor is an open source Run:AI alternative built on [Kubernetes](https://kubernetes.io). Konduktor uses existing open source tools to build a platform that makes it easy for ML Researchers to submit batch jobs and for administrative/infra teams to easily manage GPU clusters.
 
 ## How it works
 
