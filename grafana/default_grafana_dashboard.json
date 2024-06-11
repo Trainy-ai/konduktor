@@ -19,9 +19,9 @@
   "description": "This dashboard is to display running jobs and DCGM metrics from a Kubernetes cluster.",
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "gnetId": 12239,
+  "gnetId": 21231,
   "graphTooltip": 0,
-  "id": 28,
+  "id": 30,
   "links": [],
   "panels": [
     {
@@ -48,6 +48,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
+          "noValue": "0",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -58,7 +59,19 @@
             ]
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byValue",
+              "options": {
+                "op": "gte",
+                "reducer": "allIsZero",
+                "value": 0
+              }
+            },
+            "properties": []
+          }
+        ]
       },
       "gridPos": {
         "h": 4,
@@ -647,21 +660,45 @@
     },
     {
       "datasource": {
-        "type": "dashboard",
-        "uid": "-- Dashboard --"
+        "type": "prometheus",
+        "uid": "prometheus"
       },
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
             },
-            "filterable": false,
-            "inspect": false
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -677,70 +714,9 @@
               }
             ]
           },
-          "unit": "s"
+          "unit": "percentunit"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "namespace"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 176
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "label_kueue_x_k8s_io_pod_group_name"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 406
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "workload"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 112
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "# gpus"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 101
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "# gpus"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "none"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 8,
@@ -750,36 +726,35 @@
       },
       "id": 33,
       "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
         },
-        "frameIndex": 0,
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": false,
-            "displayName": "# gpus"
-          }
-        ]
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": {
-            "type": "datasource",
-            "uid": "-- Dashboard --"
+            "type": "prometheus",
+            "uid": "prometheus"
           },
+          "editorMode": "code",
+          "expr": "sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate) by (namespace)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
           "refId": "A"
         }
       ],
-      "title": "Active workloads",
-      "type": "table"
+      "title": "CPU Utilisation",
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -1463,22 +1438,15 @@
       }
     }
   ],
-  "refresh": false,
   "schemaVersion": 39,
   "tags": [],
   "templating": {
     "list": [
       {
         "current": {
-          "selected": true,
-          "text": [
-            "10.8.2.7:9400",
-            "10.8.3.7:9400"
-          ],
-          "value": [
-            "10.8.2.7:9400",
-            "10.8.3.7:9400"
-          ]
+          "selected": false,
+          "text": "10.8.2.7:9400",
+          "value": "10.8.2.7:9400"
         },
         "datasource": {
           "type": "prometheus",
@@ -1502,13 +1470,9 @@
       },
       {
         "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": {
           "type": "prometheus",
@@ -1532,13 +1496,9 @@
       },
       {
         "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": {
           "type": "prometheus",
@@ -1582,8 +1542,8 @@
     ]
   },
   "timezone": "",
-  "title": "Konduktor Dashboard",
+  "title": "Konduktor",
   "uid": "Oxed_c6Wz",
-  "version": 2,
+  "version": 7,
   "weekStart": ""
 }
