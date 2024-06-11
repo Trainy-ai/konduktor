@@ -89,7 +89,7 @@ To deploy Kueue components, we provide a default manifest for that enables gang-
 .. code-block:: bash
 
     # deploy kueue resources
-    $ VERSION=0.6.2
+    $ VERSION=v0.6.2
     $ kubectl apply --server-side -f https://raw.githubusercontent.com/Trainy-ai/konduktor/main/manifests/manifests.yaml
     $ kubectl apply --server-side -f https://github.com/kubernetes-sigs/kueue/releases/download/$VERSION/prometheus.yaml
     $ kubectl apply --server-side -f https://github.com/kubernetes-sigs/kueue/releases/download/$VERSION/visibility-api.yaml
