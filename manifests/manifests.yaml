@@ -15,7 +15,7 @@
 # 
 # Changes made: customization for konduktor
 # Copyright 2024 Trainy Inc
-# The modifications are proprietary and subject to the terms of the Functional Source License, Version 1.1.
+# The modifications are proprietary and subject to the terms of the Trainy Software License Version 1.0
 # Original source: https://github.com/kubernetes-sigs/kueue/
 
 apiVersion: v1

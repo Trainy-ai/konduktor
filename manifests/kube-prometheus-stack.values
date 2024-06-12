@@ -14,6 +14,7 @@
 # limitations under the License.
 # 
 # Changes made: customization for pod label metrics
+# The modifications are proprietary and subject to the terms of the Trainy Software License Version 1.0
 # Copyright 2024 Trainy Inc
 # Original source: https://github.com/prometheus-community/helm-charts
 #

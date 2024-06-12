@@ -17,5 +17,5 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-The modifications are proprietary and subject to the terms of the Functional Source License, Version 1.1.
+The modifications are proprietary and subject to the terms of the Trainy Software License Version 1.0
 Copyright 2024 Trainy Inc.
