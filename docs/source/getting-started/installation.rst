@@ -109,7 +109,7 @@ Resource quotas are defined via ClusterQueues and LocalQueues which are assigned
     # get default resource definitions
     $ wget https://raw.githubusercontent.com/Trainy-ai/konduktor/main/manifests/single-clusterqueue-setup.yaml
 
-**Within :code:`single-clusterqueue-setup.yaml`, be sure to replace :code:`<num-GPUs-in-cluster>` with the total number of GPUs in your cluster.**
+Within :code:`single-clusterqueue-setup.yaml`, be sure to replace :code:`<num-GPUs-in-cluster>` with the total number of GPUs in your cluster.
 
 .. code-block:: yaml
 

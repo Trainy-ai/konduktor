@@ -46,7 +46,7 @@ the IP address of any node.
 
 In the example above, we can enter :code:`80.184.157.133:31990` into a browser window where it will prompt for a password. 
 The default username is :code:`admin` with the password being set by :code:`kube-prometheus-stack.values` in :doc:`/getting-started/installation`.
-**Administrators should secure this endpoint as well as changing the authentication login**
+**Administrators should secure this endpoint as well as changing the authentication login.**
 
 After logging in, you can import our default dashboard by either using the JSON definition from the repo under :code:`grafana/default_grafana_dashboard.json`
 or by downloading from `our Grafana published dashboard <https://grafana.com/grafana/dashboards/21231-konduktor-dashboard/>`_.
@@ -55,4 +55,5 @@ An interactive sample dashboard can be found `here <https://snapshots.raintank.i
 In case you're still experiencing connectivity issues, ask your k8s admin to check your firewall. For example, we need to run the following command when running on Google Cloud:
 
 .. code-block:: console
+
     $ gcloud compute firewall-rules create $NAME --allow tcp:$PORT
