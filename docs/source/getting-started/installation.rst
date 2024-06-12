@@ -102,7 +102,14 @@ To deploy Kueue components, we provide a default manifest for that enables gang-
 Resource Quotas
 ---------------
 
-Resource quotas are defined via ClusterQueues and LocalQueues which are assigned to a namespace. For example, we can define the following resources.
+Resource quotas are defined via ClusterQueues and LocalQueues which are assigned to a namespace. We provide a default set of resource definitions to get started with.
+
+.. code-block:: bash
+
+    # get default resource definitions
+    $ wget https://raw.githubusercontent.com/Trainy-ai/konduktor/main/manifests/single-clusterqueue-setup.yaml
+
+**Within :code:`single-clusterqueue-setup.yaml`, be sure to replace :code:`<num-GPUs-in-cluster>` with the total number of GPUs in your cluster.**
 
 .. code-block:: yaml
 
@@ -133,7 +140,7 @@ Resource quotas are defined via ClusterQueues and LocalQueues which are assigned
         - name: "memory"
             nominalQuota: 10000Gi
         - name: "nvidia.com/gpu"
-            nominalQuota: 16
+            nominalQuota: <num-GPUs-in-cluster> # REPLACE THIS
         # this is a skypilot specific resource
         - name: "smarter-devices/fuse"
             nominalQuota: 10000000
@@ -164,7 +171,7 @@ We can create these resources with:
 .. code-block:: console
     
     # create a ClusterQueue and LocalQueue, `cluster-queue` and `user-queue` respectively
-    $ kubectl apply -f https://raw.githubusercontent.com/Trainy-ai/konduktor/main/manifests/single-clusterqueue-setup.yaml
+    $ kubectl apply -f single-clusterqueue-setup.yaml
 
     $ kubectl get queues
     NAME         CLUSTERQUEUE    PENDING WORKLOADS   ADMITTED WORKLOADS
