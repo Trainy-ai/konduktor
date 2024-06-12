@@ -45,7 +45,7 @@ spec:
       - name: "memory"
         nominalQuota: 10000Gi
       - name: "nvidia.com/gpu"
-        nominalQuota: 16
+        nominalQuota: <num-GPUs-in-cluster> # REPLACE THIS
       # this is a skypilot specific resource
       - name: "smarter-devices/fuse"
         nominalQuota: 10000000
