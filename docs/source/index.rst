@@ -6,11 +6,17 @@
 Welcome to Konduktor's documentation!
 =====================================
 
-.. figure:: ./images/trainy.png
-   :width: 20%
+.. figure:: ./images/konduktor-logo-white-no-background.png
+   :width: 60%
    :align: center
    :alt: Trainy
-   :class: no-scaled-link
+   :class: no-scaled-link, only-dark
+
+.. figure:: ./images/konduktor-logo-black-no-background.png
+   :width: 60%
+   :align: center
+   :alt: Trainy
+   :class: no-scaled-link, only-light
 
 .. raw:: html
 
