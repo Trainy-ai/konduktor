@@ -1,10 +1,17 @@
-# Konduktor
+
+<p align="center">
+  <picture>
+    <img alt="Trainy Konduktor Logo" src="https://raw.githubusercontent.com/Trainy-ai/konduktor/main/docs/source/images/konduktor-logo-white-no-background.png" width="353" height="64" style="max-width: 100%;">
+  </picture>
+  <br/>
+  <br/>
+</p>
 
 Konduktor is an open source Run:AI alternative built on [Kubernetes](https://kubernetes.io). Konduktor uses existing open source tools to build a platform that makes it easy for ML Researchers to submit batch jobs and for administrative/infra teams to easily manage GPU clusters.
 
 ## How it works
 
-Konduktor uses a combination of open source projects. Where tools exist with MIT, Apache, or another compatible open liscense, we want to use and even contribute to that tool. Where we see gaps in tooling, we build it and open source ourselves.
+Konduktor uses a combination of open source projects. Where tools exist with MIT, Apache, or another compatible open license, we want to use and even contribute to that tool. Where we see gaps in tooling, we build it and open source ourselves.
 
 ### Architecture
 
