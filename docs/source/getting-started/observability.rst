@@ -22,6 +22,7 @@ We want this Grafana instance to be deployed as a :code:`NodePort`, so we will n
 When applying the patch below, you will need to replace :code:`<svc-name>` with your corresponding service name. In our example, this would be :code:`kube-prometheus-stack-1717404158-grafana`.
 
 .. code-block:: console
+
     # download patch
     $ wget https://raw.githubusercontent.com/Trainy-ai/konduktor/main/manifests/grafana-patch.yaml
 
@@ -49,11 +50,12 @@ The default username is :code:`admin` with the password being set by :code:`kube
 **Administrators should secure this endpoint as well as changing the authentication login.**
 
 After logging in, you can import our default dashboard by either using the JSON definition from the repo under :code:`grafana/default_grafana_dashboard.json`
-or by downloading from `our Grafana published dashboard <https://grafana.com/grafana/dashboards/21231-konduktor-dashboard/>`_.
-An interactive sample dashboard can be found `here <https://snapshots.raintank.io/dashboard/snapshot/1XTdClbc31qcUEK9Sv4wqcJScQHYBZzj?orgId=0>`_.
+or by downloading from `our Grafana published dashboard <https://grafana.com/grafana/dashboards/21231-konduktor/>`_.
+An interactive sample dashboard can be found `here <https://snapshots.raintank.io/dashboard/snapshot/aUOb6ZQzCheglWM84xTAvqwX4zQHTaUf?orgId=0>`_.
 
 In case you're still experiencing connectivity issues, ask your k8s admin to check your firewall. For example, we need to run the following command when running on Google Cloud:
 
 .. code-block:: console
 
-    $ gcloud compute firewall-rules create $NAME --allow tcp:$PORT
+    $ GRAFANA_PORT=31990
+    $ gcloud compute firewall-rules create my-grafana-firewall --allow tcp:$GRAFANA_PORT

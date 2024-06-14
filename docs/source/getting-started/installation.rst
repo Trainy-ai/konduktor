@@ -29,9 +29,21 @@ Installing the DCGM exporter is best handled using NVIDIA's `gpu-operator <https
     $ helm repo add nvidia https://helm.ngc.nvidia.com/nvidia \
         && helm repo update
 
+    # create the `gpu-operator` namespace
+    $ kubectl create namespace gpu-operator
+
+    # set which metrics to export from DCGM
+    $ wget https://raw.githubusercontent.com/Trainy-ai/konduktor/main/files/dcgm-metrics.csv
+    $ vim dcgm-metrics.csv
+    $ kubectl create configmap metrics-config -n gpu-operator --from-file=dcgm-metrics.csv
+
     # install gpu operator
     $ helm install gpu-operator -n gpu-operator \
-        --create-namespace nvidia/gpu-operator $HELM_OPTIONS
+        nvidia/gpu-operator $HELM_OPTIONS \
+        --set dcgmExporter.config.name=metrics-config \
+        --set dcgmExporter.env[0].name=DCGM_EXPORTER_COLLECTORS \
+        --set dcgmExporter.env[0].value=/etc/dcgm-exporter/dcgm-metrics.csv
+
 
     # wait for pods to come up
     $ kubectl get pods -n gpu-operator
