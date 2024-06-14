@@ -1,4 +1,59 @@
 {
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "panel",
+      "id": "gauge",
+      "name": "Gauge",
+      "version": ""
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "10.4.1"
+    },
+    {
+      "type": "panel",
+      "id": "graph",
+      "name": "Graph (old)",
+      "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "prometheus",
+      "name": "Prometheus",
+      "version": "1.0.0"
+    },
+    {
+      "type": "panel",
+      "id": "stat",
+      "name": "Stat",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "table",
+      "name": "Table",
+      "version": ""
+    },
+    {
+      "type": "panel",
+      "id": "timeseries",
+      "name": "Time series",
+      "version": ""
+    }
+  ],
   "annotations": {
     "list": [
       {
@@ -21,7 +76,7 @@
   "fiscalYearStartMonth": 0,
   "gnetId": 21231,
   "graphTooltip": 0,
-  "id": 30,
+  "id": null,
   "links": [],
   "panels": [
     {
@@ -40,7 +95,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -59,19 +114,7 @@
             ]
           }
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byValue",
-              "options": {
-                "op": "gte",
-                "reducer": "allIsZero",
-                "value": 0
-              }
-            },
-            "properties": []
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 4,
@@ -101,7 +144,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -118,83 +161,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "#EAB839",
-                "value": 80
-              },
-              {
-                "color": "green",
-                "value": 90
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 4,
-        "y": 1
-      },
-      "id": 25,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "avg(DCGM_FI_DEV_GPU_UTIL{instance=~\"${instance}\", gpu=~\"${gpu}\"})",
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "GPU Avg Utilization",
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -217,7 +184,7 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 8,
+        "x": 4,
         "y": 1
       },
       "id": 24,
@@ -242,7 +209,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -259,7 +226,79 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 1
+      },
+      "id": 28,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(DCGM_FI_DEV_MEM_COPY_UTIL{job=\"gpu-metrics\"}) / (count(DCGM_FI_DEV_MEM_COPY_UTIL{job=\"gpu-metrics\"}) * 100) * 100",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Cluster GPU Mem Used",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -323,7 +362,7 @@
             "properties": [
               {
                 "id": "custom.width",
-                "value": 112
+                "value": 167
               }
             ]
           },
@@ -384,7 +423,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -398,7 +437,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -451,7 +490,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -503,7 +542,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -520,79 +559,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "max": 100,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "percent"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 4,
-        "y": 5
-      },
-      "id": 28,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "sum"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      },
-      "pluginVersion": "10.4.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum(DCGM_FI_DEV_MEM_COPY_UTIL{job=\"gpu-metrics\"}) / (count(DCGM_FI_DEV_MEM_COPY_UTIL{job=\"gpu-metrics\"}) * 100) * 100",
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Cluster GPU Mem Used",
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -619,7 +586,7 @@
       "gridPos": {
         "h": 4,
         "w": 4,
-        "x": 8,
+        "x": 4,
         "y": 5
       },
       "id": 23,
@@ -644,7 +611,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -661,7 +628,83 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 80
+              },
+              {
+                "color": "green",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 5
+      },
+      "id": 25,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg(DCGM_FI_DEV_GPU_UTIL{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"})",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "GPU Avg Utilization",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -720,7 +763,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 8,
         "x": 0,
         "y": 9
       },
@@ -742,7 +785,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "expr": "sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate) by (namespace)",
@@ -759,7 +802,83 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 70
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 9
+      },
+      "id": 34,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg(DCGM_FI_PROF_SM_ACTIVE{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"})",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "GPU SM Efficiency",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -884,7 +1003,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -898,7 +1017,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
           "exemplar": false,
@@ -949,6 +1068,82 @@
       "type": "table"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 70
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 13
+      },
+      "id": 35,
+      "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg(DCGM_FI_PROF_SM_OCCUPANCY{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"})",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "GPU SM Occupancy",
+      "type": "gauge"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
@@ -968,7 +1163,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -980,7 +1175,7 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
-        "w": 24,
+        "w": 12,
         "x": 0,
         "y": 18
       },
@@ -1016,11 +1211,13 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "DCGM_FI_DEV_GPU_UTIL{instance=~\"${instance}\", gpu=~\"${gpu}\"}",
+          "editorMode": "code",
+          "expr": "DCGM_FI_DEV_GPU_UTIL{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"}",
           "interval": "",
           "legendFormat": "GPU {{gpu}}",
+          "range": true,
           "refId": "A"
         }
       ],
@@ -1063,7 +1260,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1075,7 +1272,104 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
-        "w": 24,
+        "w": 12,
+        "x": 12,
+        "y": 18
+      },
+      "hiddenSeries": false,
+      "id": 36,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "10.4.1",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "DCGM_FI_PROF_SM_ACTIVE{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"}",
+          "interval": "",
+          "legendFormat": "GPU {{gpu}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "GPU SM Efficiency",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "cumulative"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "percent",
+          "logBase": 1,
+          "max": "100",
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 7,
+        "w": 12,
         "x": 0,
         "y": 26
       },
@@ -1111,9 +1405,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "DCGM_FI_DEV_GPU_TEMP{instance=~\"${instance}\", gpu=~\"${gpu}\"}",
+          "editorMode": "code",
+          "expr": "DCGM_FI_DEV_GPU_TEMP{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"}",
           "instant": false,
           "interval": "",
           "legendFormat": "GPU {{gpu}}",
@@ -1157,7 +1452,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1168,10 +1463,10 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 34
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 26
       },
       "hiddenSeries": false,
       "id": 10,
@@ -1205,11 +1500,13 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "DCGM_FI_DEV_POWER_USAGE{instance=~\"${instance}\", gpu=~\"${gpu}\"}",
+          "editorMode": "code",
+          "expr": "DCGM_FI_DEV_POWER_USAGE{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"}",
           "interval": "",
           "legendFormat": "GPU {{gpu}}",
+          "range": true,
           "refId": "A"
         }
       ],
@@ -1250,7 +1547,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1262,9 +1559,9 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
-        "w": 24,
+        "w": 12,
         "x": 0,
-        "y": 42
+        "y": 33
       },
       "hiddenSeries": false,
       "id": 4,
@@ -1300,11 +1597,13 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "DCGM_FI_PROF_PIPE_TENSOR_ACTIVE{instance=~\"${instance}\", gpu=~\"${gpu}\"}",
+          "editorMode": "code",
+          "expr": "DCGM_FI_PROF_PIPE_TENSOR_ACTIVE{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"}",
           "interval": "",
           "legendFormat": "GPU {{gpu}}",
+          "range": true,
           "refId": "A"
         }
       ],
@@ -1347,7 +1646,7 @@
       "dashes": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "prometheus"
+        "uid": "${DS_PROMETHEUS}"
       },
       "fieldConfig": {
         "defaults": {
@@ -1358,10 +1657,10 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 7,
-        "w": 24,
-        "x": 0,
-        "y": 50
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 33
       },
       "hiddenSeries": false,
       "id": 2,
@@ -1396,13 +1695,15 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
+            "uid": "${DS_PROMETHEUS}"
           },
-          "expr": "DCGM_FI_DEV_SM_CLOCK{instance=~\"${instance}\", gpu=~\"${gpu}\"} * 1000000",
+          "editorMode": "code",
+          "expr": "DCGM_FI_DEV_SM_CLOCK{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"} * 1000000",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
           "legendFormat": "GPU {{gpu}}",
+          "range": true,
           "refId": "A"
         }
       ],
@@ -1436,6 +1737,453 @@
       "yaxis": {
         "align": false
       }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 41
+      },
+      "hiddenSeries": false,
+      "id": 39,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "sort": "max",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "10.4.1",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "DCGM_FI_DEV_NVLINK_BANDWIDTH_TOTAL{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"}",
+          "interval": "",
+          "legendFormat": "GPU {{gpu}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "NVLINK Throughput",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "cumulative"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "percentunit",
+          "logBase": 1,
+          "max": "1",
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "links": []
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 41
+      },
+      "hiddenSeries": false,
+      "id": 40,
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "sort": "max",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 2,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "10.4.1",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(node_infiniband_port_data_transmitted_bytes_total{instance=\"${instance}:9100\"}[$__interval]))",
+          "interval": "",
+          "legendFormat": "GPU {{gpu}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeRegions": [],
+      "title": "Infiniband Throughput",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "cumulative"
+      },
+      "type": "graph",
+      "xaxis": {
+        "mode": "time",
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "percentunit",
+          "logBase": 1,
+          "max": "1",
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "logBase": 1,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 49
+      },
+      "id": 37,
+      "panels": [],
+      "title": "Node Stats",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "yellow",
+                "value": 0.8
+              },
+              {
+                "color": "red",
+                "value": 0.9
+              }
+            ]
+          },
+          "unit": "decbytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "instance"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 156
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Disk Total"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 139
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Disk Available"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 153
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Disk Used"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 133
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Usage %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "gauge"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 50
+      },
+      "id": 38,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Usage %"
+          }
+        ]
+      },
+      "pluginVersion": "10.4.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance) (node_filesystem_size_bytes{job=\"node-exporter\", fstype!=\"\", mountpoint!=\"\"})\n",
+          "format": "table",
+          "instant": true,
+          "intervalFactor": 2,
+          "legendFormat": "",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "expr": "max by (instance) (node_filesystem_avail_bytes{job=\"node-exporter\", fstype!=\"\", mountpoint!=\"\"})\n",
+          "format": "table",
+          "instant": true,
+          "intervalFactor": 2,
+          "legendFormat": "",
+          "refId": "B"
+        }
+      ],
+      "title": "Disk Space Usage",
+      "transformations": [
+        {
+          "disabled": true,
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Value #A": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "aggregate"
+              },
+              "Value #B": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "aggregate"
+              },
+              "mountpoint": {
+                "aggregations": [],
+                "operation": "groupby"
+              }
+            }
+          }
+        },
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Used",
+            "binary": {
+              "left": "Value #A",
+              "operator": "-",
+              "right": "Value #B"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            }
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Used %",
+            "binary": {
+              "left": "Used",
+              "operator": "/",
+              "right": "Value #A"
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true
+            },
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "Time": "",
+              "Used": "Disk Used",
+              "Used %": "Usage %",
+              "Value #A": "Disk Total",
+              "Value #B": "Disk Available"
+            }
+          }
+        }
+      ],
+      "type": "table"
     }
   ],
   "schemaVersion": 39,
@@ -1443,14 +2191,10 @@
   "templating": {
     "list": [
       {
-        "current": {
-          "selected": false,
-          "text": "10.8.2.7:9400",
-          "value": "10.8.2.7:9400"
-        },
+        "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "prometheus"
+          "uid": "${DS_PROMETHEUS}"
         },
         "definition": "label_values(DCGM_FI_DEV_GPU_TEMP, instance)",
         "hide": 0,
@@ -1460,7 +2204,7 @@
         "options": [],
         "query": "label_values(DCGM_FI_DEV_GPU_TEMP, instance)",
         "refresh": 1,
-        "regex": "",
+        "regex": "^([^:]+):\\d+$",
         "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
@@ -1469,14 +2213,10 @@
         "useTags": false
       },
       {
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
+        "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "prometheus"
+          "uid": "${DS_PROMETHEUS}"
         },
         "definition": "label_values(gpu)",
         "hide": 0,
@@ -1495,14 +2235,10 @@
         "useTags": false
       },
       {
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
+        "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "prometheus"
+          "uid": "${DS_PROMETHEUS}"
         },
         "definition": "label_values(kube_pod_labels,label_kueue_x_k8s_io_pod_group_name)",
         "hide": 0,
@@ -1543,7 +2279,7 @@
   },
   "timezone": "",
   "title": "Konduktor",
-  "uid": "Oxed_c6Wz",
-  "version": 7,
+  "uid": "Oxed_c6W4",
+  "version": 2,
   "weekStart": ""
 }
