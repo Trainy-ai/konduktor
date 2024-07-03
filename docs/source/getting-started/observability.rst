@@ -30,4 +30,4 @@ The default username is :code:`admin` with the password being set by :code:`kube
 
 After logging in, you can import our default dashboard by either using the JSON definition from the repo under :code:`grafana/default_grafana_dashboard.json`
 or by downloading from `our Grafana published dashboard <https://grafana.com/grafana/dashboards/21231-konduktor/>`_.
-An interactive sample dashboard can be found `here <https://snapshots.raintank.io/dashboard/snapshot/aUOb6ZQzCheglWM84xTAvqwX4zQHTaUf?orgId=0>`_.
+An interactive sample dashboard can be found `here <https://snapshots.raintank.io/dashboard/snapshot/5x2e6d2A24Rkxdnu8ozpSgG4utXg1cZX>`_.
