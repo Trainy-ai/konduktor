@@ -1,0 +1,77 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: konduktor
+  labels:
+    name: konduktor
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: "konduktord-sa"
+  namespace: "konduktor"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: konduktord-clusterrole
+rules:
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get", "list"]
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "list", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: konduktord-clusterrolebinding
+subjects:
+- kind: ServiceAccount
+  name: konduktord-sa
+  namespace: "konduktor"
+roleRef:
+  kind: ClusterRole
+  name: konduktord-clusterrole
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: konduktord-daemon
+  namespace: "konduktor"
+spec:
+  selector:
+    matchLabels:
+      app: konduktord-daemon
+  template:
+    metadata:
+      labels:
+        app: konduktord-daemon
+    spec:
+      serviceAccountName: konduktord-sa
+      containers:
+      - name: konduktord-daemon
+        image: busybox
+        env:
+          # containerd stores container logs under
+          # /var/log/pods/{namespace}_.../{container}/*.log
+          # this listens on the default namespace
+          - name: WATCHED_DIRS
+            value: "/var/log/pods/default_*/**/*.log"
+        # required to run `dmesg`
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: varlogpods
+          mountPath: /var/log/pods
+          readOnly: true
+      volumes:
+      - name: varlogpods
+        hostPath:
+          path: /var/log/pods
+      tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Exists"
+        effect: "NoSchedule"
