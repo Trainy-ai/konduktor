@@ -1,23 +1,24 @@
 import time
 import os
 from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+from watchdog.events import PatternMatchingEventHandler
 
 from konduktor import logging as konduktor_logging
 from konduktor.konduktord import constants
 
 logger = konduktor_logging.init_logger("konduktord")
 
-class LogFileHandler(FileSystemEventHandler):
+class LogFileHandler(PatternMatchingEventHandler):
     """
     Log file processor to find CUDA or NCCL Errors
     uses inotify to detect fs events under logging
     folders to enqueue processing created/modified
-    logs
+    even for rotated logs. Logs should only be read
+    once since logs are copytruncated.
     """
 
-    def __init__(self):
-
+    def __init__(self, *args, **kwargs):
+        super(LogFileHandler, self).__init__(*args, **kwargs)
         self.files_map = {}
 
     def on_modified(self, event):
@@ -25,6 +26,9 @@ class LogFileHandler(FileSystemEventHandler):
 
     def on_created(self, event):
         self.process(event.src_path)
+
+    def on_deleted(self, event):
+        self.files_map.pop(event.src_path, None)
 
     def process(self, file_path):
         """
@@ -69,13 +73,13 @@ class LogFileHandler(FileSystemEventHandler):
         print(log_entry)
 
 if __name__ == "__main__":
-    paths = os.environ["WATCHED_DIRS"].split(",")
-    for path in paths:
-        logger.info(f"watching {path}")
-        event_handler = LogFileHandler()
-        observer = Observer()
-        observer.schedule(event_handler, path, recursive=True)
-        observer.start()
+    patterns = os.environ["WATCHED_DIRS"]
+    logger.info(f"starting konduktord")
+    logger.info(f"watching {patterns}")
+    event_handler = LogFileHandler(patterns=patterns, ignore_directories=True)
+    observer = Observer()
+    observer.schedule(event_handler, "/var/log", recursive=True)
+    observer.start()
 
     while True:
         time.sleep(constants.EVENT_CHECKING_INTERVAL_SECONDS)
