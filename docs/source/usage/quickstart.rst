@@ -1,7 +1,8 @@
 .. _quickstart:
 
+==========
 Quickstart
-============
+==========
 
 This section is for ML Engineers who need to run jobs on their k8s cluster. They will need a k8s admin to assign them a namespace
 and queue for submitting jobs as well as a k8s config file to place into :code:`~/.kube/config` to give access to the cluster. Using `Skypilot <https://skypilot.readthedocs.io/en/latest/docs/index.html>`_ is going to be the easiest way to submit jobs. We maintain a fork of the original project to support Kueue for multi-node workloads. We are currently trying to get this upstreamed `here <https://github.com/skypilot-org/skypilot/pull/3543>`_
@@ -44,11 +45,13 @@ To create a development environment, let's first define our resource request as 
         cpus: 8+
         memory: 8+
         cloud: kubernetes
+        # (optional) use resource queues if cluster admin set them
         labels:
             kueue.x-k8s.io/queue-name: user-queue # this is assigned by your admin
             kueue.x-k8s.io/priority-class: low-priority
 
-The :code:`kueue.x-k8s.io` labels are required in order to run. To issue this request run:
+The :code:`kueue.x-k8s.io` labels are required in order to run if your cluster admin created resource queues. 
+To issue this request run:
 
 .. code-block:: console
 
@@ -72,6 +75,7 @@ We define a script for each node to run.
         cpus: 8+
         memory: 8+
         cloud: kubernetes
+        # (optional) use resource queues if cluster admin set them
         labels:
             kueue.x-k8s.io/queue-name: user-queue # this is assigned by your admin
             kueue.x-k8s.io/priority-class: high-priority # this will preempt low-priority jobs
