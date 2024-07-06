@@ -48,10 +48,17 @@ Documentation
 
 .. toctree::
    :maxdepth: 1
+   :caption: Cluster Administration
+   
+   admin/installation
+   admin/observability
 
-   getting-started/installation
-   getting-started/quickstart
-   getting-started/observability
+.. toctree::
+   :maxdepth: 1
+   :caption: Job Scheduling
+
+   usage/quickstart
+   
 
 External Links
 --------------------------
@@ -64,4 +71,5 @@ This project is powered by:
 - `Kueue <https://kueue.sigs.k8s.io/>`_
 - `Prometheus <https://prometheus.io/>`_
 - `Grafana <https://grafana.com/oss/grafana/>`_
+- `OpenTelemetry <https://opentelemetry.io/>`_
 - `Kubernetes <https://kubenetes.io>`_

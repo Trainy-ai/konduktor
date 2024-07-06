@@ -1,5 +1,6 @@
 .. _installation:
 
+============
 Installation
 ============
 
@@ -12,7 +13,7 @@ This section is for k8s admins who are first deploying the necessary resources o
 - `Kueue <https://kueue.sigs.k8s.io/>`_ - workload scheduling and resource quotas/sharing
 
 Prerequisites
-============
+=============
 
 Before starting, make sure that you have:
 
