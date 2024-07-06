@@ -48,8 +48,9 @@ run: |
 For cluster administrators
 - [DCGM Exporter](https://github.com/NVIDIA/dcgm-exporter), [GPU operator](https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/), [Network Operator](https://github.com/Mellanox/network-operator) - For installing NVIDIA driver, container runtime, and exporting node health metrics.
 - [Kueue](https://kueue.sigs.k8s.io/docs/) - centralized creation of job queues, gang-scheduling, and resource quotas and sharing across projects.
-- [Prometheus](https://prometheus.io/) - For pushing metrics about node health and workload queues.
-- [Grafana](https://grafana.com/) - Visualizations for metrics and centralized logging solution.
+- [Prometheus](https://prometheus.io/) - For publishing metrics about node health and workload queues.
+- [OpenTelemetry](https://opentelemetry.io/) - For pushing logs from each node
+- [Grafana, Loki](https://grafana.com/) - Visualizations for metrics/logging solution.
 
 
 

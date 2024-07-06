@@ -7,16 +7,21 @@ This section is for k8s admins who are first deploying the necessary resources o
 
 - `DCGM Exporter <https://github.com/NVIDIA/dcgm-exporter>`_ - Exporting GPU health metrics and managing node lifecycle
 - `kube-prometheus-stack <https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack>`_ - Deploy Prometheus & Grafana stack for observability
+- `Loki <https://grafana.com/oss/loki/>`_ - Logging aggregration endpoint
+- `OpenTelemetry <https://opentelemetry.io/>`_ - Log publishing
 - `Kueue <https://kueue.sigs.k8s.io/>`_ - workload scheduling and resource quotas/sharing
 
 Prerequisites
--------------
+============
 
 Before starting, make sure that you have:
 
 - A Kubernetes cluster (1.28+)
 - :code:`kubectl`
 - `Helm <https://helm.sh/>`_
+
+Observability
+=============
 
 DCGM Installation
 -----------------
@@ -59,8 +64,8 @@ Installing the DCGM exporter is best handled using NVIDIA's `gpu-operator <https
     nvidia-driver-daemonset-fvx9z                                     1/1     Running     0               9d
     nvidia-operator-validator-62dhx                                   1/1     Running     0               14d
 
-Prometheus Stack
-----------------
+Prometheus-Grafana Stack
+------------------------
 
 To setup the monitoring stack, we're maintaining our own `default values to get started with <https://github.com/Trainy-ai/konduktor/blob/main/manifests/kube-prometheus-stack.values>`_.
 
@@ -92,6 +97,40 @@ To setup the monitoring stack, we're maintaining our own `default values to get 
     kube-prometheus-stack-1717404158-prometheus-node-exporter-frd65   1/1     Running   0          3d15h
     kube-prometheus-stack-1717404158-prometheus-node-exporter-mxhpb   1/1     Running   0          3d15h
     prometheus-kube-prometheus-stack-1717-prometheus-0                2/2     Running   0          3d15h
+
+OpenTelemetry-Loki Logging Stack
+--------------------------------
+
+For setting up a monolithic Loki stack with exported node/pod metrics, we include some default values for installing
+the stack via Helm.
+
+.. code-block:: bash
+
+    # get Helm chart values
+    $ wget https://raw.githubusercontent.com/Trainy-ai/konduktor/main/manifests/loki.values
+    $ wget https://raw.githubusercontent.com/Trainy-ai/konduktor/main/manifests/otel.values
+
+    $ helm repo add grafana https://grafana.github.io/helm-charts
+    $ helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
+    $ helm repo update
+
+    $ kubectl create namespace loki
+    $ helm install --values loki.values loki --namespace=loki grafana/loki
+    $ helm install --values otel.values otel-collector --namespace=loki open-telemetry/opentelemetry-collector
+
+    $ kubectl get pods -n loki
+    NAME                                                 READY   STATUS    RESTARTS   AGE
+    loki-0                                               1/1     Running   0          35m
+    loki-canary-26rw2                                    1/1     Running   0          35m
+    loki-chunks-cache-0                                  2/2     Running   0          35m
+    loki-gateway-68fd56bfbd-ltnqd                        1/1     Running   0          35m
+    loki-results-cache-0                                 2/2     Running   0          35m
+    otel-collector-opentelemetry-collector-agent-2qbh2   1/1     Running   0          31m
+
+Scheduling & Resource Quotas (Optional)
+=======================================
+
+For job queueing and resource sharing cluster-wide, you can install Kueue and set resource quotas and queues.
 
 Kueue
 -----
