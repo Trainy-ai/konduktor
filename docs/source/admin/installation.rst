@@ -4,7 +4,7 @@
 Installation
 ============
 
-This section is for k8s admins who are first deploying the necessary resources onto their k8s cluster. The Konduktor stack consists of 3 main components:
+This section is for k8s admins who are first deploying the necessary resources onto their k8s cluster. The Konduktor stack consists of the following components:
 
 - `DCGM Exporter <https://github.com/NVIDIA/dcgm-exporter>`_ - Exporting GPU health metrics and managing node lifecycle
 - `kube-prometheus-stack <https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack>`_ - Deploy Prometheus & Grafana stack for observability
