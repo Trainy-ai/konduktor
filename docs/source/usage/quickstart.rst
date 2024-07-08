@@ -16,7 +16,7 @@ Setup
     $ conda create -n konduktor python=3.10
     $ git clone https://github.com/asaiacai/skypilot.git
     $ cd skypilot
-    $ git checkout kueue-multipod
+    $ git checkout konduktor # our maintained fork
     $ pip install -e .[kubernetes]
 
     # check that k8s credentials work

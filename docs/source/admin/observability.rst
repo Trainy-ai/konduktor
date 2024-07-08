@@ -20,13 +20,13 @@ The dashboard shows an overview of the available GPUs, pending/active workloads,
 
     # get the service name
     $ kubectl get svc -n prometheus | grep grafana
-    kube-prometheus-stack-1717404158-grafana                    ClusterIP    10.122.81.251   <none>        80/TCP                    4d2h
+    kube-prometheus-stack-grafana                    ClusterIP    10.122.81.251   <none>        80/TCP                    4d2h
 
 We can use :code:`kubectl port-forward` to access the grafana service from our laptop. For the example above,
 
 .. code-block:: console
 
-    $ kubectl port-forward -n prometheus svc/kube-prometheus-stack-1717404158-grafana 3000:80
+    $ kubectl port-forward -n prometheus svc/kube-prometheus-stack-grafana 3000:80
 
 In the example above, we can enter :code:`https://localhost:3000` into a browser window where it will prompt for a password. 
 The default username is :code:`admin` with the password being set by :code:`kube-prometheus-stack.values` in :doc:`/admin/installation`.
@@ -68,9 +68,10 @@ First `add Loki as a data source <https://grafana.com/docs/loki/latest/visualize
 setting the URL to be :code:`http://loki.loki.svc.cluster.local:3100` and create a new dashboard
 with your newly created Loki datasource and begin querying your logs by node, namespace, etc.
 
+Our default dashboard includes a panel for listing error logs from pods in the :code:`default` namespace.
+
 .. figure:: ../images/otel-loki.png
    :width: 120%
    :align: center
    :alt: dashboard
    :class: no-scaled-link
-

@@ -83,7 +83,6 @@ To setup the monitoring stack, we're maintaining our own `default values to get 
     $ helm install prometheus-community/kube-prometheus-stack --create-namespace \
         --create-namespace \
         --namespace prometheus \
-        --generate-name \
         --values kube-prometheus-stack.values
 
     # check prometheus stack is up
@@ -116,8 +115,8 @@ the stack via Helm.
     $ helm repo update
 
     $ kubectl create namespace loki
-    $ helm install --values loki.values loki --namespace=loki grafana/loki
-    $ helm install --values otel.values otel-collector --namespace=loki open-telemetry/opentelemetry-collector
+    $ helm install --values loki.values loki --namespace=loki grafana/loki --create-namespace
+    $ helm install --values otel.values otel-collector --namespace=otel-collector open-telemetry/opentelemetry-collector --create-namespace
 
     $ kubectl get pods -n loki
     NAME                                                 READY   STATUS    RESTARTS   AGE
