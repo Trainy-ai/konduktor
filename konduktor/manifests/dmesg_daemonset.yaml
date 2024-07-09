@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dmesg-logging
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: dmesg
+  namespace: dmesg-logging
+  labels:
+    k8s-app: dmesg-logging
+spec:
+  selector:
+    matchLabels:
+      name: dmesg
+  template:
+    metadata:
+      labels:
+        name: dmesg
+    spec:
+      tolerations:
+      # these tolerations are to have the daemonset runnable on control plane nodes
+      # remove them if your control plane nodes should not run pods
+      - key: "nvidia.com/gpu"
+        operator: "Equal"
+        value: "present"
+        effect: "NoSchedule"
+      containers:
+      - name: dmesg
+        image: ubuntu:22.04
+        # required for running `dmesg`
+        securityContext:
+          privileged: true
+        command:
+        - sh
+        - -c
+        - >
+          dmesg -w
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+      # it may be desirable to set a high priority class to ensure that a DaemonSet Pod
+      # preempts running Pods
+      # priorityClassName: important
+      terminationGracePeriodSeconds: 30
