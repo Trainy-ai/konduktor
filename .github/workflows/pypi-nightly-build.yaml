@@ -42,14 +42,9 @@ jobs:
           sed -i "s/__version__ = '.*'/__version__ = '1.0.0.dev${NIGHTLY_VERSION}'/g" konduktor/__init__.py
           sed -i "0,/version = \"${CURRENT_VERSION}\"/s//version = \"${NIGHTLY_VERSION}\"/" pyproject.toml
           sed -i 's/name = "konduktor"/name = "konduktor-nightly"/g' pyproject.toml
-      - name: Build a binary wheel and a source tarball
-        run: >-
-          python -m
-          build
-          --sdist
-          --wheel
-          --outdir dist/
-          .
+          cat pyproject.toml
+          cat konduktor/__init__.py
+          
       - name: Configure poetry
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
