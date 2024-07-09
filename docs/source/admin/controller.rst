@@ -6,7 +6,8 @@ Node Health Controller
 
 Konduktor ships with a controller that listens to node logs for GPU related errors. Oftentimes, errors from
 NCCL, CUDA, or GPUs point to persistent errors in the hardware. In this situation, in order to prevent workloads
-from being repeatedly scheduled on. Currently we listen for these `NVIDIA errors <https://docs.nvidia.com/deploy/xid-errors/index.html>`_:
+from using bad nodes, we taint them so the kube-scheduler doesn't place any new pods on them.
+Currently we listen for these `NVIDIA errors <https://docs.nvidia.com/deploy/xid-errors/index.html>`_:
 
 - Xid errors
 - SXid errors
