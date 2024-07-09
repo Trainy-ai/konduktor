@@ -1,4 +1,5 @@
 import kubernetes
+from typing import List
 
 from konduktor import kube_client
 from konduktor import logging as konduktor_logging
@@ -81,7 +82,11 @@ def taint(node_name: str):
 
     if node.spec.taints is None:
         node.spec.taints = []
-    node.spec.taints.append(taint)
+    
+    # duplicate taints are disallowed
+    tainted = any(taint.key == NODE_HEALTH_LABEL for taint in node.spec.taints)
+    if not tainted:
+        node.spec.taints.append(taint)
 
     # Patch the node with the new taints
     core_api.patch_node(
@@ -91,3 +96,12 @@ def taint(node_name: str):
     )
 
     logger.info(f'Node {node_name} tainted.')
+
+def list_nodes() -> List[str]:
+    """returns a list of k8s node names
+
+    Returns:
+        List[str]: List of k8s node names
+    """
+    nodes = kube_client.core_api().list_node()
+    return [node.metadata.name for node in nodes.items]

@@ -25,7 +25,7 @@ KONDUKTOR_CONTROLLER_HEALTH_CHECK_FREQ = 5
 logger = logging.init_logger('konduktor.controller')
 
 def main():
-    logging.info(f'starting konduktor.controller ver. {constants.KONDUKTOR_CONTROLLER_VERSION}')
+    logger.info(f'starting konduktor.controller ver. {constants.KONDUKTOR_CONTROLLER_VERSION}')
     while True:
         for _ in range(KONDUKTOR_CONTROLLER_HEALTH_CHECK_FREQ):
             time.sleep(KONDUKTOR_CONTROLLER_LOG_POLL_SECONDS)

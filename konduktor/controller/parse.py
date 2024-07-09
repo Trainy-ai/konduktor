@@ -7,7 +7,7 @@ from konduktor import logging as konduktor_logging
 
 # comma separated list of namespaces to watch for pod errors
 WATCHED_NAMESPACES = os.environ.get('WATCHED_NAMESPACES', 'default').split(',')
-LOGS_SINCE = 30 # retrieves logs generated in the past 30 seconds
+LOGS_SINCE = 10 # retrieves logs generated in the past 30 seconds
 LOG_ENDPOINT = os.environ.get(
     'LOG_ENDPOINT',
     # this assumes you have access to this endpoint by running as a deployment within the cluster
@@ -118,6 +118,7 @@ def is_dmesg_error(log_content: str) -> bool:
 
 
 def dmesg_errors() -> List[str]:
+    logger.info('checking dmesg logs')
     pattern = r'`(?i)NVRM: xid` or `(?i)SXid` or `(?i)error`'
     log_lines = _query_range(pattern, k8s_daemonset_name='dmesg')
     bad_nodes = []
@@ -131,5 +132,5 @@ def dmesg_errors() -> List[str]:
 if __name__ == "__main__":
     import time
     while True:
-
+        time.sleep(5)
         print(dmesg_errors())
