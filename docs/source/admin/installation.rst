@@ -102,7 +102,7 @@ OpenTelemetry-Loki Logging Stack
 --------------------------------
 
 For setting up a monolithic Loki stack with exported node/pod metrics, we include some default values for installing
-the stack via Helm.
+the stack via Helm. We also deploy a daemonset to stream dmesg logs from each node.
 
 .. code-block:: bash
 
@@ -114,9 +114,9 @@ the stack via Helm.
     $ helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
     $ helm repo update
 
-    $ kubectl create namespace loki
     $ helm install --values loki.values loki --namespace=loki grafana/loki --create-namespace
     $ helm install --values otel.values otel-collector --namespace=otel-collector open-telemetry/opentelemetry-collector --create-namespace
+    $ kubectl apply -f https://raw.githubusercontent.com/Trainy-ai/konduktor/main/konduktor/manifests/dmesg_daemonset.yaml
 
     $ kubectl get pods -n loki
     NAME                                                 READY   STATUS    RESTARTS   AGE
@@ -125,7 +125,15 @@ the stack via Helm.
     loki-chunks-cache-0                                  2/2     Running   0          35m
     loki-gateway-68fd56bfbd-ltnqd                        1/1     Running   0          35m
     loki-results-cache-0                                 2/2     Running   0          35m
+
+    $ kubectl get pods -n otel-collector
+    NAME                                                 READY   STATUS    RESTARTS   AGE
     otel-collector-opentelemetry-collector-agent-2qbh2   1/1     Running   0          31m
+
+    $ kubectl get pods -n dmesg-logger
+    NAME          READY   STATUS    RESTARTS   AGE
+    dmesg-2x225   1/1     Running   0          5m52s
+
 
 Scheduling & Resource Quotas (Optional)
 =======================================
