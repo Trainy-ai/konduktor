@@ -34,3 +34,7 @@ tolerations:
   operator: "Equal"
   value: "present"
   effect: "NoSchedule"
+- key: "trainy.konduktor.ai/faulty"
+  operator: "Equal"
+  values: "true"
+  effect: "NoSchedule"

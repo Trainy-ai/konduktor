@@ -3,7 +3,7 @@
 import colorama
 import logging
 
-_FORMAT = '%(levelname).1s %(asctime)s %(filename)s:%(lineno)d] %(message)s'
+_FORMAT = '[%(levelname).1s %(asctime)s %(filename)s:%(lineno)d] %(message)s'
 _DATE_FORMAT = '%m-%d %H:%M:%S'
 
 class NewLineFormatter(logging.Formatter):

@@ -2051,7 +2051,7 @@
             "uid": "${DS_LOKI}"
           },
           "editorMode": "builder",
-          "expr": "{k8s_pod_name=~\"dmesg-.*\"} |~ `(?i)NVRM: xid` or `(?i)error`",
+          "expr": "{k8s_daemonset_name=\"dmesg\"} |~ `(?i)NVRM: xid` or `(?i)error`",
           "queryType": "range",
           "refId": "A"
         }
@@ -2124,8 +2124,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -2217,8 +2216,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "yellow",
@@ -2517,7 +2515,7 @@
     ]
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {
@@ -2537,6 +2535,6 @@
   "timezone": "",
   "title": "Konduktor",
   "uid": "Oxed_c6W4",
-  "version": 8,
+  "version": 9,
   "weekStart": ""
 }
