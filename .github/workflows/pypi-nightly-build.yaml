@@ -50,10 +50,10 @@ jobs:
           --wheel
           --outdir dist/
           .
-          - name: Configure poetry
-          env:
-            PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-          run: poetry config pypi-token.pypi "$PYPI_TOKEN"
+      - name: Configure poetry
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: poetry config pypi-token.pypi "$PYPI_TOKEN"
   
       - name: Build the Python package
         run: poetry build
