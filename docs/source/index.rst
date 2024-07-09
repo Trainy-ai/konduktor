@@ -52,6 +52,7 @@ Documentation
    
    admin/installation
    admin/observability
+   admin/controller
 
 .. toctree::
    :maxdepth: 1
