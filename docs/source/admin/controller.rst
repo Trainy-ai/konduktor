@@ -32,7 +32,7 @@ The controller can be shipped as a deployment that runs within the cluster. To d
 .. code-block:: console
 
     # create the controller deployment 
-    $ kubectl apply -f konduktor/manifests/controller_deployment.yaml
+    $ kubectl apply -f https://raw.githubusercontent.com/Trainy-ai/konduktor/main/konduktor/manifests/controller_deployment.yaml
 
     # tail the logs of the deployment
     $ kubectl logs -f deployment/konduktor-controller-deployment -n konduktor
