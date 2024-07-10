@@ -7,40 +7,37 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: konduktor-controller-sa
-  namespace: konduktor  # Adjust if using a different namespace
+  namespace: konduktor
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
-  namespace: default  # Adjust if using a different namespace
+  namespace: konduktor
   name: konduktor-controller-role
 rules:
 - apiGroups: [""]
   resources: ["nodes"]
   verbs: ["get", "list", "patch"]
-- apiGroups: ["core"]
-  resources: ["nodes"]
-  verbs: ["get", "list", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+kind: ClusterRoleBinding
 metadata:
   namespace: konduktor
   name: konduktor-controller-rolebinding
 subjects:
 - kind: ServiceAccount
-  name: konduktor-controller-sa  # Adjust if using a different service account
+  name: konduktor-controller-sa
   namespace: konduktor
 roleRef:
-  kind: Role
-  name: node-manager-role
+  kind: ClusterRole
+  name: konduktor-controller-role
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: konduktor-controller-deployment
-  namespace: konduktor  # Specify the namespace here
+  namespace: konduktor
 spec:
   replicas: 1
   selector:
@@ -51,6 +48,7 @@ spec:
       labels:
         app: konduktor-controller
     spec:
+      serviceAccountName: konduktor-controller-sa
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

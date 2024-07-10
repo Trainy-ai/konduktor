@@ -68,7 +68,7 @@ while the controller is running:
     NAME          READY   STATUS    RESTARTS   AGE
     dmesg-2x225   1/1     Running   0          10h
 
-    $ kubectl exec -it dmesg-2x225 -- bash
+    $ kubectl exec -it -n dmesg-logging dmesg-2x225 -- bash
     $ echo "[1235733.431527] NVRM: Xid (PCI:0000:4e:00): 79, pid='<unknown>', name=<unknown>, GPU has fallen off the bus." > /dev/kmsg
 
 After which you should see in your controller logs
