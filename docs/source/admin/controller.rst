@@ -24,25 +24,35 @@ The controller runs as a loop and can be run from any machine with access to the
 - Queries the logging backend (Loki) for GPU related errors
 - If an error is found, the affected node is tainted with :code:`trainy.konduktor.ai/faulty=true:NoSchedule` via the k8s API
 
-We can launch the controller locally with:
+Incluster Controller
+--------------------
+
+The controller can be shipped as a deployment that runs within the cluster. To deploy it:
 
 .. code-block:: console
 
-    # install konduktor
-    $ git clone https://github.com/Trainy-ai/konduktor.git
-    $ pip install -e .
+    # create the controller deployment 
+    $ kubectl apply -f https://raw.githubusercontent.com/Trainy-ai/konduktor/main/konduktor/manifests/controller_deployment.yaml
+
+    # tail the logs of the deployment
+    $ kubectl logs -f deployment/konduktor-controller-deployment -n konduktor
+
+Remote Controller
+-----------------
+
+We can launch the controller locally from a machine with external access to the API server with:
+
+.. code-block:: console
+
+    # install konduktor package
+    $ pip install konduktor-nightly
 
     # get local access to the loki service
     $ kubectl port-forward svc/loki -n loki 3100:3100 &
 
-    # start the controller
+    # run the controller locally 
     $ LOG_ENDPOINT='http://localhost:3100' python -m konduktor.controller.launch
     I 07-09 04:51:21 parse.py:24] using POD_LOG_TYPE = skypilot
-    [I 07-09 04:51:21 launch.py:28] starting konduktor.controller ver. 0.1.0
-    [I 07-09 04:51:26 parse.py:95] querying pod logs
-    [I 07-09 04:51:26 parse.py:95] querying pod logs
-    [I 07-09 04:51:26 parse.py:121] checking dmesg logs
-    [I 07-09 04:51:26 parse.py:121] checking dmesg logs
 
 Controller Node Taint Test (Optional)
 -------------------------------------
