@@ -1,0 +1,29 @@
+name: mypy
+
+on:
+    push:
+        branches:
+            - master
+            - 'releases/**'
+    pull_request:
+        branches:
+            - master
+            - 'releases/**'
+    workflow_dispatch:
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: "Setup Python, Poetry and Dependencies"
+        uses: packetcoders/action-setup-cache-python-poetry@main
+        with:
+          python-version: "3.10"
+          poetry-version: "1.7.1"
+          install-args: "-E dev"  # TODO: change this to --group dev when PR #842 lands
+      - name: Running mypy
+        run: |
+          mypy $(cat tests/mypy_files.txt)
