@@ -58,8 +58,7 @@ def untaint(node_name: str):
 
     if node.spec.taints is not None:
         node.spec.taints = [
-            taint for taint in node.spec.taints
-            if taint.key != NODE_HEALTH_LABEL
+            taint for taint in node.spec.taints if taint.key != NODE_HEALTH_LABEL
         ]
 
     # Patch the node with the new taints

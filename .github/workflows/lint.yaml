@@ -29,14 +29,7 @@ jobs:
         run: |
           poetry run yapf --diff --recursive ./ --exclude 'build/**'
 
-      - name: Running black
-        run: |
-          poetry run black --diff --check konduktor tests
-
-      - name: Running isort
-        run: |
-          poetry run isort --diff --check konduktor tests
-
       - name: Running ruff
         run: |
           poetry run ruff check --diff konduktor tests
+          poetry run ruff fix --diff konduktor tests

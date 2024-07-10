@@ -11,10 +11,11 @@ WATCHED_NAMESPACES = os.environ.get("WATCHED_NAMESPACES", "default").split(",")
 LOGS_SINCE = 10  # retrieves logs generated in the past 30 seconds
 LOG_ENDPOINT = os.environ.get(
     "LOG_ENDPOINT",
-    # this assumes you have access to this endpoint by running as a deployment within the cluster
-    "http://loki.loki.svc.cluster.local:3100",
+    # this assumes you have access to this endpoint by
+    # running as a deployment within the cluster
     # for local development use 'http://localhost:3100' and
     # kubectl port-forward svc/loki -n loki 3100:3100
+    "http://loki.loki.svc.cluster.local:3100",
 )
 QUERY_URL = "/loki/api/v1/query_range"
 # has to be either 'skypilot' or 'plain'
@@ -35,9 +36,10 @@ def _query_range(pattern: str, **label_filters) -> List[Dict[str, Any]]:
         List[Dict[str, Any]]: List of loglines
     """
     url = f"{LOG_ENDPOINT}{QUERY_URL}"
-    label_filters = ", ".join(f'{key}="{value}"'
-                              for key, value in label_filters.items())
-    query = r"{" f"{label_filters}" r"}" f"|~ {pattern}"
+    formatted_filters = ", ".join(
+        f'{key}="{value}"' for key, value in label_filters.items()
+    )
+    query = r"{" f"{formatted_filters}" r"}" f"|~ {pattern}"
     params = {"query": query, "since": f"{LOGS_SINCE}s"}
     response = requests.get(url, params=params)
     if response.status_code == 200:
@@ -46,10 +48,9 @@ def _query_range(pattern: str, **label_filters) -> List[Dict[str, Any]]:
     elif response.status_code == 400:
         logger.error(f"Bad Request: {response.status_code}")
         logger.error(response.json())  # Optionally print the error details
-        return []
     else:
         logger.error(f"loki query failed {params}")
-        return []
+    return []
 
 
 class PodLogParser:
@@ -69,17 +70,16 @@ class PodLogParser:
 
 
 class SkyLogParser(PodLogParser):
-
     @classmethod
     def check_logs(self, logs):
         pass
 
 
 class PlainLogParser(PodLogParser):
-
     @classmethod
     def check_logs(self, logs) -> List[str]:
-        pass
+        # TODO: implement Pod log parsing
+        return []
 
 
 _pod_parser = {
@@ -100,18 +100,20 @@ def sxid_error(pattern: str, log_content: str) -> int:
     [1235733.431527] NVRM: Xid (PCI:0000:4e:00): 79, pid='<unknown>', name=<unknown>, GPU has fallen off the bus.
     Example sxid error from dmesg
     [1235733.431527] nvidia-nvswitch3: SXid (PCI:0000:4e:00.0): 12028, Non-fatal, Link 32 egress non-posted PRIV error (First)
-    """
+    """  # noqa: E501
 
     match = re.search(pattern, log_content)
     if match:
-        return match.group(1)
+        return int(match.group(1))
 
     return 0
 
 
-def is_dmesg_error(log_content: str) -> bool:
+def is_dmesg_error(log_content: str) -> int:
+    """Returns (S)Xid error code, zero otherwise"""
     return sxid_error(r"SXid.*?: (\d+),", log_content) or sxid_error(
-        r"NVRM: Xid.*?: (\d+),", log_content)
+        r"NVRM: Xid.*?: (\d+),", log_content
+    )
 
 
 def dmesg_errors() -> List[str]:
@@ -120,8 +122,7 @@ def dmesg_errors() -> List[str]:
     log_lines = _query_range(pattern, k8s_daemonset_name="dmesg")
     bad_nodes = []
     for line in log_lines:
-        log_node, log_content = line["stream"]["k8s_node_name"], line[
-            "values"][0][1]
+        log_node, log_content = line["stream"]["k8s_node_name"], line["values"][0][1]
         if is_dmesg_error(log_content):
             logger.info(f"node `{log_node}` has dmesg error: {log_content}")
             bad_nodes.append(log_node)

@@ -25,8 +25,7 @@ def _load_config():
         logger.info("incluster k8s config loaded")
     except kubernetes.config.config_exception.ConfigException:
         # this should really only be loaded for debugging.
-        logger.warning(
-            "incluster config failed to load, attempting to use kubeconfig.")
+        logger.warning("incluster config failed to load, attempting to use kubeconfig.")
         kubernetes.config.load_kube_config()
         logger.info("KUBECONFIG loaded")
     _configured = True

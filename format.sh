@@ -9,12 +9,10 @@ builtin cd "$ROOT" || exit 1
 YAPF_VERSION=$(yapf --version | awk '{print $2}')
 RUFF_VERSION=$(ruff --version | head -n 1 | awk '{print $2}')
 MYPY_VERSION=$(mypy --version | awk '{print $2}')
-BLACK_VERSION=$(black --version | head -n 1 | awk '{print $2}')
 
 echo "ruff ver $YAPF_VERSION"
 echo "yapf ver $RUFF_VERSION"
 echo "mypy ver $MYPY_VERSION"
-echo "black ver $BLACK_VERSION"
 
 YAPF_FLAGS=(
     '--recursive'
@@ -25,14 +23,6 @@ YAPF_EXCLUDES=(
     '--exclude' 'build/**'
 )
 
-ISORT_YAPF_EXCLUDES=(
-    '--sg' 'build/**'
-)
-
-BLACK_INCLUDES=(
-    'konduktor'
-    'tests'
-)
 
 # Format specified files
 format() {
@@ -62,9 +52,6 @@ format_all() {
     yapf --in-place "${YAPF_FLAGS[@]}" "${YAPF_EXCLUDES[@]}" konduktor tests
 }
 
-echo 'Konduktor Black:'
-black "${BLACK_INCLUDES[@]}"
-
 ## This flag formats individual files. --files *must* be the first command line
 ## arg to use this option.
 if [[ "$1" == '--files' ]]; then
@@ -79,14 +66,12 @@ else
 fi
 echo 'Konduktor yapf: Done'
 
-echo 'Konduktor isort:'
-isort konduktor tests "${ISORT_YAPF_EXCLUDES[@]}"
-
 
 # Run mypy
 echo 'Konduktor mypy:'
 mypy $(cat tests/mypy_files.txt)
 
-# Run Pylint
-echo 'Konduktor Pylint:'
-ruff check konduktor tests
+# Run ruff
+echo 'Konduktor ruff:'
+ruff check --fix konduktor tests
+ruff format konduktor tests
