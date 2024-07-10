@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: konduktor
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: konduktor-controller-sa
+  namespace: konduktor  # Adjust if using a different namespace
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default  # Adjust if using a different namespace
+  name: konduktor-controller-role
+rules:
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "list", "patch"]
+- apiGroups: ["core"]
+  resources: ["nodes"]
+  verbs: ["get", "list", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: konduktor
+  name: konduktor-controller-rolebinding
+subjects:
+- kind: ServiceAccount
+  name: konduktor-controller-sa  # Adjust if using a different service account
+  namespace: konduktor
+roleRef:
+  kind: Role
+  name: node-manager-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: konduktor-controller-deployment
+  namespace: konduktor  # Specify the namespace here
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: konduktor-controller
+  template:
+    metadata:
+      labels:
+        app: konduktor-controller
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nvidia.com/gpu
+                operator: DoesNotExist
+      containers:
+      - name: python
+        image: python:3.10
+        command: ["/bin/sh"]
+        args: ["-c", "pip install konduktor-nightly && python -m konduktor.controller.launch"]
