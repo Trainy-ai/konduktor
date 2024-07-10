@@ -1,7 +1,10 @@
 [tool.poetry]
 name = "konduktor"
 version = "0.1.0"
-description = ""
+description = "GPU Cluster Health Management"
+packages = [
+    {include = "konduktor"}
+]
 authors = ["Andrew Aikawa <asai@berkeley.edu>"]
 readme = "README.md"
 
