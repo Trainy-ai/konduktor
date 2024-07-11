@@ -12,7 +12,7 @@ on:
     workflow_dispatch:
 
 jobs:
-  format:
+  mypy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
