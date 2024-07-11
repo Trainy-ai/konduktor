@@ -3,11 +3,11 @@ name: format
 on:
     push:
         branches:
-            - master
+            - main
             - 'releases/**'
     pull_request:
         branches:
-            - master
+            - main
             - 'releases/**'
     workflow_dispatch:
 
@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: "3.10"
           poetry-version: "1.7.1"
-          install-args: "-E dev"  # TODO: change this to --group dev when PR #842 lands
+          install-args: "--with dev"  # TODO: change this to --group dev when PR #842 lands
     
       - name: Running yapf
         run: |
