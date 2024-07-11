@@ -26,4 +26,4 @@ jobs:
           install-args: "--with dev"
       - name: Running mypy
         run: |
-          mypy $(cat tests/mypy_files.txt)
+          poetry run mypy $(cat tests/mypy_files.txt)
