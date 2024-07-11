@@ -24,10 +24,6 @@ jobs:
           python-version: "3.10"
           poetry-version: "1.7.1"
           install-args: "--with dev"  # TODO: change this to --group dev when PR #842 lands
-    
-      - name: Running yapf
-        run: |
-          poetry run yapf --diff --recursive ./ --exclude 'build/**'
 
       - name: Running ruff
         run: |
