@@ -28,4 +28,4 @@ jobs:
       - name: Running ruff
         run: |
           poetry run ruff check --diff konduktor tests
-          poetry run ruff fix --diff konduktor tests
+          poetry run ruff format --diff konduktor tests
