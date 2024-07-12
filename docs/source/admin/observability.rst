@@ -9,6 +9,13 @@ Observability
    :align: center
    :alt: dashboard
    :class: no-scaled-link
+   :target: https://snapshots.raintank.io/dashboard/snapshot/qJUzCCb4nLspDAJfGKd4EexUKJEmvEvu?orgId=0
+
+.. raw:: html
+
+   <p style="text-align:center">
+   <a href="https://snapshots.raintank.io/dashboard/snapshot/qJUzCCb4nLspDAJfGKd4EexUKJEmvEvu?orgId=0">Interactive Grafana Dashboard Demo</a>
+   </p>
 
 Access Grafana
 --------------
@@ -74,4 +81,3 @@ Our default dashboard includes a panel for listing error logs from pods in the :
    :width: 120%
    :align: center
    :alt: dashboard
-   :class: no-scaled-link
