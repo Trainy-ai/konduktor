@@ -41,7 +41,6 @@ Welcome to Konduktor's documentation!
    :width: 80%
    :align: center
    :alt: Trainy
-   :class: no-scaled-link
 
 Documentation
 -------------
