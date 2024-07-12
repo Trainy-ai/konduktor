@@ -37,7 +37,7 @@ Metrics Dashboard
 
 After logging in, you can `import <https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/import-dashboards/>`_ our default dashboard by either using the `JSON definition from the repo <https://github.com/Trainy-ai/konduktor/tree/main/grafana>`_ under :code:`grafana/default_grafana_dashboard.json`
 or by downloading from `our Grafana published dashboard <https://grafana.com/grafana/dashboards/21231-konduktor/>`_.
-A interactive sample dashboard can be found `here <https://snapshots.raintank.io/dashboard/snapshot/5x2e6d2A24Rkxdnu8ozpSgG4utXg1cZX>`_.
+A interactive sample dashboard can be found `here <https://snapshots.raintank.io/dashboard/snapshot/qJUzCCb4nLspDAJfGKd4EexUKJEmvEvu>`_.
 
 To track cluster GPU utilization, useful metrics to track include:
 
