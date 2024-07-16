@@ -80,24 +80,26 @@ To setup the monitoring stack, we're maintaining our own `default values to get 
         https://prometheus-community.github.io/helm-charts
 
     # install prometheus stack
-    $ helm install prometheus-community/kube-prometheus-stack --create-namespace \
-        --create-namespace \
+    $ helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+        --create-namespace \ 
         --namespace prometheus \
-        --values kube-prometheus-stack.values
+        --values kube-prometheus-stack.values 
 
     # check prometheus stack is up
     $ kubectl get pods -n prometheus
-    NAME                                                              READY   STATUS    RESTARTS   AGE
-    alertmanager-kube-prometheus-stack-1717-alertmanager-0            2/2     Running   0          3d15h
-    kube-prometheus-stack-1717-operator-6d9487489d-2vx8l              1/1     Running   0          3d15h
-    kube-prometheus-stack-1717404158-grafana-6d48845b9-qf5qr          3/3     Running   0          3d15h
-    kube-prometheus-stack-1717404158-kube-state-metrics-7c97ffbfxzt   1/1     Running   0          3d15h
-    kube-prometheus-stack-1717404158-prometheus-node-exporter-2vh6j   1/1     Running   0          3d15h
-    kube-prometheus-stack-1717404158-prometheus-node-exporter-68ldt   1/1     Running   0          3d15h
-    kube-prometheus-stack-1717404158-prometheus-node-exporter-frd65   1/1     Running   0          3d15h
-    kube-prometheus-stack-1717404158-prometheus-node-exporter-mxhpb   1/1     Running   0          3d15h
-    prometheus-kube-prometheus-stack-1717-prometheus-0                2/2     Running   0          3d15h
+    NAME                                                      READY   STATUS    RESTARTS   AGE
+    alertmanager-kube-prometheus-stack-alertmanager-0         2/2     Running   0          53s
+    kube-prometheus-stack-grafana-79f9ccf77-wccpt             3/3     Running   0          56s
+    kube-prometheus-stack-kube-state-metrics-b7b54458-klcb4   1/1     Running   0          56s
+    kube-prometheus-stack-operator-74774b4dbd-bdzsr           1/1     Running   0          56s
+    kube-prometheus-stack-prometheus-node-exporter-74245      1/1     Running   0          57s
+    kube-prometheus-stack-prometheus-node-exporter-8t5ct      1/1     Running   0          56s
+    kube-prometheus-stack-prometheus-node-exporter-bp8cb      1/1     Running   0          57s
+    kube-prometheus-stack-prometheus-node-exporter-ttj5b      1/1     Running   0          56s
+    kube-prometheus-stack-prometheus-node-exporter-z8rzn      1/1     Running   0          57s
+    prometheus-kube-prometheus-stack-prometheus-0             2/2     Running   0          53s
 
+    
 OpenTelemetry-Loki Logging Stack
 --------------------------------
 
@@ -114,8 +116,14 @@ the stack via Helm. We also deploy a daemonset to stream dmesg logs from each no
     $ helm repo add open-telemetry https://open-telemetry.github.io/opentelemetry-helm-charts
     $ helm repo update
 
-    $ helm install --values loki.values loki --namespace=loki grafana/loki --create-namespace
-    $ helm install --values otel.values otel-collector --namespace=otel-collector open-telemetry/opentelemetry-collector --create-namespace
+    $ helm install loki grafana/loki \
+        --create-namespace \
+        --namespace=loki \
+        --values loki.values
+    $ helm install otel-collector open-telemetry/opentelemetry-collector \
+        --create-namespace \
+        --namespace=otel-collector \
+        --values otel.values
     $ kubectl apply -f https://raw.githubusercontent.com/Trainy-ai/konduktor/main/konduktor/manifests/dmesg_daemonset.yaml
 
     $ kubectl get pods -n loki
@@ -171,6 +179,7 @@ Resource quotas are defined via ClusterQueues and LocalQueues which are assigned
 Within :code:`single-clusterqueue-setup.yaml`, be sure to replace :code:`<num-GPUs-in-cluster>` with the total number of GPUs in your cluster.
 
 .. code-block:: yaml
+    :emphasize-lines: 28-28
 
     apiVersion: kueue.x-k8s.io/v1beta1
     kind: ResourceFlavor
