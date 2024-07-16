@@ -23,27 +23,22 @@ Access Grafana
 A local Grafana instance is deployed as part of the observability stack.
 The dashboard shows an overview of the available GPUs, pending/active workloads, and over all cluster utilization.
 
-.. code-block:: console
-
-    # get the service name
-    $ kubectl get svc -n prometheus | grep grafana
-    kube-prometheus-stack-grafana                    ClusterIP    10.122.81.251   <none>        80/TCP                    4d2h
-
 We can use :code:`kubectl port-forward` to access the grafana service from our laptop. For the example above,
 
 .. code-block:: console
 
     $ kubectl port-forward -n prometheus svc/kube-prometheus-stack-grafana 3000:80
 
-In the example above, we can enter :code:`https://localhost:3000` into a browser window where it will prompt for a password. 
+In the example above, we can enter :code:`https://localhost:3000/` into a browser window where it will prompt for a password. 
 The default username is :code:`admin` with the password being set by :code:`kube-prometheus-stack.values` in :doc:`/admin/installation`.
 **Administrators should secure this endpoint as well as changing the authentication login.**
+
+Afterwards navigate to **Dashboards -> Konduktor** to access our provided dashboard
 
 Metrics Dashboard
 -----------------
 
-After logging in, you can `import <https://grafana.com/docs/grafana/latest/dashboards/build-dashboards/import-dashboards/>`_ our default dashboard by either using the `JSON definition from the repo <https://github.com/Trainy-ai/konduktor/tree/main/grafana>`_ under :code:`grafana/default_grafana_dashboard.json`
-or by downloading from `our Grafana published dashboard <https://grafana.com/grafana/dashboards/21231-konduktor/>`_.
+Our metrics dashboard is included in the :code:`kube-prometheus-stack` installation using the `JSON definition from the repo <https://github.com/Trainy-ai/konduktor/tree/main/grafana>`_ under :code:`grafana/default_grafana_dashboard.json`
 A interactive sample dashboard can be found `here <https://snapshots.raintank.io/dashboard/snapshot/qJUzCCb4nLspDAJfGKd4EexUKJEmvEvu>`_.
 
 To track cluster GPU utilization, useful metrics to track include:
@@ -70,12 +65,12 @@ Node level stats include:
 Reading Logs
 ------------
 
-Grafana provides views for querying and filtering logs from pods and nodes. 
-First `add Loki as a data source <https://grafana.com/docs/loki/latest/visualize/grafana/>`_,
-setting the URL to be :code:`http://loki.loki.svc.cluster.local:3100` and create a new dashboard
-with your newly created Loki datasource and begin querying your logs by node, namespace, etc.
+Included in the installation is a Loki logging backend and datasource.
 
-Our default dashboard includes a panel for listing error logs from pods in the :code:`default` namespace.
+Our default dashboard includes a panel for listing error logs from pods in the :code:`default` namespace. 
+As well as (S)Xid errors by following :code:`dmesg` on each node. You can also perform arbitrary 
+`LogQL <https://grafana.com/docs/loki/latest/query/>`_ queries by visiting the **Explore** tab.
+
 
 .. figure:: ../images/otel-loki.png
    :width: 120%
