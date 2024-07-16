@@ -990,10 +990,34 @@ grafana:
   ##
   defaultDashboardsEditable: true
 
-  adminPassword: prom-operator
+  ## Point to dashboard in the repo
+  ##
+  dashboards:
+    default:
+      konduktor-dashboard:
+        url: https://raw.githubusercontent.com/Trainy-ai/konduktor/main/grafana/default_grafana_dashboard.json
+        datasource:
+          - name: DS_PROMETHEUS
+            value: Prometheus
+          - name: DS_LOKI
+            value: loki
 
-  plugins:
-    - yesoreyeram-infinity-datasource
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/default
+
+
+  adminPassword: prom-operator
+  
 
   rbac:
     ## If true, Grafana PSPs will be created
@@ -1056,9 +1080,10 @@ grafana:
 
   sidecar:
     dashboards:
-      enabled: true
+      enabled: false
       label: grafana_dashboard
       labelValue: "1"
+
       # Allow discovery in all namespaces for dashboards
       searchNamespace: ALL
 
@@ -1130,7 +1155,12 @@ grafana:
 
   ## Configure additional grafana datasources (passed through tpl)
   ## ref: http://docs.grafana.org/administration/provisioning/#datasources
-  additionalDataSources: []
+  additionalDataSources: 
+    - name: loki
+      type: loki
+      uid: loki
+      url: http://loki.loki.svc.cluster.local:3100
+
   # - name: prometheus-sample
   #   access: proxy
   #   basicAuth: true
