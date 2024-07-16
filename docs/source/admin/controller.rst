@@ -69,13 +69,14 @@ while the controller is running:
     dmesg-2x225   1/1     Running   0          10h
 
     $ kubectl exec -it -n dmesg-logging dmesg-2x225 -- bash
-    $ echo "[1235733.431527] NVRM: Xid (PCI:0000:4e:00): 79, pid='<unknown>', name=<unknown>, GPU has fallen off the bus." > /dev/kmsg
+    $ echo "NVRM: Xid (PCI:0000:4e:00): 79, pid='<unknown>', name=<unknown>, GPU has fallen off the bus." > /dev/kmsg
 
 After which you should see in your controller logs
 
 .. code-block:: console
+    :emphasize-lines: 1-1,4-4
 
-    [I 07-09 05:37:45 parse.py:128] node `gke-a3-cluster-gpu-pool-2d164072-zz64` has dmesg error: [538441.007373] [1235733.431527] NVRM: Xid (PCI:0000:4e:00): 79, pid='<unknown>', name=<unknown>, GPU has fallen off the bus.
+    [I 07-09 05:37:45 parse.py:128] node `gke-a3-cluster-gpu-pool-2d164072-zz64` has dmesg error: [538441.007373] NVRM: Xid (PCI:0000:4e:00): 79, pid='<unknown>', name=<unknown>, GPU has fallen off the bus.
     [W 07-09 05:37:45 kube_client.py:27] incluster config failed to load, attempting to use kubeconfig.
     [I 07-09 05:37:45 kube_client.py:31] KUBECONFIG loaded
     [I 07-09 05:37:45 node.py:98] Node gke-a3-cluster-gpu-pool-2d164072-zz64 tainted.
@@ -99,8 +100,8 @@ You can remove all the taints in the cluster with :code:`konduktor reset`
 
 Features and Roadmap
 ====================
-- :code:`dmesg` error detection - **Available**
-- In-cluster deployment of controller - In progress
-- Pod log error detection - In progress
-- Health Checks (Taint Removal) - In progress
-- Node Resolution Hooks (Reboot, Power Cycle) - In progress
+- :code:`dmesg` error detection - **Available** ✅
+- In-cluster deployment of controller - **Available** ✅
+- Pod log error detection - In progress 🚧
+- Health Checks (Taint Removal) - In progress 🚧
+- Node Resolution Hooks (Reboot, Power Cycle) - In progress 🚧
