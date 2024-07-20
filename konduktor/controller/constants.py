@@ -1,6 +1,6 @@
 KONDUKTOR_CONTROLLER_VERSION = "0.1.0"
 
-HARDWARE_XID_ERRORS = (
+HARDWARE_XID_ERRORS = set((
     48,
     *range(56, 59),
     *range(62, 65),
@@ -11,11 +11,11 @@ HARDWARE_XID_ERRORS = (
     *range(94, 106),
     *range(110, 121),
     *range(122, 126),
-)
+))
 
 # The set of all SXid error ids that are known to be harmless.
 # See D.4 of https://docs.nvidia.com/datacenter/tesla/pdf/fabric-manager-user-guide.pdf
-WHITELISTED_NVSWITCH_SXID_ERRORS = [
+ALLOWLISTED_NVSWITCH_SXID_ERRORS = set((
     11012,
     11021,
     11022,
@@ -36,4 +36,10 @@ WHITELISTED_NVSWITCH_SXID_ERRORS = [
     24002,
     24003,
     22013,
+))
+
+
+POD_LOG_ERROR_REGEXES = [
+    # possibly indicates degraded nvidia-FM in bad state
+    r"`invalid device ordinal`",
 ]

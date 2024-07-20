@@ -7,7 +7,6 @@ import colorama
 _FORMAT = "[%(levelname).1s %(asctime)s %(filename)s:%(lineno)d] %(message)s"
 _DATE_FORMAT = "%m-%d %H:%M:%S"
 
-
 class NewLineFormatter(logging.Formatter):
     """Adds logging prefix to newlines to align multi-line messages."""
 
@@ -28,11 +27,13 @@ class NewLineFormatter(logging.Formatter):
 FORMATTER = NewLineFormatter(_FORMAT, datefmt=_DATE_FORMAT)
 
 
-def init_logger(name: str):
+def get_logger(name: str):
     logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    ch.setFormatter(FORMATTER)
-    logger.addHandler(ch)
+    if not logger.hasHandlers():  # Check if the logger already has handlers
+        logger.setLevel(logging.DEBUG)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        ch.setFormatter(FORMATTER)
+        logger.addHandler(ch)
+    logger.propagate = False
     return logger
