@@ -62,5 +62,5 @@ For cluster administrators
 Format your code with
 ```
 poetry install --with dev
-poetry run bash format.sh
+bash format.sh
 ```

@@ -8,9 +8,10 @@ from konduktor import logging as konduktor_logging
 from konduktor.controller import constants
 
 # comma separated list of namespaces to watch for pod errors
-WATCHED_NAMESPACES: List[str] = os.environ.get("WATCHED_NAMESPACES",
-                                               "default").split(",")
-LOGS_SINCE: int  = 10  # retrieves logs generated in the past 10 seconds
+WATCHED_NAMESPACES: List[str] = os.environ.get("WATCHED_NAMESPACES", "default").split(
+    ","
+)
+LOGS_SINCE: int = 10  # retrieves logs generated in the past 10 seconds
 LOG_ENDPOINT: str = os.environ.get(
     "LOG_ENDPOINT",
     # this assumes you have access to this endpoint by
@@ -82,7 +83,8 @@ def sxid_error(pattern: str, log_content: str) -> int:
 def is_dmesg_error(log_content: str) -> bool:
     """Returns (S)Xid error code, zero otherwise"""
     error_code = sxid_error(r"SXid.*?: (\d+),", log_content) or sxid_error(
-        r"NVRM: Xid.*?: (\d+),", log_content)
+        r"NVRM: Xid.*?: (\d+),", log_content
+    )
     return error_code not in constants.ALLOWLISTED_NVSWITCH_SXID_ERRORS
 
 

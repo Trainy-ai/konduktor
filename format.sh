@@ -9,9 +9,9 @@ echo "mypy ver $MYPY_VERSION"
 
 # Run mypy
 echo 'Konduktor mypy:'
-mypy $(cat tests/mypy_files.txt)
+poetry run mypy $(cat tests/mypy_files.txt)
 
 # Run ruff
 echo 'Konduktor ruff:'
-ruff check --fix konduktor tests
-ruff format konduktor tests
+poetry run ruff check --fix konduktor tests
+poetry run ruff format konduktor tests
