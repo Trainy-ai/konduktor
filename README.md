@@ -53,7 +53,14 @@ For cluster administrators
 - [Grafana, Loki](https://grafana.com/) - Visualizations for metrics/logging solution.
 
 
-
 ## Community & Support
 - [Discord](https://discord.com/invite/HQUBJSVgAP)
 - founders@trainy.ai
+
+## Contributor Guide
+
+Format your code with
+```
+poetry install --with dev
+poetry run bash format.sh
+```

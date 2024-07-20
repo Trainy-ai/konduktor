@@ -8,7 +8,8 @@ from konduktor import logging as konduktor_logging
 from konduktor.controller import constants
 
 # comma separated list of namespaces to watch for pod errors
-WATCHED_NAMESPACES: List[str] = os.environ.get("WATCHED_NAMESPACES", "default").split(",")
+WATCHED_NAMESPACES: List[str] = os.environ.get("WATCHED_NAMESPACES", 
+                                               "default").split(",")
 LOGS_SINCE: int  = 10  # retrieves logs generated in the past 10 seconds
 LOG_ENDPOINT: str = os.environ.get(
     "LOG_ENDPOINT",
