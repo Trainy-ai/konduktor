@@ -5,7 +5,7 @@ import urllib3
 
 from konduktor import logging as konduktor_logging
 
-logger = konduktor_logging.init_logger(__name__)
+logger = konduktor_logging.get_logger(__name__)
 
 # Timeout to use for API calls
 API_TIMEOUT = 5

@@ -8,7 +8,7 @@ from konduktor import logging as konduktor_logging
 # node taint/label
 NODE_HEALTH_LABEL = "trainy.konduktor.ai/faulty"
 
-logger = konduktor_logging.init_logger(__name__)
+logger = konduktor_logging.get_logger(__name__)
 
 
 def nccl_single_test(node: str, thresh: int = 400):

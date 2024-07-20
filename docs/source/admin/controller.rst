@@ -15,6 +15,7 @@ Currently we listen for these `NVIDIA errors <https://docs.nvidia.com/deploy/xid
 And we listen for errors from:
 
 - :code:`dmesg`
+- Pod/container logs
 
 Controller Launch
 =================
@@ -102,6 +103,6 @@ Features and Roadmap
 ====================
 - :code:`dmesg` error detection - **Available** ✅
 - In-cluster deployment of controller - **Available** ✅
-- Pod log error detection - In progress 🚧
+- Pod log error detection - **Available** ✅
 - Health Checks (Taint Removal) - In progress 🚧
 - Node Resolution Hooks (Reboot, Power Cycle) - In progress 🚧
