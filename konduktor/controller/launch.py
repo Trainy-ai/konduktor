@@ -13,6 +13,7 @@ test on the tainted nodes
 """
 
 import time
+from typing import Set
 
 from konduktor import logging
 from konduktor.controller import constants, parse
@@ -21,7 +22,7 @@ from konduktor.controller import node as node_control
 KONDUKTOR_CONTROLLER_LOG_POLL_SECONDS = 5
 KONDUKTOR_CONTROLLER_HEALTH_CHECK_FREQ = 5
 
-logger = logging.init_logger("konduktor.controller")
+logger = logging.get_logger("konduktor.controller")
 
 
 def main():
@@ -31,9 +32,9 @@ def main():
     while True:
         for _ in range(KONDUKTOR_CONTROLLER_HEALTH_CHECK_FREQ):
             time.sleep(KONDUKTOR_CONTROLLER_LOG_POLL_SECONDS)
-            error_by_pod = parse.pod_errors()
-            error_by_dmesg = parse.dmesg_errors()
-            for node in error_by_pod + error_by_dmesg:
+            error_by_pod: Set[str] = parse.pod_errors()
+            error_by_dmesg: Set[str] = parse.dmesg_errors()
+            for node in error_by_pod | error_by_dmesg:
                 node_control.taint(node)
 
         node_control.health_check()

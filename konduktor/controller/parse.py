@@ -1,15 +1,18 @@
 import os
 import re
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Set
 
 import requests
 
 from konduktor import logging as konduktor_logging
+from konduktor.controller import constants
 
 # comma separated list of namespaces to watch for pod errors
-WATCHED_NAMESPACES = os.environ.get("WATCHED_NAMESPACES", "default").split(",")
-LOGS_SINCE = 10  # retrieves logs generated in the past 30 seconds
-LOG_ENDPOINT = os.environ.get(
+WATCHED_NAMESPACES: List[str] = os.environ.get("WATCHED_NAMESPACES", "default").split(
+    ","
+)
+LOGS_SINCE: int = 10  # retrieves logs generated in the past 10 seconds
+LOG_ENDPOINT: str = os.environ.get(
     "LOG_ENDPOINT",
     # this assumes you have access to this endpoint by
     # running as a deployment within the cluster
@@ -17,12 +20,9 @@ LOG_ENDPOINT = os.environ.get(
     # kubectl port-forward svc/loki -n loki 3100:3100
     "http://loki.loki.svc.cluster.local:3100",
 )
-QUERY_URL = "/loki/api/v1/query_range"
-# has to be either 'skypilot' or 'plain'
-POD_LOG_TYPE = os.environ.get("POD_LOG_TYPE", "skypilot")
+QUERY_URL: str = "/loki/api/v1/query_range"
 
-logger = konduktor_logging.init_logger(__name__)
-logger.info(f"using POD_LOG_TYPE = {POD_LOG_TYPE}")
+logger = konduktor_logging.get_logger(__name__)
 
 
 def _query_range(pattern: str, **label_filters) -> List[Dict[str, Any]]:
@@ -53,45 +53,16 @@ def _query_range(pattern: str, **label_filters) -> List[Dict[str, Any]]:
     return []
 
 
-class PodLogParser:
-    """Base class for handling pod logs. A PodLogParser is responsible
-    for turning raw queries from Loki into lists of degraded pods.
-    """
-
-    @classmethod
-    def validate_logs(self, logs):
-        """Reads pod logs and returns a list of nodes that had a pod
-        error that indicated a GPU, CUDA, NCCL error
-
-        Returns:
-            List[str]: A list of node names with a detected failure from pod logs
-        """
-        raise NotImplementedError
-
-
-class SkyLogParser(PodLogParser):
-    @classmethod
-    def check_logs(self, logs):
-        pass
-
-
-class PlainLogParser(PodLogParser):
-    @classmethod
-    def check_logs(self, logs) -> List[str]:
-        # TODO: implement Pod log parsing
-        return []
-
-
-_pod_parser = {
-    "skypilot": SkyLogParser,
-    "plain": PlainLogParser,
-}[POD_LOG_TYPE]
-
-
-def pod_errors() -> List[str]:
-    global _pod_parser
+def pod_errors() -> Set[str]:
     logger.info("querying pod logs")
-    return []
+    bad_nodes = set()
+    for regex in constants.POD_LOG_ERROR_REGEXES:
+        for namespace in WATCHED_NAMESPACES:
+            log_lines = _query_range(regex, k8s_namespace_name=namespace)
+            for line in log_lines:
+                log_node = line["stream"]["k8s_node_name"]
+                bad_nodes.add(log_node)
+    return bad_nodes
 
 
 def sxid_error(pattern: str, log_content: str) -> int:
@@ -109,23 +80,24 @@ def sxid_error(pattern: str, log_content: str) -> int:
     return 0
 
 
-def is_dmesg_error(log_content: str) -> int:
+def is_dmesg_error(log_content: str) -> bool:
     """Returns (S)Xid error code, zero otherwise"""
-    return sxid_error(r"SXid.*?: (\d+),", log_content) or sxid_error(
+    error_code = sxid_error(r"SXid.*?: (\d+),", log_content) or sxid_error(
         r"NVRM: Xid.*?: (\d+),", log_content
     )
+    return error_code not in constants.ALLOWLISTED_NVSWITCH_SXID_ERRORS
 
 
-def dmesg_errors() -> List[str]:
+def dmesg_errors() -> Set[str]:
     logger.info("checking dmesg logs")
     pattern = r"`(?i)NVRM: xid` or `(?i)SXid` or `(?i)error`"
     log_lines = _query_range(pattern, k8s_daemonset_name="dmesg")
-    bad_nodes = []
+    bad_nodes = set()
     for line in log_lines:
         log_node, log_content = line["stream"]["k8s_node_name"], line["values"][0][1]
         if is_dmesg_error(log_content):
             logger.info(f"node `{log_node}` has dmesg error: {log_content}")
-            bad_nodes.append(log_node)
+            bad_nodes.add(log_node)
     return bad_nodes
 
 

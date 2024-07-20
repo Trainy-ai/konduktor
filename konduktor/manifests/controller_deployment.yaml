@@ -61,3 +61,9 @@ spec:
         image: python:3.10
         command: ["/bin/sh"]
         args: ["-c", "pip install konduktor-nightly && python -m konduktor.controller.launch"]
+        ## define what namespaces to watch for errors, comma separated.
+        # env:
+        #   - name: WATCHED_NAMESPACES
+        #     value: "default,othernamespace"
+        #   - name: LOG_ENDPOINT
+        #     value: "http://loki.loki.svc.cluster.local:3100"
