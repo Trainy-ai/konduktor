@@ -569,7 +569,7 @@ spec:
                         description: ResourceName is the name identifying various
                           resources in a ResourceList.
                         type: string
-                      maxItems: 16
+                      maxItems: 24
                       minItems: 1
                       type: array
                     flavors:
@@ -657,7 +657,7 @@ spec:
                               - name
                               - nominalQuota
                               type: object
-                            maxItems: 16
+                            maxItems: 24
                             minItems: 1
                             type: array
                             x-kubernetes-list-map-keys:
@@ -667,7 +667,7 @@ spec:
                         - name
                         - resources
                         type: object
-                      maxItems: 16
+                      maxItems: 24
                       minItems: 1
                       type: array
                       x-kubernetes-list-map-keys:
@@ -681,7 +681,7 @@ spec:
                   - message: flavors must have the same number of resources as the
                       coveredResources
                     rule: self.flavors.all(x, size(x.resources) == size(self.coveredResources))
-                maxItems: 16
+                maxItems: 24
                 type: array
                 x-kubernetes-list-type: atomic
               stopPolicy:
@@ -848,7 +848,7 @@ spec:
                         required:
                         - name
                         type: object
-                      maxItems: 16
+                      maxItems: 24
                       type: array
                       x-kubernetes-list-map-keys:
                       - name
@@ -857,7 +857,7 @@ spec:
                   - name
                   - resources
                   type: object
-                maxItems: 16
+                maxItems: 24
                 type: array
                 x-kubernetes-list-map-keys:
                 - name
@@ -902,7 +902,7 @@ spec:
                         required:
                         - name
                         type: object
-                      maxItems: 16
+                      maxItems: 24
                       type: array
                       x-kubernetes-list-map-keys:
                       - name
@@ -911,7 +911,7 @@ spec:
                   - name
                   - resources
                   type: object
-                maxItems: 16
+                maxItems: 24
                 type: array
                 x-kubernetes-list-map-keys:
                 - name
@@ -1171,7 +1171,7 @@ spec:
                         required:
                         - name
                         type: object
-                      maxItems: 16
+                      maxItems: 24
                       type: array
                       x-kubernetes-list-map-keys:
                       - name
@@ -1180,7 +1180,7 @@ spec:
                   - name
                   - resources
                   type: object
-                maxItems: 16
+                maxItems: 24
                 type: array
                 x-kubernetes-list-map-keys:
                 - name
@@ -1214,7 +1214,7 @@ spec:
                         required:
                         - name
                         type: object
-                      maxItems: 16
+                      maxItems: 24
                       type: array
                       x-kubernetes-list-map-keys:
                       - name
@@ -1223,7 +1223,7 @@ spec:
                   - name
                   - resources
                   type: object
-                maxItems: 16
+                maxItems: 24
                 type: array
                 x-kubernetes-list-map-keys:
                 - name
