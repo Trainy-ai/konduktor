@@ -1,3 +1,4 @@
 Flask
 flask-cors
 kubernetes
+flask-socketio

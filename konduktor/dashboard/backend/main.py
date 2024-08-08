@@ -1,6 +1,6 @@
-from flask import request, jsonify
-from config import app
-
+from flask import Flask, request, jsonify
+# from config import app
+from flask_cors import CORS
 
 import argparse
 from kubernetes import config, client
@@ -10,6 +10,21 @@ import json
 import os
 import requests
 import datetime
+import time
+
+from flask_socketio import SocketIO
+import logging
+
+import websocket
+import threading
+
+app = Flask(__name__)
+
+# Ensure CORS is configured correctly
+cors = CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
+
+# SocketIO configuration
+socketio = SocketIO(app, cors_allowed_origins="http://localhost:5173")
 
 # Jobs stuff
 # Make sure your cluster is running!
@@ -179,7 +194,47 @@ def format_log_entry(entry):
     }
     return formatted_log
 
+def get_logs(first_run):
+    global log_checkpoint_time
+    url = "http://localhost:3100/loki/api/v1/query_range"
+    # TODO: make this default namespace?
+    query = '{k8s_namespace_name="loki"}'
 
+    if first_run:
+        # Calculate how many nanoseconds to look back when first time looking at logs (currently 1 hour)
+        now = int(time.time() * 1e9)
+        one_hour_ago = now - int(3600 * 1e9)
+        start_time = str(one_hour_ago)
+    else:
+        # calculate new start_time based on newest, last message
+        start_time = str(int(log_checkpoint_time) + 1)
+
+    params = {
+        'query': query,
+        'start': start_time,
+        'limit': 300
+    }
+
+    response = requests.get(url, params=params)
+    formatted_logs = []
+    
+    last = 0
+
+    if response.status_code == 200:
+        data = response.json()
+        rows = data["data"]["result"]
+        
+        for row in rows:
+            for value in row["values"]:
+                last = max(int(value[0]), last)
+                formatted_logs.append(format_log_entry(value))
+
+    if formatted_logs:
+        # sort because sometimes loki API is wrong and logs are out of order
+        formatted_logs.sort(key=lambda log: datetime.datetime.strptime(log['timestamp'], "%Y-%m-%d %H:%M:%S"))
+        log_checkpoint_time = last
+
+    return formatted_logs
 
 
 
@@ -273,33 +328,41 @@ def delete_job():
         print(f"Exception: {e}")
         return jsonify({"error": str(e)}), e.status
 
+client_connected = False
+first_run = True
+log_checkpoint_time = None
+log_checkpoint_time2 = None
+
 # TODO: websocket connection for continuous log fetching
 
-@app.route("/logs", methods=["GET"])
-def get_logs():
+@socketio.on('connect')
+def handle_connect():
+    global client_connected, first_run
+    client_connected = True
+    first_run = True
+    print('Client connected')
 
-    url = "http://localhost:3100/loki/api/v1/query_range"
+    def send_logs():
+        global first_run
+        while client_connected:
+            logs = get_logs(first_run)
+            first_run = False  # Set to False after the first run
+            if logs:
+                socketio.emit('log_data', logs)
+            time.sleep(5)
 
-    rows = []
+    socketio.start_background_task(send_logs)
 
-    # TODO: default namespace???
-    query = '{k8s_namespace_name="loki"}'
+@socketio.on('disconnect')
+def handle_disconnect():
+    global client_connected, first_run, log_checkpoint_time, log_checkpoint_time2
+    client_connected = False
+    first_run = True
+    log_checkpoint_time = None
+    log_checkpoint_time2 = None
+    print('Client disconnected')
 
-    params = {
-        'query': query,
-    }
 
-    response = requests.get(url, params=params)
-    if response.status_code == 200:
-        data = response.json()
-        rows = data["data"]["result"]
-
-    formatted_logs = []
-    for row in rows:
-        for value in row["values"]:
-            formatted_logs.append(format_log_entry(value))
-
-    return jsonify(formatted_logs)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    socketio.run(app, debug=True)
