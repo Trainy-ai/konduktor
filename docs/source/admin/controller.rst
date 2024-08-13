@@ -83,7 +83,7 @@ After which you should see in your controller logs
     [I 07-09 05:37:45 node.py:98] Node gke-a3-cluster-gpu-pool-2d164072-zz64 tainted.
 
     # in a separate terminal you can verify
-    $ kubectl describe pod gke-a3-cluster-gpu-pool-2d164072-zz64 | grep trainy
+    $ kubectl describe node gke-a3-cluster-gpu-pool-2d164072-zz64 | grep trainy
     trainy.konduktor.ai/faulty=true:NoSchedule
 
 You can remove all the taints in the cluster with :code:`konduktor reset`
