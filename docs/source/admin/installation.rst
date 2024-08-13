@@ -138,7 +138,7 @@ the stack via Helm. We also deploy a daemonset to stream dmesg logs from each no
     NAME                                                 READY   STATUS    RESTARTS   AGE
     otel-collector-opentelemetry-collector-agent-2qbh2   1/1     Running   0          31m
 
-    $ kubectl get pods -n dmesg-logger
+    $ kubectl get pods -n dmesg-logging
     NAME          READY   STATUS    RESTARTS   AGE
     dmesg-2x225   1/1     Running   0          5m52s
 
