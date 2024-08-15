@@ -84,7 +84,7 @@ We define a script for each node to run.
     num_nodes: 2
 
     setup: |
-        git clone https://github.com/michaelzhiluo/pytorch-distributed-resnet
+        git clone https://github.com/roanakb/pytorch-distributed-resnet
         cd pytorch-distributed-resnet
         mkdir -p data  && mkdir -p saved_models && cd data && \
         wget -c --quiet https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
@@ -93,8 +93,8 @@ We define a script for each node to run.
     run: |
         num_nodes=`echo "$SKYPILOT_NODE_IPS" | wc -l`
         master_addr=`echo "$SKYPILOT_NODE_IPS" | head -n1`
-        python3 -m torch.distributed.launch --nproc_per_node=1 \
-        --nnodes=$num_nodes --node_rank=${SKYPILOT_NODE_RANK} --master_addr=$master_addr \
+        python3 -m torch.distributed.launch --nproc_per_node=$SKYPILOT_NUM_GPUS_PER_NODE \
+        --nnodes=$num_nodes --node_rank=$SKYPILOT_NODE_RANK --master_addr=$master_addr \
         --master_port=8008 resnet_ddp.py --num_epochs 20
 
 and run with
