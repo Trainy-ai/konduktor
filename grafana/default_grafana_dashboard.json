@@ -300,7 +300,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(DCGM_FI_DEV_MEM_COPY_UTIL{job=\"gpu-metrics\"}) / (count(DCGM_FI_DEV_MEM_COPY_UTIL{job=\"gpu-metrics\"}) * 100) * 100",
+          "expr": "sum(DCGM_FI_DEV_MEM_COPY_UTIL{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"}) / (count(DCGM_FI_DEV_MEM_COPY_UTIL{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"}) * 100) * 100",
           "instant": true,
           "interval": "",
           "legendFormat": "",
