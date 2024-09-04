@@ -49,7 +49,7 @@ POD_LOG_ERROR_REGEXES = [
 ]
 
 DMESG_ERROR_REGEXES = [
-    r"`(?i)nvidia-peermem nv_get_p2p_free_callback:\d+"
+    r"`(?i)nvidia-peermem nv_get_p2p_free_callback:\d+ "
     r"ERROR detected invalid context, skipping further processing`",
     r"`(?i)NVRM: xid`",
     r"`(?i)SXid`",
