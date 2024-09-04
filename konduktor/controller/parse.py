@@ -90,7 +90,7 @@ def is_sxid_error(log_content: str) -> bool:
 
 def dmesg_errors() -> Set[str]:
     logger.info("checking dmesg logs")
-    pattern = ' or '.join(constants.DMESG_ERROR_REGEXES)
+    pattern = " or ".join(constants.DMESG_ERROR_REGEXES)
     log_lines = _query_range(pattern, k8s_daemonset_name="dmesg")
     bad_nodes = set()
     for line in log_lines:
