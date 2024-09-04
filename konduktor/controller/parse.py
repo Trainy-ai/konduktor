@@ -80,7 +80,7 @@ def sxid_error(pattern: str, log_content: str) -> int:
     return 0
 
 
-def is_dmesg_error(log_content: str) -> bool:
+def is_sxid_error(log_content: str) -> bool:
     """Returns (S)Xid error code, zero otherwise"""
     error_code = sxid_error(r"SXid.*?: (\d+),", log_content) or sxid_error(
         r"NVRM: Xid.*?: (\d+),", log_content
@@ -90,14 +90,16 @@ def is_dmesg_error(log_content: str) -> bool:
 
 def dmesg_errors() -> Set[str]:
     logger.info("checking dmesg logs")
-    pattern = r"`(?i)NVRM: xid` or `(?i)SXid` or `(?i)error`"
+    pattern = " or ".join(constants.DMESG_ERROR_REGEXES)
     log_lines = _query_range(pattern, k8s_daemonset_name="dmesg")
     bad_nodes = set()
     for line in log_lines:
         log_node, log_content = line["stream"]["k8s_node_name"], line["values"][0][1]
-        if is_dmesg_error(log_content):
-            logger.info(f"node `{log_node}` has dmesg error: {log_content}")
-            bad_nodes.add(log_node)
+        if is_sxid_error(log_content):
+            logger.info(f"node `{log_node}` has (S)Xid error: {log_content}")
+        else:
+            logger.info(f"dmesg error on node `{log_node}`: {log_content}")
+        bad_nodes.add(log_node)
     return bad_nodes
 
 
