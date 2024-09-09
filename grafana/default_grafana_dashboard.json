@@ -29,7 +29,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "11.1.0"
+      "version": "11.1.4"
     },
     {
       "type": "panel",
@@ -154,7 +154,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.1.4",
       "targets": [
         {
           "datasource": {
@@ -220,7 +220,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.1.4",
       "targets": [
         {
           "datasource": {
@@ -250,7 +250,7 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "max": 100,
+          "max": 78,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -261,11 +261,11 @@
               },
               {
                 "color": "red",
-                "value": 80
+                "value": 70
               }
             ]
           },
-          "unit": "percent"
+          "unit": "decgbytes"
         },
         "overrides": []
       },
@@ -291,7 +291,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.1.4",
       "targets": [
         {
           "datasource": {
@@ -300,7 +300,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(DCGM_FI_DEV_MEM_COPY_UTIL{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"}) / (count(DCGM_FI_DEV_MEM_COPY_UTIL{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"}) * 100) * 100",
+          "expr": "avg(DCGM_FI_DEV_FB_USED{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"}) / 1000",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -308,7 +308,7 @@
           "refId": "A"
         }
       ],
-      "title": "Cluster GPU Mem Used",
+      "title": "Cluster GPU Avg Mem Used",
       "type": "gauge"
     },
     {
@@ -434,7 +434,7 @@
           }
         ]
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.1.4",
       "targets": [
         {
           "datasource": {
@@ -554,7 +554,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.1.4",
       "targets": [
         {
           "datasource": {
@@ -624,7 +624,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.1.4",
       "targets": [
         {
           "datasource": {
@@ -699,7 +699,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.1.4",
       "targets": [
         {
           "datasource": {
@@ -874,7 +874,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.1.4",
       "targets": [
         {
           "datasource": {
@@ -1017,7 +1017,7 @@
           }
         ]
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.1.4",
       "targets": [
         {
           "datasource": {
@@ -1142,7 +1142,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.1.4",
       "targets": [
         {
           "datasource": {
@@ -2017,181 +2017,6 @@
         "x": 0,
         "y": 49
       },
-      "id": 43,
-      "panels": [],
-      "title": "Error Logs",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "loki",
-        "uid": "${DS_LOKI}"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 50
-      },
-      "id": 45,
-      "options": {
-        "dedupStrategy": "none",
-        "enableLogDetails": true,
-        "prettifyLogMessage": false,
-        "showCommonLabels": false,
-        "showLabels": false,
-        "showTime": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": false
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "loki",
-            "uid": "${DS_LOKI}"
-          },
-          "editorMode": "code",
-          "expr": "{k8s_daemonset_name=\"dmesg\"} |~ `(?i)NVRM: xid` or `(?i)error`",
-          "queryType": "range",
-          "refId": "A"
-        }
-      ],
-      "title": "dmesg errors",
-      "type": "logs"
-    },
-    {
-      "datasource": {
-        "type": "loki",
-        "uid": "${DS_LOKI}"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 58
-      },
-      "id": 44,
-      "options": {
-        "dedupStrategy": "none",
-        "enableLogDetails": true,
-        "prettifyLogMessage": false,
-        "showCommonLabels": false,
-        "showLabels": false,
-        "showTime": true,
-        "sortOrder": "Descending",
-        "wrapLogMessage": false
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "loki",
-            "uid": "${DS_LOKI}"
-          },
-          "editorMode": "code",
-          "expr": "{k8s_namespace_name=\"default\"} |~ `(?i)error` | logfmt",
-          "queryType": "range",
-          "refId": "A"
-        }
-      ],
-      "title": "pod errors",
-      "type": "logs"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 66
-      },
-      "id": 41,
-      "panels": [],
-      "title": "XID Errors",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "links": [],
-          "mappings": [],
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 24,
-        "x": 0,
-        "y": 67
-      },
-      "id": 42,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.1.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "DCGM_FI_DEV_XID_ERRORS{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"}",
-          "instant": true,
-          "interval": "",
-          "legendFormat": "GPU {{gpu}} instance {{instance}}",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "XID Errors",
-      "type": "stat"
-    },
-    {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 76
-      },
       "id": 37,
       "panels": [],
       "title": "Node Stats",
@@ -2309,7 +2134,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 77
+        "y": 50
       },
       "id": 38,
       "options": {
@@ -2330,7 +2155,7 @@
           }
         ]
       },
-      "pluginVersion": "11.1.0",
+      "pluginVersion": "11.1.4",
       "targets": [
         {
           "datasource": {
@@ -2438,6 +2263,268 @@
         }
       ],
       "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 57
+      },
+      "id": 46,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.1.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "kube_pod_info{namespace='gpu-operator', created_by_name='nvidia-dcgm-exporter'}",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Exporter pod IP to node mapping",
+      "transformations": [
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "pod_ip",
+                "node",
+                "host_ip"
+              ]
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 65
+      },
+      "id": 43,
+      "panels": [],
+      "title": "Error Logs",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "${DS_LOKI}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 66
+      },
+      "id": 45,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${DS_LOKI}"
+          },
+          "editorMode": "code",
+          "expr": "{k8s_daemonset_name=\"dmesg\"} |~ `(?i)NVRM: xid` or `(?i)error`",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "dmesg errors",
+      "type": "logs"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "${DS_LOKI}"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 74
+      },
+      "id": 44,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${DS_LOKI}"
+          },
+          "editorMode": "code",
+          "expr": "{k8s_namespace_name=\"default\"} |~ `(?i)error` | logfmt",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "pod errors",
+      "type": "logs"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 82
+      },
+      "id": 41,
+      "panels": [],
+      "title": "XID Errors",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "links": [],
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 83
+      },
+      "id": 42,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.1.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "DCGM_FI_DEV_XID_ERRORS{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"}",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "GPU {{gpu}} instance {{instance}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "XID Errors",
+      "type": "stat"
     }
   ],
   "refresh": "",
