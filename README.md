@@ -15,7 +15,7 @@ Konduktor uses a combination of open source projects. Where tools exist with MIT
 
 ### Architecture
 
-Konduktor can be self-hosted and run on any certified Kubernetes distribution or managed by us. Contact as at founders@trainy.ai if you are just interested in the managed version. We're focused on tooling for clusters with NVIDIA cards for now but in the future we may expand to our scope to support other accelerators.
+Konduktor can be self-hosted and run on any certified Kubernetes distribution or managed by us. Contact us at founders@trainy.ai if you are just interested in the managed version. We're focused on tooling for clusters with NVIDIA cards for now but in the future we may expand to our scope to support other accelerators.
 
 <p align="center">
   <img alt="architecture" src="https://raw.githubusercontent.com/Trainy-ai/konduktor/main/docs/source/images/architecture.png" width=80%>
