@@ -248,6 +248,7 @@ def get_jobs():
 
     print('getting jobs')
 
+
     rows = fetch_jobs()
 
     return jsonify(rows)
