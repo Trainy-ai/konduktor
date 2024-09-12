@@ -15,8 +15,6 @@ import time
 from flask_socketio import SocketIO
 import logging
 
-import websocket
-import threading
 
 app = Flask(__name__)
 
@@ -247,6 +245,8 @@ def home():
 
 @app.route("/jobs", methods=["GET"])
 def get_jobs():
+
+    print('getting jobs')
 
     rows = fetch_jobs()
 

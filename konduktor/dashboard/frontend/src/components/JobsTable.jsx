@@ -20,6 +20,7 @@ function JobsTable() {
                 throw new Error('Network response was not ok');
             }
             const data = await response.json();
+            console.log(`Fetching jobs data: ${response}`)
             setJobsData(data)
         } catch (error) {
             console.error("Fetch error:", error);
