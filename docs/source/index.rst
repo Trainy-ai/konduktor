@@ -30,34 +30,78 @@ Welcome to Konduktor's documentation!
    <strong>Batch Jobs and Cluster Management for GPUs on Kubernetes</strong>
    </p>
 
-   Konduktor is a platform designed for running ML batch jobs and managing GPU clusters. Konduktor uses existing open source tools to build a platform that empowers ML engineers by abstracting away the details of resource scheduling so they can focus on modeling. Cluster administrators will enjoy setting resource quotas and sharing between projects as well as built in monitoring to track cluster-wide resource utilization and pending jobs to adjust quotas according to organizational priorities, reduce resource idling, and observe cluster GPU and fabric health.
+Konduktor is a platform designed for running ML batch jobs and managing GPU clusters. 
+This documentation is targeted towards:
 
-- Easy scale out and job queueing and multi-node scheduling
-- Share resources with quotas across projects via namespaces
-- Track active and pending jobs and utilization, power usage, etc.
-- Node level metrics for monitoring cluster health
+- ML Engineers/researchers trying to launch training jobs on Konduktor, either managed by `Trainy <https://trainy.ai/>`_ or self-hosted
+- GPU cluster administrators trying to self-host Konduktor
 
-.. figure:: ./images/architecture.png
-   :width: 80%
-   :align: center
-   :alt: Trainy
+For interest in our managed offering, please contact us at support@trainy.ai
+
+------------
+Key Features
+------------
+
+- 🚀 Easily scale out and job queueing and multi-node scheduling
+
+.. code-block:: shell
+
+   # create a request
+   $ sky launch -c dev task.yaml --num-nodes 100
+
+- ☁ Multi-cloud access
+
+.. code-block:: shell
+
+   # toggle cluster via region
+   $ sky launch -c dev task.yaml --region gke-cluster
+
+- Custom container support
+
+.. code-block:: yaml
+
+   # task.yaml
+   resources:
+      image_id: docker:nvcr.io/nvidia/pytorch:23.10-py3
+
+   run: |
+      python train.py
+
+- `Track active and pending jobs and utilization, power usage, etc. <admin/observability.html>`_
+
+----------------------------
+Managed Features and Roadmap
+----------------------------
+- On-prem/reserved support - **Available** ✅
+- GCP on-demand/spot support - **Available** ✅
+- AWS on-emand/spot support - In progress 🚧
+- Azure on-emand/spot support - In progress 🚧
+- Multi-cluster submission - In progress 🚧
 
 Documentation
 -------------
 
 .. toctree::
    :maxdepth: 1
-   :caption: Cluster Administration
-   
-   admin/installation
-   admin/observability
-   admin/controller
+   :caption: Managed Konduktor
+
+   cloud/getting_started
 
 .. toctree::
    :maxdepth: 1
    :caption: Job Scheduling
 
    usage/quickstart
+   usage/priorities
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Self-hosted Cluster Administration
+   
+   admin/installation
+   admin/observability
+   admin/controller
+   admin/architecture
    
 
 External Links
