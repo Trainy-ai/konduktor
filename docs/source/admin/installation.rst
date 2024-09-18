@@ -67,7 +67,7 @@ Installing the DCGM exporter is best handled using NVIDIA's `gpu-operator <https
     nvidia-driver-daemonset-fvx9z                                     1/1     Running     0               9d
     nvidia-operator-validator-62dhx                                   1/1     Running     0               14d
 
-.. tip::
+.. warning::
 
     This guide currently works for on-prem bare metal deployments.
     We are still validating on how to deploy :code:`nvidia-dcgm-exporter` 

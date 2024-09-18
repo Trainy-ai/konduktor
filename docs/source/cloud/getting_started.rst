@@ -58,4 +58,8 @@ can be requested as.
             kueue.x-k8s.io/queue-name: user-queue # this is assigned by your admin
             kueue.x-k8s.io/priority-class: low-priority
 
+.. warning::
 
+    Trainy instances are ephemeral and will be autoscaled down in 10 minutes of idling. Be sure if you are
+    running stateful applications like model training to instrument your application to regularly
+    retrieve and back up to object storage (S3, GCS, Azure Blob, Cloudflare R2, etc.)
