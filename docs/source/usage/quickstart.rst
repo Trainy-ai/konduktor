@@ -23,7 +23,7 @@ Setup
 
     # install trainy-skypilot
     $ conda create -n konduktor python=3.10
-    $ pip install trainy-skypilot-nightly[kubernetes]
+    $ pip install "trainy-skypilot-nightly[kubernetes]"
 
     # check that k8s credentials work
     $ sky check

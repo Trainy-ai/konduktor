@@ -10,7 +10,7 @@ workloads. This page explains to use job priorities with `Kueue <https://kueue.s
 
 This tutorial requires that you install:
 
-- Trainy skypilot: :code:`pip install trainy-skypilot-nightly[kubernetes]`
+- Trainy skypilot: :code:`pip install "trainy-skypilot-nightly[kubernetes]"`
 - `kubectl <https://kubernetes.io/docs/reference/kubectl/>`_
 
 ---------------------------------------------
