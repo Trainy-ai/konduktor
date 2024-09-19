@@ -74,8 +74,8 @@ Managed Features and Roadmap
 ----------------------------
 - On-prem/reserved support - **Available** ✅
 - GCP on-demand/spot support - **Available** ✅
-- AWS on-emand/spot support - In progress 🚧
-- Azure on-emand/spot support - In progress 🚧
+- AWS on-demand/spot support - In progress 🚧
+- Azure on-demand/spot support - In progress 🚧
 - Multi-cluster submission - In progress 🚧
 
 Documentation
