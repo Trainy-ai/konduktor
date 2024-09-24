@@ -12,6 +12,8 @@ This section is for k8s admins who are first deploying the necessary resources o
 - `OpenTelemetry <https://opentelemetry.io/>`_ - Log publishing
 - `Kueue <https://kueue.sigs.k8s.io/>`_ - workload scheduling and resource quotas/sharing
 
+For a more thorough explanation of the Konduktor stack, see :doc:`architecture`
+
 Prerequisites
 =============
 
@@ -64,6 +66,12 @@ Installing the DCGM exporter is best handled using NVIDIA's `gpu-operator <https
     nvidia-device-plugin-daemonset-lc5lx                              1/1     Running     0               14d
     nvidia-driver-daemonset-fvx9z                                     1/1     Running     0               9d
     nvidia-operator-validator-62dhx                                   1/1     Running     0               14d
+
+.. warning::
+
+    This guide currently works for on-prem bare metal deployments.
+    We are still validating on how to deploy :code:`nvidia-dcgm-exporter` 
+    on managed k8s solutions like AWS's **EKS** and Google's **GKE**. Stay tuned for updates!
 
 Prometheus-Grafana Stack
 ------------------------
