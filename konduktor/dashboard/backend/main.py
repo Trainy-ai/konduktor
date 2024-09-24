@@ -13,13 +13,16 @@ import datetime
 import time
 
 from flask_socketio import SocketIO
+from kubernetes.config import load_config
 import logging
 
 
 app = Flask(__name__)
 
 # Ensure CORS is configured correctly
-cors = CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
+#cors = CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
+
 
 # SocketIO configuration
 socketio = SocketIO(app, cors_allowed_origins="http://localhost:5173")
@@ -335,6 +338,10 @@ log_checkpoint_time = None
 log_checkpoint_time2 = None
 
 # TODO: websocket connection for continuous log fetching
+
+@app.route('/ping', methods=['GET'])
+def ping():
+    return jsonify({"message": "Pong from backend!"})
 
 @socketio.on('connect')
 def handle_connect():

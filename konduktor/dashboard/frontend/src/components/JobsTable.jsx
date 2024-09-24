@@ -15,12 +15,12 @@ function JobsTable() {
 
     const fetchData = async () => {
         try {
-            const response = await fetch(`http://127.0.0.1:5000/jobs`);
+            const response = await fetch(`http://localhost:5001/jobs`);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
             const data = await response.json();
-            console.log(`Fetching jobs data: ${response}`)
+            console.log(`Fetching jobs data: ${JSON.stringify(data)}`)
             setJobsData(data)
         } catch (error) {
             console.error("Fetch error:", error);
@@ -29,7 +29,7 @@ function JobsTable() {
 
     const updatePriority = async (name, namespace, priority, priority_class_name) => {
         try {
-            const response = await fetch('http://127.0.0.1:5000/updatePriority', {
+            const response = await fetch('http://localhost:5001/updatePriority', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -46,7 +46,7 @@ function JobsTable() {
         const { name, namespace } = row;
 
         try {
-            const response = await fetch('http://127.0.0.1:5000/deleteJob', {
+            const response = await fetch('http://localhost:5001/deleteJob', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'

@@ -1,0 +1,29 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    image: ryanattrainy/konduktor-dashboard:backend
+    ports:
+      - "5001:5001"  # Expose backend port
+      - "3000:3000"  # Expose Grafana/Prometheus port
+      - "3100:3100"  # Expose Loki port
+    networks:
+      - dashboard-network
+    volumes:
+      - ~/.kube/config:/root/.kube/config
+    command: ["/app/startup.sh"]
+
+  frontend:
+    build:
+      context: ./frontend
+    image: ryanattrainy/konduktor-dashboard:frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - dashboard-network
+
+networks:
+  dashboard-network:
+    driver: bridge

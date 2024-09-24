@@ -2,3 +2,4 @@ Flask
 flask-cors
 kubernetes
 flask-socketio
+gunicorn
