@@ -1,0 +1,10 @@
+steps:
+
+- trigger: "gke-test-pipeline"
+  label: ":rocket: test on gke"
+  branches: "main"
+  async: true
+  build:
+    message: "${BUILDKITE_MESSAGE}"
+    commit: "${BUILDKITE_COMMIT}"
+    branch: "${BUILDKITE_BRANCH}"
