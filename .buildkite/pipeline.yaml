@@ -1,0 +1,5 @@
+steps:
+
+- trigger: "gke-test-pipeline"
+  label: ":rocket: test on gke"
+  branches: "main"
