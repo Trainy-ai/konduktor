@@ -15,7 +15,7 @@ function JobsTable() {
 
     const fetchData = async () => {
         try {
-            const response = await fetch(`http://localhost:5001/jobs`);
+            const response = await fetch(`http://backend.default.svc.cluster.local:5001/jobs`);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -29,7 +29,7 @@ function JobsTable() {
 
     const updatePriority = async (name, namespace, priority, priority_class_name) => {
         try {
-            const response = await fetch('http://localhost:5001/updatePriority', {
+            const response = await fetch('http://backend.default.svc.cluster.local:5001/updatePriority', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -46,7 +46,7 @@ function JobsTable() {
         const { name, namespace } = row;
 
         try {
-            const response = await fetch('http://localhost:5001/deleteJob', {
+            const response = await fetch('http://backend.default.svc.cluster.local:5001/deleteJob', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'

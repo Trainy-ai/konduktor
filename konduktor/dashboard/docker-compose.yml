@@ -9,8 +9,6 @@ services:
       - "3100:3100"  # Expose Loki port
     networks:
       - dashboard-network
-    volumes:
-      - ~/.kube/config:/root/.kube/config
     command: ["/app/startup.sh"]
 
   frontend:

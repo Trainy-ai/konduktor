@@ -39,7 +39,7 @@ function LogsMain() {
 
     useEffect(() => {
         console.log('here')
-        const socket = io('http://localhost:5001', {
+        const socket = io('http://backend.default.svc.cluster.local:5001', {
             transports: ['websocket', 'polling'], 
         });
     

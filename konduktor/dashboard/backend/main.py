@@ -25,11 +25,20 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 # SocketIO configuration
-socketio = SocketIO(app, cors_allowed_origins="http://localhost:5173")
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Jobs stuff
 # Make sure your cluster is running!
-config.load_kube_config()
+try:
+    # Use in-cluster configuration when running inside a Kubernetes pod
+    config.load_incluster_config()
+    print("In-cluster configuration loaded successfully.")
+except Exception as e:
+    # Fall back to the default kubeconfig file when running locally (for testing)
+    print(f"Failed to load in-cluster configuration: {e}")
+    config.load_kube_config()
+    print("Falling back to kubeconfig file.")
+    
 # Initialize Kueue API
 crd_api = client.CustomObjectsApi()
 # Initialize BatchV1 API (native)
@@ -197,7 +206,7 @@ def format_log_entry(entry):
 
 def get_logs(first_run):
     global log_checkpoint_time
-    url = "http://localhost:3100/loki/api/v1/query_range"
+    url = "http://loki.loki.svc.cluster.local:3100/loki/api/v1/query_range"
     # TODO: make this default namespace?
     query = '{k8s_namespace_name="loki"}'
 

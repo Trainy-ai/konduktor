@@ -21,7 +21,7 @@ function NavTabs2(props) {
           },
         }} >
           <Tab sx={{ fontFamily: 'Poppins', }} label="Application Logs" />
-          <Tab sx={{ fontFamily: 'Poppins', }} label="Workspace Events" />
+          {/*<Tab sx={{ fontFamily: 'Poppins', }} label="Workspace Events" />*/}
         </Tabs>
       </Box>
     );
