@@ -37,11 +37,11 @@ for running workloads on GPUs enabled with high-performance networking so you ca
 at scale without having to configure, autoscale, upgrade GPU infrastructure. The following clouds support
 autoscaling:
 
-- **GCP (a3-ultragpu), H100-80GB-MEGA:8, 1.6Tbps, 192vCPUs, 1TB RAM, 2TB disk** - **Available** ✅
+- **GCP (a3-ultragpu), H100-MEGA-80GB:8, 1.6Tbps, 192vCPUs, 1TB RAM, 2TB disk** - **Available** ✅
 - AWS on-demand/spot support, H100:8 3.2Tbps - In progress 🚧
 - Azure on-demand/spot support, H100:8 3.2Tbps - In progress 🚧
 
-On our autoscaling clusters, for now we only support :code:`H100:8` or :code:`H100-80GB-MEGA:8` instances, which
+On our autoscaling clusters, for now we only support :code:`H100:8` or :code:`H100-MEGA-80GB:8` instances, which
 can be requested as.
 
 .. code-block:: yaml
