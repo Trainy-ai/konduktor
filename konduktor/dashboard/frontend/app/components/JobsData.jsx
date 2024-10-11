@@ -1,67 +1,73 @@
+'use client'
+
 import { useState, useEffect } from 'react'
 import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 
 
-function JobsTable() {
+function JobsData() {
 
-    const [jobsData, setJobsData] = useState([])
-    const [update, setUpdate] = useState(false)
+    const [data, setData] = useState([])
 
     const [paginationModel, setPaginationModel] = useState({
         pageSize: 10,
         page: 0,
     });
 
+    // Fetch workload data from backend
     const fetchData = async () => {
         try {
-            const response = await fetch(`http://backend.default.svc.cluster.local:5001/jobs`);
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const data = await response.json();
-            console.log(`Fetching jobs data: ${JSON.stringify(data)}`)
-            setJobsData(data)
-        } catch (error) {
-            console.error("Fetch error:", error);
-        }
-    }
-
-    const updatePriority = async (name, namespace, priority, priority_class_name) => {
-        try {
-            const response = await fetch('http://backend.default.svc.cluster.local:5001/updatePriority', {
-                method: 'PUT',
+            const response = await fetch(`/api/jobs`, {
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ name, namespace, priority, priority_class_name })
-            });
+                }
+            })
+            const data = await response.json();
+            console.log(JSON.stringify(data))
+            setData(data)
+            return data
         } catch (error) {
-            console.error("Fetch error:", error);
+            console.error('Error fetching from backend:', error);
+            return []
         }
     }
 
     const handleDelete = async (row) => {
-
-        const { name, namespace } = row;
-
+        const { name, namespace } = row
         try {
-            const response = await fetch('http://backend.default.svc.cluster.local:5001/deleteJob', {
+            const response = await fetch(`/api/jobs`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ name, namespace })
-            });
-
-            setUpdate(!update)
-
+            })
+            const data = await response.json()
+            console.log(JSON.stringify(data))
         } catch (error) {
-            console.error("Fetch error:", error);
+            console.error("Delete error:", error)
         }
-
-        return
-    };
+        await fetchData()
+    }
+    
+    const updatePriority = async (name, namespace, priority, priority_class_name) => {
+        try {
+            const response = await fetch(`/api/jobs`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, namespace, priority, priority_class_name })
+            })
+            const data = await response.json();
+            console.log(JSON.stringify(data))
+            return data
+        } catch (error) {
+            console.error("Put error:", error);
+            return error
+        }
+    }
 
     const columns = [
         { 
@@ -110,7 +116,7 @@ function JobsTable() {
         {
             field: 'actions',
             type: 'actions',
-            headerName: 'Delete',
+            headerName: 'DELETE',
             width: 70,
             cellClassName: 'actions',
             getActions: (params) => {
@@ -118,6 +124,7 @@ function JobsTable() {
               return [
                     <GridActionsCellItem
                         icon={<DeleteIcon />}
+                        key={`delete-${params.row.id}`}
                         label="Delete"
                         onClick={() => handleDelete(params.row)}
                         color="inherit"
@@ -131,17 +138,21 @@ function JobsTable() {
         const updatedRow = { ...newRow };
 
         try {
-            await updatePriority(updatedRow.name, updatedRow.namespace, updatedRow.priority, "")
+            const res = await updatePriority(updatedRow.name, updatedRow.namespace, updatedRow.priority, "")
+            console.log(`client: ${JSON.stringify(res)}`)
         } catch (error) {
             console.error("Fetch error:", error);
         }
 
-        return updatedRow
+        await fetchData()
+
+        return oldRow
     };
 
     useEffect(() => {
         fetchData()
-    }, [update])
+    }, [])
+
 
     return (
         <div className='flex w-full h-full flex-col p-8'>
@@ -159,7 +170,7 @@ function JobsTable() {
                     },
                     '--DataGrid-containerBackground': 'rgb(248 250 252)',
                 }}
-                rows={jobsData}
+                rows={data}
                 getRowId={(row) => row.id}
                 columns={columns}
                 paginationModel={paginationModel}
@@ -184,4 +195,4 @@ function JobsTable() {
     )
 }
 
-export default JobsTable
+export default JobsData

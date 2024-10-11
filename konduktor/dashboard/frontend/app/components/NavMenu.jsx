@@ -8,7 +8,7 @@ import {
     NavigationMenuList,
     NavigationMenuTrigger,
     NavigationMenuViewport,
-} from "@/components/ui/navigation-menu"
+} from "./ui/navigation-menu"
 import Box from '@mui/material/Box';  
 
 function NavMenu() {

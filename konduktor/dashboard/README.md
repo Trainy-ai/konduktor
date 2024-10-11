@@ -1,11 +1,15 @@
-When kubectl is hooked up to remote machine
+### Prereqs: kubectl is configured with remote machine/cluster
 
-# apply kubernetes manifest
-In manifests:
-    kubectl apply -f dashboard_deployment.yaml
+## 1. Apply kubernetes manifest
+Inside manifests (one with dashboard_deployment.yaml):
+```
+kubectl apply -f dashboard_deployment.yaml
+```
 
-# port forward frontend
-kubectl port-forward svc/frontend 5173:5173 -n default
+## 2. Port forward frontend and grafana
+```
+kubectl port-forward svc/frontend 5173:5173 -n default &
+kubectl port-forward svc/kube-prometheus-stack-grafana 3000:80 -n prometheus &
+```
 
-# port forward backend
-kubectl port-forward svc/backend 5001:5001 -n default
+### v0.5 notes: only uses logs from k8s_namespace_name="loki" and only uses jobs from default namespace

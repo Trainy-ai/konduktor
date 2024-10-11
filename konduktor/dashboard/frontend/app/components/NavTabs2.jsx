@@ -1,13 +1,13 @@
-import { useState } from 'react'
+
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 
 
-function NavTabs(props) {
+function NavTabs2(props) {
   
     return (
-      <Box sx={{ width: '100%' }} >
+      <Box sx={{ width: '100%' }}>
         <Tabs value={props.tab} onChange={props.handleTabChange} sx={{ 
           borderBottom: '2px solid rgb(229 231 235) !important',
           '& .MuiTabs-indicator': {
@@ -20,12 +20,11 @@ function NavTabs(props) {
             color: 'black !important',
           },
         }} >
-          <Tab label="Metrics" sx={{ fontWeight: 'bold', fontFamily: 'Poppins' }} />
-          <Tab label="Logs" sx={{ fontWeight: 'bold', fontFamily: 'Poppins' }} />
-          <Tab label="Jobs" sx={{ fontWeight: 'bold', fontFamily: 'Poppins' }} />
+          <Tab sx={{ fontFamily: 'Poppins', }} label="Application Logs" />
+          {/*<Tab sx={{ fontFamily: 'Poppins', }} label="Workspace Events" />*/}
         </Tabs>
       </Box>
     );
 }
 
-export default NavTabs
+export default NavTabs2

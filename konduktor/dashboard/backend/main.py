@@ -20,7 +20,6 @@ import logging
 app = Flask(__name__)
 
 # Ensure CORS is configured correctly
-#cors = CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 
@@ -204,49 +203,6 @@ def format_log_entry(entry):
     }
     return formatted_log
 
-def get_logs(first_run):
-    global log_checkpoint_time
-    url = "http://loki.loki.svc.cluster.local:3100/loki/api/v1/query_range"
-    # TODO: make this default namespace?
-    query = '{k8s_namespace_name="loki"}'
-
-    if first_run:
-        # Calculate how many nanoseconds to look back when first time looking at logs (currently 1 hour)
-        now = int(time.time() * 1e9)
-        one_hour_ago = now - int(3600 * 1e9)
-        start_time = str(one_hour_ago)
-    else:
-        # calculate new start_time based on newest, last message
-        start_time = str(int(log_checkpoint_time) + 1)
-
-    params = {
-        'query': query,
-        'start': start_time,
-        'limit': 300
-    }
-
-    response = requests.get(url, params=params)
-    formatted_logs = []
-    
-    last = 0
-
-    if response.status_code == 200:
-        data = response.json()
-        rows = data["data"]["result"]
-        
-        for row in rows:
-            for value in row["values"]:
-                last = max(int(value[0]), last)
-                formatted_logs.append(format_log_entry(value))
-
-    if formatted_logs:
-        # sort because sometimes loki API is wrong and logs are out of order
-        formatted_logs.sort(key=lambda log: datetime.datetime.strptime(log['timestamp'], "%Y-%m-%d %H:%M:%S"))
-        log_checkpoint_time = last
-
-    return formatted_logs
-
-
 
 
 
@@ -255,7 +211,7 @@ def get_logs(first_run):
 def home():
     return jsonify({"home": "/"})
 
-@app.route("/jobs", methods=["GET"])
+@app.route("/getJobs", methods=["GET"])
 def get_jobs():
 
     print('getting jobs')
@@ -267,6 +223,7 @@ def get_jobs():
 
 @app.route("/updatePriority", methods=["PUT"])
 def update_priority():
+    print('updating priority?')
     data = request.get_json()
     name = data.get('name', "")
     namespace = data.get('namespace', "default")
@@ -341,16 +298,101 @@ def delete_job():
         print(f"Exception: {e}")
         return jsonify({"error": str(e)}), e.status
 
+@app.route('/ping', methods=['GET'])
+def ping():
+    return jsonify({"message": "Pong from backend!"})
+
+
+def get_logs(first_run):
+    global log_checkpoint_time
+    url = "http://loki.loki.svc.cluster.local:3100/loki/api/v1/query_range"
+    # TODO: make this default namespace?
+    query = '{k8s_namespace_name="loki"}'
+
+    if first_run:
+        # Calculate how many nanoseconds to look back when first time looking at logs (currently 1 hour)
+        now = int(time.time() * 1e9)
+        one_hour_ago = now - int(3600 * 1e9)
+        start_time = str(one_hour_ago)
+    else:
+        # calculate new start_time based on newest, last message
+        start_time = str(int(log_checkpoint_time) + 1)
+
+    params = {
+        'query': query,
+        'start': start_time,
+        'limit': 300
+    }
+
+    response = requests.get(url, params=params)
+    formatted_logs = []
+    
+    last = 0
+
+    if response.status_code == 200:
+        data = response.json()
+        rows = data["data"]["result"]
+        
+        for row in rows:
+            for value in row["values"]:
+                last = max(int(value[0]), last)
+                formatted_logs.append(format_log_entry(value))
+
+    if formatted_logs:
+        # sort because sometimes loki API is wrong and logs are out of order
+        formatted_logs.sort(key=lambda log: datetime.datetime.strptime(log['timestamp'], "%Y-%m-%d %H:%M:%S"))
+        log_checkpoint_time = last
+
+    return formatted_logs
+
 client_connected = False
 first_run = True
 log_checkpoint_time = None
 log_checkpoint_time2 = None
 
-# TODO: websocket connection for continuous log fetching
+def get_logs_dev(first_run):
+    global log_checkpoint_time
+    url = "http://localhost:3100/loki/api/v1/query_range"
+    # TODO: make this default namespace?
+    query = '{k8s_namespace_name="loki"}'
 
-@app.route('/ping', methods=['GET'])
-def ping():
-    return jsonify({"message": "Pong from backend!"})
+    if first_run:
+        # Calculate how many nanoseconds to look back when first time looking at logs (currently 1 hour)
+        now = int(time.time() * 1e9)
+        one_hour_ago = now - int(3600 * 1e9)
+        start_time = str(one_hour_ago)
+    else:
+        # calculate new start_time based on newest, last message
+        start_time = str(int(log_checkpoint_time) + 1)
+
+    params = {
+        'query': query,
+        'start': start_time,
+        'limit': 300
+    }
+
+    response = requests.get(url, params=params)
+    formatted_logs = []
+    
+    last = 0
+
+    if response.status_code == 200:
+        data = response.json()
+        rows = data["data"]["result"]
+        
+        for row in rows:
+            for value in row["values"]:
+                last = max(int(value[0]), last)
+                formatted_logs.append(format_log_entry(value))
+
+    if formatted_logs:
+        # sort because sometimes loki API is wrong and logs are out of order
+        formatted_logs.sort(key=lambda log: datetime.datetime.strptime(log['timestamp'], "%Y-%m-%d %H:%M:%S"))
+        log_checkpoint_time = last
+
+    return formatted_logs
+
+# TODO: websocket connection for continuous log fetching
 
 @socketio.on('connect')
 def handle_connect():
@@ -362,7 +404,12 @@ def handle_connect():
     def send_logs():
         global first_run
         while client_connected:
-            logs = get_logs(first_run)
+            # TODO: EDIT THIS BETWEEN DEV/PROD
+            logs = []
+            try:
+                logs = get_logs(first_run)
+            except:
+                logs = get_logs_dev(first_run)
             first_run = False  # Set to False after the first run
             if logs:
                 socketio.emit('log_data', logs)
