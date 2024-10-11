@@ -80,7 +80,7 @@ To scale up the job size over multiple nodes, we just change :code:`task.yaml` t
 We define a script for each node to run by using the :code:`setup` and :code:`run` sections.
 
 .. code-block:: yaml
-    :emphasize-lines: 12-12,22-23,25-25
+    :emphasize-lines: 12-12,23-24,26-25
 
     resources:
         image_id: docker:nvcr.io/nvidia/pytorch:23.10-py3
@@ -103,6 +103,7 @@ We define a script for each node to run by using the :code:`setup` and :code:`ru
         tar -xvzf cifar-10-python.tar.gz
     
     run: |
+        cd pytorch-distributed-resnet
         num_nodes=`echo "$SKYPILOT_NODE_IPS" | wc -l`
         master_addr=`echo "$SKYPILOT_NODE_IPS" | head -n1`
         python3 -m torch.distributed.launch --nproc_per_node=$SKYPILOT_NUM_GPUS_PER_NODE \
