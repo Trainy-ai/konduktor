@@ -80,7 +80,7 @@ To scale up the job size over multiple nodes, we just change :code:`task.yaml` t
 We define a script for each node to run by using the :code:`setup` and :code:`run` sections.
 
 .. code-block:: yaml
-    :emphasize-lines: 12-12,23-24,26-25
+    :emphasize-lines: 12-12,23-24,26-26
 
     resources:
         image_id: docker:nvcr.io/nvidia/pytorch:23.10-py3
