@@ -8,7 +8,7 @@ function Btn() {
   return (
     <div className='flex gap-4'>
       <Button onClick={() => window.open('http://localhost:3000/dashboards', '_blank')}>
-        View in Grafana 3
+        View in Grafana
       </Button>
     </div>
   )

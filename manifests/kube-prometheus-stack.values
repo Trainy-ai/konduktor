@@ -1211,7 +1211,15 @@ grafana:
     #   targetLabel: nodename
     #   replacement: $1
     #   action: replace
+  
+  ## Allows grafana access from dashboard
+  grafana.ini:
+    security:
+      allow_embedding: true
+    http:
+      xframe_options: "allow"
 
+      
 ## Flag to disable all the kubernetes component scrapers
 ##
 kubernetesServiceMonitors:

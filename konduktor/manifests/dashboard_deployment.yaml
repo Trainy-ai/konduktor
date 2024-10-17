@@ -1,10 +1,15 @@
 ---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: konduktor-dashboard
+---
 # ServiceAccount
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: konduktor-service-account
-  namespace: default
+  namespace: konduktor-dashboard
 
 ---
 # ClusterRole
@@ -36,7 +41,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: konduktor-service-account  # Must match the name of the service account
-  namespace: default
+  namespace: konduktor-dashboard
 roleRef:
   kind: ClusterRole
   name: node-access-role  # Must match the ClusterRole name
@@ -48,7 +53,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend
-  namespace: default
+  namespace: konduktor-dashboard
 spec:
   replicas: 1
   selector:
@@ -62,30 +67,22 @@ spec:
       serviceAccountName: konduktor-service-account  # Specify the ServiceAccount here
       containers:
       - name: backend
-        image: ryanattrainy/konduktor-dashboard:backend
+        image: ryanattrainy/konduktor-dashboard:backend0.1
         imagePullPolicy: Always
         ports:
         - containerPort: 5001  # Backend port
-        - containerPort: 3000  # Grafana/Prometheus port
-        - containerPort: 3100  # Loki port
         command: ["/app/startup.sh"]
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: backend
-  namespace: default
+  namespace: konduktor-dashboard
 spec:
   ports:
   - name: backend-port
     port: 5001
     targetPort: 5001
-  - name: grafana-port
-    port: 3000
-    targetPort: 3000
-  - name: loki-port
-    port: 3100
-    targetPort: 3100
   selector:
     app: backend
 
@@ -95,7 +92,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend
-  namespace: default
+  namespace: konduktor-dashboard
 spec:
   replicas: 1
   selector:
@@ -108,7 +105,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ryanattrainy/konduktor-dashboard:frontend
+        image: ryanattrainy/konduktor-dashboard:frontend0.7
         imagePullPolicy: Always
         ports:
         - containerPort: 5173
@@ -117,7 +114,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: frontend
-  namespace: default
+  namespace: konduktor-dashboard
 spec:
   ports:
   - name: frontend-port

@@ -1,7 +1,7 @@
 
 const backendUrl = process.env.NODE_ENV === 'development'
     ? 'http://127.0.0.1:5000' // Development API
-    : 'http://backend.default.svc.cluster.local:5001' // Production API
+    : 'http://backend.konduktor-dashboard.svc.cluster.local:5001' // Production API
 
 // GET request for jobs
 export async function GET() {
