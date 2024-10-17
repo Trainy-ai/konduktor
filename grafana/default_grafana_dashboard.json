@@ -563,7 +563,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "count(DCGM_FI_DEV_GPU_UTIL{job=\"gpu-metrics\"}) by (modelName)",
+          "expr": "count(DCGM_FI_DEV_GPU_UTIL) by (modelName)",
           "instant": true,
           "legendFormat": "__auto",
           "range": false,

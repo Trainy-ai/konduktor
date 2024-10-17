@@ -23,7 +23,11 @@ Setup
 
     # install trainy-skypilot
     $ conda create -n konduktor python=3.10
+    $ conda activate konduktor
     $ pip install "trainy-skypilot-nightly[kubernetes]"
+
+    # if training on Trainy managed platform 
+    $ pip install trainy-policy-nightly
 
     # check that k8s credentials work
     $ sky check
@@ -34,9 +38,13 @@ and create the following in :code:`~/.sky/config.yaml`
 
 .. code-block:: yaml
 
+    # for training on Trainy managed platform
+    admin_policy: trainy.policy.GKEPolicy
+
     kubernetes:
+        autoscaler: gke  # for training on Trainy managed platform
+        provision_timeout: 600 # how long to wait for job to be scheduled, set to -1 to allow waiting indefinitely, necessary for managed jobs
         remote_identity: SERVICE_ACCOUNT
-        provision_timeout: -1
 
 Hello Konduktor
 ---------------
@@ -47,17 +55,18 @@ To create a development environment, let's first define our resource request as 
 
     resources:
         image_id: docker:nvcr.io/nvidia/pytorch:23.10-py3
-        accelerators: T4:4
-        cpus: 8+
-        memory: 8+
+        accelerators: H100-MEGA-80GB:8
+        cpus: 192+
+        memory: 1000+
         cloud: kubernetes
         # (optional) use resource queues if cluster admin set them
         labels:
             kueue.x-k8s.io/queue-name: user-queue # this is assigned by your admin
-            kueue.x-k8s.io/priority-class: low-priority
+            kueue.x-k8s.io/priority-class: low-priority # can be either low-priority, high-priority, if omitted defaults to low-priority
+            max-run-duration-seconds: "3000" # required to run
 
-The :code:`kueue.x-k8s.io` labels are required in order to run if your cluster admin created resource queues. 
-To issue this request run:
+The :code:`kueue.x-k8s.io` and `max-run-duration-seconds` labels are required in order to run
+if your cluster admin created resource queues. To issue this request run:
 
 .. code-block:: console
 
@@ -80,18 +89,19 @@ To scale up the job size over multiple nodes, we just change :code:`task.yaml` t
 We define a script for each node to run by using the :code:`setup` and :code:`run` sections.
 
 .. code-block:: yaml
-    :emphasize-lines: 12-12,23-24,26-25
+    :emphasize-lines: 12-12,23-24,26-26
 
     resources:
         image_id: docker:nvcr.io/nvidia/pytorch:23.10-py3
-        accelerators: T4:4
-        cpus: 8+
-        memory: 8+
+        accelerators: H100-MEGA-80GB:8
+        cpus: 192+
+        memory: 1000+
         cloud: kubernetes
         # (optional) use resource queues if cluster admin set them
         labels:
             kueue.x-k8s.io/queue-name: user-queue # this is assigned by your admin
             kueue.x-k8s.io/priority-class: high-priority # this will preempt low-priority jobs
+            max-run-duration-seconds: "3000" # required to run
 
     num_nodes: 2
 
@@ -127,6 +137,11 @@ This will create a managed job that will run in the background to completion.
 
 For a more thorough explanation of all of Skypilot's capabilities, please refer to the `documentation <https://skypilot.readthedocs.io/en/latest>`_ and `examples <https://github.com/skypilot-org/skypilot/tree/master/examples>`_.
 Below are a series of links to explain some of the commonly used capabilities of Skypilot relevant for running batch/training jobs.
+
+.. warning::
+
+    Using the managed jobs controller via `sky jobs launch` currently requires cloud access with object storage. 
+    Using the managed job controller with only Kubernetes credentials is still work in process.
 
 ------------------
 Skypilot Reference

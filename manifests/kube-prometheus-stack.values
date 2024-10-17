@@ -3575,7 +3575,7 @@ prometheus:
     ## prometheus resource to be created with selectors based on values in the helm deployment,
     ## which will also match the PrometheusRule resources created
     ##
-    # ruleSelectorNilUsesHelmValues: true
+    ruleSelectorNilUsesHelmValues: true
 
     ## PrometheusRules to be selected for target discovery.
     ## If {}, select all PrometheusRules
@@ -3600,7 +3600,7 @@ prometheus:
     ## prometheus resource to be created with selectors based on values in the helm deployment,
     ## which will also match the servicemonitors created
     ##
-    # serviceMonitorSelectorNilUsesHelmValues: false 
+    serviceMonitorSelectorNilUsesHelmValues: false 
 
     ## ServiceMonitors to be selected for target discovery.
     ## If {}, select all ServiceMonitors
@@ -3623,7 +3623,7 @@ prometheus:
     ## prometheus resource to be created with selectors based on values in the helm deployment,
     ## which will also match the podmonitors created
     ##
-    # podMonitorSelectorNilUsesHelmValues: true
+    podMonitorSelectorNilUsesHelmValues: true
 
     ## PodMonitors to be selected for target discovery.
     ## If {}, select all PodMonitors
@@ -3645,7 +3645,7 @@ prometheus:
     ## prometheus resource to be created with selectors based on values in the helm deployment,
     ## which will also match the probes created
     ##
-    # probeSelectorNilUsesHelmValues: true
+    probeSelectorNilUsesHelmValues: true
 
     ## Probes to be selected for target discovery.
     ## If {}, select all Probes
@@ -3667,7 +3667,7 @@ prometheus:
     ## prometheus resource to be created with selectors based on values in the helm deployment,
     ## which will also match the scrapeConfigs created
     ##
-    # scrapeConfigSelectorNilUsesHelmValues: true
+    scrapeConfigSelectorNilUsesHelmValues: true
 
     ## scrapeConfigs to be selected for target discovery.
     ## If {}, select all scrapeConfigs
@@ -4493,7 +4493,7 @@ thanosRuler:
     ## prometheus resource to be created with selectors based on values in the helm deployment,
     ## which will also match the PrometheusRule resources created
     ##
-    # ruleSelectorNilUsesHelmValues: true
+    ruleSelectorNilUsesHelmValues: true
 
     ## PrometheusRules to be selected for target discovery.
     ## If {}, select all PrometheusRules
