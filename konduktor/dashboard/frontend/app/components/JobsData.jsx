@@ -14,7 +14,6 @@ function JobsData() {
         page: 0,
     });
 
-    // Fetch workload data from backend
     const fetchData = async () => {
         try {
             const response = await fetch(`/api/jobs`, {

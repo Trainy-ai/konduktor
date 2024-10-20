@@ -1,6 +1,5 @@
 import "./globals.css";
 
-import Btn from "./components/Btn";
 import Grafana from "./components/Grafana";
 
 export default function Home() {

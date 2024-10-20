@@ -12,4 +12,4 @@ kubectl port-forward svc/frontend 5173:5173 -n konduktor-dashboard &
 kubectl port-forward svc/kube-prometheus-stack-grafana 3000:80 -n prometheus &
 ```
 
-### v0.7 notes: only uses logs from k8s_namespace_name="loki" and only uses jobs from default namespace
+### v0.9 notes: only uses jobs from default namespace

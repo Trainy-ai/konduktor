@@ -1,7 +1,8 @@
+import { NextResponse } from 'next/server';
 
 const backendUrl = process.env.NODE_ENV === 'development'
     ? 'http://127.0.0.1:5000' // Development API
-    : 'http://backend.konduktor-dashboard.svc.cluster.local:5001' // Production API
+    : 'http://backend:5001' // Production API
 
 // GET request for jobs
 export async function GET() {
@@ -18,10 +19,10 @@ export async function GET() {
     
         const data = await response.json()
         console.log(`Server Component getJobs: ${JSON.stringify(data)}`)
-        return new Response(JSON.stringify(data))
+        return new NextResponse(JSON.stringify(data))
     } catch (error) {
         console.error("Server delete error:", error);
-        return new Response(error)
+        return new NextResponse(error)
     }
 }
 
@@ -42,10 +43,10 @@ export async function DELETE(req) {
     
         const data = await response.json()
         console.log(`Server Component deleteJob: ${JSON.stringify(data)}`)
-        return new Response(JSON.stringify(data))
+        return new NextResponse(JSON.stringify(data))
     } catch (error) {
         console.error("Server delete error:", error);
-        return new Response(error)
+        return new NextResponse(error)
     }
 }
 
@@ -65,10 +66,10 @@ export async function PUT(req) {
     
         const data = await response.json()
         console.log(`Server Component updatePriority: ${JSON.stringify(data)}`)
-        return new Response(JSON.stringify(data))
+        return new NextResponse(JSON.stringify(data))
     } catch (error) {
         console.error("Server update error:", error);
-        return new Response(error)
+        return new NextResponse(error)
     }
 }
   

@@ -3,14 +3,35 @@
 import { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { Input } from "./ui/input";
+import ChipSelect from "./ui/chip-select";
 import { FaSearch } from 'react-icons/fa';
 
-const SocketComponent = () => {
+function LogsData() {
 
     const [logsData, setLogsData] = useState([]);
+    const [namespaces, setNamespaces] = useState([]);
+    const [selectedNamespaces, setSelectedNamespaces] = useState(['default']);
     const [isAtBottom, setIsAtBottom] = useState(true);  // Track if user is at the bottom
     const logContainerRef = useRef(null);
     const [searchQuery, setSearchQuery] = useState('')
+
+    const fetchData = async () => {
+        try {
+            const response = await fetch(`/api/namespaces`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            const data = await response.json();
+            console.log(JSON.stringify(data))
+            setNamespaces(data)
+            return
+        } catch (error) {
+            console.error('Error fetching from backend:', error);
+            return
+        }
+    }
 
     // Check if user is at the bottom of the log container
     const handleScroll = () => {
@@ -29,6 +50,10 @@ const SocketComponent = () => {
         log.log.toLowerCase().includes(searchQuery.toLowerCase()) ||
         log.timestamp.toLowerCase().includes(searchQuery.toLowerCase())
     )
+
+    useEffect(() => {
+        fetchData()
+    }, []);
 
     useEffect(() => {
         // Connect to Next.js Socket.IO server
@@ -52,6 +77,13 @@ const SocketComponent = () => {
         };
     }, []);
 
+    // Emit selected namespaces whenever they change
+    useEffect(() => {
+        const socket = io('http://localhost:5173');
+        socket.emit('update_namespaces', selectedNamespaces);
+        console.log('Sent namespaces to backend:', selectedNamespaces);
+    }, [selectedNamespaces]);
+
     useEffect(() => {
         if (isAtBottom && logContainerRef.current) {
             logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
@@ -59,8 +91,8 @@ const SocketComponent = () => {
     }, [logsData, isAtBottom]);
 
     return (
-        <div className='flex w-full h-full flex-col mt-2 p-8'>
-            <div className='flex w-full my-4 py-4 justify-center bg-slate-50 rounded-md border-2'>
+        <div className='flex w-full h-full flex-col px-8'>
+            <div className='flex w-full my-4 py-4 justify-center gap-2'>
                 <div className="relative w-full md:w-1/4 min-w-[250px] mx-8 md:mx-0 flex justify-center items-center">
                     <span className="absolute left-3 text-gray-500">
                         <FaSearch />
@@ -72,6 +104,7 @@ const SocketComponent = () => {
                         onChange={handleSearchChange}
                     />
                 </div>
+                <ChipSelect namespaces={namespaces} selectedNamespaces={selectedNamespaces} setSelectedNamespaces={setSelectedNamespaces} />
             </div>
             <div className='flex w-full bg-white h-full py-2 justify-center bg-slate-50 rounded-md border-2 max-h-[450px] box-border'>
                 <div ref={logContainerRef} onScroll={handleScroll} className='w-full bg-white flex flex-col overflow-y-scroll box-border'>
@@ -91,4 +124,4 @@ const SocketComponent = () => {
     );
 };
 
-export default SocketComponent;
+export default LogsData

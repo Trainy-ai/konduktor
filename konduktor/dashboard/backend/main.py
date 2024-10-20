@@ -42,6 +42,7 @@ except Exception as e:
 crd_api = client.CustomObjectsApi()
 # Initialize BatchV1 API (native)
 batch_api = client.BatchV1Api()
+core_api = client.CoreV1Api()
 
 
 
@@ -120,77 +121,6 @@ def format_workloads(listing):
 
     return res
 
-# OLD
-def get_cluster_status(job):
-    conditions = job.get("status", {}).get("conditions", [])
-    succeeded = job.get("status", {}).get("succeeded", 0)
-    failed = job.get("status", {}).get("failed", 0)
-    active = job.get("status", {}).get("active", 0)
-
-    for condition in conditions:
-        if condition["type"] == "Complete" and condition["status"] == "True":
-            return "Completed"
-        elif condition["type"] == "Failed" and condition["status"] == "True":
-            return "Failed"
-        elif condition["type"] == "Suspended" and condition["status"] == "True":
-            return "Suspended"
-
-    if active > 0:
-        return "Running"
-
-    if succeeded == 0 and failed == 0:
-        return "In Progress"
-
-    return "Unknown"
-    
-# OLD
-def format_jobs(listing):
-    if not listing:
-        return []
-    
-    res = []
-    
-    for job in listing["items"]:
-
-        # status = job.get("status", {})
-        # print(json.dumps(status, indent=2))
-
-        id = job["metadata"]["uid"]
-        name = job["metadata"]["name"]
-        created_at = job["metadata"]["creationTimestamp"]
-
-        # Determine the status of the job
-        status = get_cluster_status(job)
-        
-        # Total jobs (this example assumes `spec.completions` is the total)
-        total_jobs = job.get("spec", {}).get("completions", 0)
-        
-        # Active jobs (assuming active jobs are inferred from conditions, if `status.succeeded` is not available)
-        active_jobs = job.get("status", {}).get("active", 0)
-        
-        # Successful jobs
-        successful_jobs = job.get("status", {}).get("succeeded", 0)
-        
-        # Failed jobs (if `status.failed` is available, use it; otherwise, assume failed if not succeeded)
-        failed_jobs = job.get("status", {}).get("failed", 0)
-        
-        # Created by (assuming creator information might be in labels or annotations, example uses a placeholder)
-        created_by = job["metadata"]["labels"].get("creator", "") if "labels" in job["metadata"] else "Unknown"
-
-        res.append({
-            "id": id,
-            "name": name,
-            "cluster_status": status,
-            "total_jobs": total_jobs,
-            "active": active_jobs,
-            "successful": successful_jobs,
-            "failed": failed_jobs,
-            "created_at": created_at,
-            "created_by": created_by
-        })
-
-    return res
-
 def format_log_entry(entry):
     timestamp_ns = entry[0]
     log_message = entry[1]
@@ -213,23 +143,29 @@ def home():
 
 @app.route("/getJobs", methods=["GET"])
 def get_jobs():
-
-    print('getting jobs')
-
-
     rows = fetch_jobs()
-
     return jsonify(rows)
+
+@app.route("/getNamespaces", methods=["GET"])
+def get_namespaces():
+    print('here1')
+    try:
+        # Get the list of namespaces
+        namespaces = core_api.list_namespace()
+        # Extract the namespace names from the response
+        namespace_list = [ns.metadata.name for ns in namespaces.items]
+        return jsonify(namespace_list)
+    except ApiException as e:
+        print(f"Exception: {e}")
+        return jsonify({"error": str(e)}), e.status
+    
 
 @app.route("/updatePriority", methods=["PUT"])
 def update_priority():
-    print('updating priority?')
     data = request.get_json()
     name = data.get('name', "")
     namespace = data.get('namespace', "default")
     priority = data.get('priority', 0)
-
-    # TODO: Input validation
 
     try:
 
@@ -271,8 +207,6 @@ def delete_job():
     # Join the sliced parts back together with '-'
     native_job_name = '-'.join(native_job_name_parts)
 
-    # TODO: Input validation
-
     try:
         delete_options = client.V1DeleteOptions()
 
@@ -306,8 +240,10 @@ def ping():
 def get_logs(first_run):
     global log_checkpoint_time
     url = "http://loki.loki.svc.cluster.local:3100/loki/api/v1/query_range"
-    # TODO: make this default namespace?
-    query = '{k8s_namespace_name="loki"}'
+
+    # Use the selected namespaces in the query
+    namespace_filter = '|'.join(selected_namespaces) if selected_namespaces else 'default'
+    query = f'{{k8s_namespace_name=~"{namespace_filter}"}}'
 
     if first_run:
         # Calculate how many nanoseconds to look back when first time looking at logs (currently 1 hour)
@@ -350,11 +286,23 @@ first_run = True
 log_checkpoint_time = None
 log_checkpoint_time2 = None
 
+selected_namespaces = []  # Global variable to store namespaces
+
+@socketio.on('update_namespaces')
+def handle_update_namespaces(namespaces):
+    print('HEREHEREHRHERHEHREHRHEHRHEHRHEHR')
+    global selected_namespaces
+    selected_namespaces = namespaces  # Store namespaces
+    print('Updated namespaces:', selected_namespaces)
+
 def get_logs_dev(first_run):
     global log_checkpoint_time
     url = "http://localhost:3100/loki/api/v1/query_range"
-    # TODO: make this default namespace?
-    query = '{k8s_namespace_name="loki"}'
+    # Use the selected namespaces in the query
+    namespace_filter = '|'.join(selected_namespaces) if selected_namespaces else 'default'
+    query = f'{{k8s_namespace_name=~"{namespace_filter}"}}'
+
+    print(query)
 
     if first_run:
         # Calculate how many nanoseconds to look back when first time looking at logs (currently 1 hour)
@@ -404,7 +352,6 @@ def handle_connect():
     def send_logs():
         global first_run
         while client_connected:
-            # TODO: EDIT THIS BETWEEN DEV/PROD
             logs = []
             try:
                 logs = get_logs(first_run)

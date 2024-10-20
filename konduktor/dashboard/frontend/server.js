@@ -5,7 +5,7 @@ const { Server: SocketIOServer } = require('socket.io');
 const ClientIO = require('socket.io-client'); // Client-side connection to Flask
 
 const dev = process.env.NODE_ENV !== 'production';
-const hostname = 'localhost'; // or your production hostname
+const hostname = '127.0.0.1'; // or your production hostname
 const port = 5173; // This is the Next.js port
 
 const app = next({ dev, hostname, port });
@@ -36,6 +36,12 @@ app.prepare().then(() => {
     // Forward any data received from Flask to the connected client
     flaskSocket.on('log_data', (data) => {
       clientSocket.emit('log_data', data); // Forward logs to the client
+    });
+
+    // Receive updated namespaces from the client
+    clientSocket.on('update_namespaces', (namespaces) => {
+      console.log('Received namespaces from client:', namespaces);
+      flaskSocket.emit('update_namespaces', namespaces);  // Send to Flask
     });
 
     clientSocket.on('disconnect', () => {
