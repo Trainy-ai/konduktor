@@ -26,7 +26,6 @@ You can see and connect to the clusters you have access to with:
     Checking credentials to enable clouds for SkyPilot.
     Kubernetes: enabled
 
-Once you are connected, you can start `running jobs <usage/quickstart.html>` on your cluster.
 
 ===================
 Node Specifications
