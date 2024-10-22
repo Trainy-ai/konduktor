@@ -10,7 +10,6 @@ export default async function MetricsData() {
     try {
       const response = await fetch(`${backendUrl}/ping`, {cache: 'no-store'});
       const data = await response.json();
-      console.log(JSON.stringify(data))
       return JSON.stringify(data)
     } catch (error) {
       console.error('Error fetching from backend:', error);

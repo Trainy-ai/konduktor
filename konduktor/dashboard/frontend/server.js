@@ -40,7 +40,6 @@ app.prepare().then(() => {
 
     // Receive updated namespaces from the client
     clientSocket.on('update_namespaces', (namespaces) => {
-      console.log('Received namespaces from client:', namespaces);
       flaskSocket.emit('update_namespaces', namespaces);  // Send to Flask
     });
 

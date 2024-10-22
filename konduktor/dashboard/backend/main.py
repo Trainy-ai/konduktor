@@ -75,16 +75,6 @@ def fetch_jobs():
 
     return format_workloads(listing)
 
-    # OLD
-    listing = crd_api.list_namespaced_custom_object(
-        group="batch",
-        version="v1",
-        namespace=args.namespace,
-        plural="jobs",
-    )
-
-    return format_jobs(listing)
-
 # NEW
 def format_workloads(listing):
     if not listing:
@@ -121,7 +111,7 @@ def format_workloads(listing):
 
     return res
 
-def format_log_entry(entry):
+def format_log_entry(entry, namespace):
     timestamp_ns = entry[0]
     log_message = entry[1]
     timestamp_s = int(timestamp_ns) / 1e9
@@ -129,7 +119,8 @@ def format_log_entry(entry):
     human_readable_time = dt.strftime('%Y-%m-%d %H:%M:%S')
     formatted_log = {
         "timestamp": human_readable_time,
-        "log": log_message
+        "log": log_message,
+        "namespace": namespace
     }
     return formatted_log
 
@@ -148,7 +139,6 @@ def get_jobs():
 
 @app.route("/getNamespaces", methods=["GET"])
 def get_namespaces():
-    print('here1')
     try:
         # Get the list of namespaces
         namespaces = core_api.list_namespace()
@@ -192,6 +182,37 @@ def update_priority():
     except ApiException as e:
         print(f"Exception: {e}")
         return jsonify({"error": str(e)}), e.status
+
+# get workloads in kueue
+def list_all_workloads(namespace="default"):
+    try:
+        # List workloads from the CRD API
+        workloads = crd_api.list_namespaced_custom_object(
+            group="kueue.x-k8s.io",
+            version="v1beta1",
+            namespace=namespace,
+            plural="workloads"
+        )
+        for workload in workloads.get('items', []):
+            print(f"Workload Name: {workload['metadata']['name']}")
+
+    except ApiException as e:
+        print(f"Failed to list workloads: {e}")
+
+# get jobs in native kubernetes kueue
+def list_all_jobs():
+    try:
+        jobs = batch_api.list_job_for_all_namespaces(watch=False)  # Get all jobs
+
+        if not jobs.items:
+            print("No jobs found.")
+        else:
+            print("Jobs found:")
+            for job in jobs.items:
+                print(f"Name: {job.metadata.name}, Namespace: {job.metadata.namespace}")
+
+    except ApiException as e:
+        print(f"Failed to list jobs: {e}")
     
 @app.route("/deleteJob", methods=["DELETE"])
 def delete_job():
@@ -199,6 +220,7 @@ def delete_job():
     name = data.get('name', "")
     namespace = data.get('namespace', "default")
 
+    """
     # This is because kueue and native kubernetes have different job names:
     # Split the name into parts using the '-' delimiter
     name_parts = name.split('-')
@@ -206,9 +228,26 @@ def delete_job():
     native_job_name_parts = name_parts[1:-1]
     # Join the sliced parts back together with '-'
     native_job_name = '-'.join(native_job_name_parts)
+    """
 
     try:
-        delete_options = client.V1DeleteOptions()
+        delete_options = client.V1DeleteOptions(propagation_policy='Background')
+
+        crd_api.delete_namespaced_custom_object(
+            group="kueue.x-k8s.io",
+            version="v1beta1",
+            namespace=namespace,
+            plural="workloads",
+            name=name,
+            body=delete_options
+        )
+        print(f"Kueue Workload '{name}' deleted successfully.")
+
+        """
+        list_all_workloads()
+        list_all_jobs()
+
+        print(f"Native Kubernetes Job Name: {native_job_name}")
 
         batch_api.delete_namespaced_job(
             name=native_job_name,
@@ -216,15 +255,8 @@ def delete_job():
             body=delete_options
         )
         print(f"Native Kubernetes Job {native_job_name} deleted successfully.")
+        """
 
-        crd_api.delete_namespaced_custom_object(
-            group="kueue.x-k8s.io",
-            version="v1beta1",
-            namespace=namespace,
-            plural="workloads",
-            name=name
-        )
-        print(f"Kueue Workload '{name}' deleted successfully.")
 
         return jsonify({'success': True, 'status': 200})
 
@@ -270,9 +302,10 @@ def get_logs(first_run):
         rows = data["data"]["result"]
         
         for row in rows:
+            namespace = row['stream']['k8s_namespace_name']
             for value in row["values"]:
                 last = max(int(value[0]), last)
-                formatted_logs.append(format_log_entry(value))
+                formatted_logs.append(format_log_entry(value, namespace))
 
     if formatted_logs:
         # sort because sometimes loki API is wrong and logs are out of order
@@ -290,10 +323,8 @@ selected_namespaces = []  # Global variable to store namespaces
 
 @socketio.on('update_namespaces')
 def handle_update_namespaces(namespaces):
-    print('HEREHEREHRHERHEHREHRHEHRHEHRHEHR')
     global selected_namespaces
-    selected_namespaces = namespaces  # Store namespaces
-    print('Updated namespaces:', selected_namespaces)
+    selected_namespaces = namespaces
 
 def get_logs_dev(first_run):
     global log_checkpoint_time
@@ -301,8 +332,6 @@ def get_logs_dev(first_run):
     # Use the selected namespaces in the query
     namespace_filter = '|'.join(selected_namespaces) if selected_namespaces else 'default'
     query = f'{{k8s_namespace_name=~"{namespace_filter}"}}'
-
-    print(query)
 
     if first_run:
         # Calculate how many nanoseconds to look back when first time looking at logs (currently 1 hour)
@@ -329,9 +358,10 @@ def get_logs_dev(first_run):
         rows = data["data"]["result"]
         
         for row in rows:
+            namespace = row['stream']['k8s_namespace_name']
             for value in row["values"]:
                 last = max(int(value[0]), last)
-                formatted_logs.append(format_log_entry(value))
+                formatted_logs.append(format_log_entry(value, namespace))
 
     if formatted_logs:
         # sort because sometimes loki API is wrong and logs are out of order

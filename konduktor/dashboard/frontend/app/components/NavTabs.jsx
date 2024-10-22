@@ -1,20 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation'; // usePathname instead of useRouter directly
+import { usePathname } from 'next/navigation';
+import Link from 'next/link'; // Import Link from Next.js for client-side navigation
 import Box from '@mui/material/Box';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 
 function NavTabs() {
-  const router = useRouter();
-  const pathname = usePathname(); // Using usePathname to get the current route
-
+  const pathname = usePathname();
   const [tabValue, setTabValue] = useState(undefined);
 
-  // Update the tabValue based on the current path
   useEffect(() => {
-    if (!pathname) return; // Ensure pathname is available before proceeding
+    if (!pathname) return;
 
     if (pathname === '/') {
       setTabValue(0);
@@ -27,18 +25,11 @@ function NavTabs() {
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
-    if (newValue === 0) {
-      router.push('/');
-    } else if (newValue === 1) {
-      router.push('/logs');
-    } else if (newValue === 2) {
-      router.push('/jobs');
-    }
   };
 
   return (
     <Box sx={{ width: '100%' }}>
-      {tabValue !== undefined ?
+      {tabValue !== undefined ? (
         <Tabs
           value={tabValue}
           onChange={handleTabChange}
@@ -55,13 +46,26 @@ function NavTabs() {
             },
           }}
         >
-          <Tab label="Metrics" sx={{ fontWeight: 'bold', fontFamily: 'Poppins' }} />
-          <Tab label="Logs" sx={{ fontWeight: 'bold', fontFamily: 'Poppins' }} />
-          <Tab label="Jobs" sx={{ fontWeight: 'bold', fontFamily: 'Poppins' }} />
+          <Tab
+            component={Link}
+            href="/"
+            label="Metrics"
+            sx={{ fontWeight: 'bold', fontFamily: 'Poppins' }}
+          />
+          <Tab
+            component={Link}
+            href="/logs"
+            label="Logs"
+            sx={{ fontWeight: 'bold', fontFamily: 'Poppins' }}
+          />
+          <Tab
+            component={Link}
+            href="/jobs"
+            label="Jobs"
+            sx={{ fontWeight: 'bold', fontFamily: 'Poppins' }}
+          />
         </Tabs>
-      :
-        null
-      }
+      ) : null}
     </Box>
   );
 }

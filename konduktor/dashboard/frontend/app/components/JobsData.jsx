@@ -23,7 +23,6 @@ function JobsData() {
                 }
             })
             const data = await response.json();
-            console.log(JSON.stringify(data))
             setData(data)
             return data
         } catch (error) {
@@ -42,12 +41,17 @@ function JobsData() {
                 },
                 body: JSON.stringify({ name, namespace })
             })
-            const data = await response.json()
-            console.log(JSON.stringify(data))
+            const data2 = await response.json()
+            console.log(JSON.stringify(data2))
+
+            // Optimistically remove the row from the state
+            const newData = data.filter((job) => job.name !== name || job.namespace !== namespace);
+            setData(newData);
+
         } catch (error) {
             console.error("Delete error:", error)
         }
-        await fetchData()
+        console.log('here after deleting')
     }
     
     const updatePriority = async (name, namespace, priority, priority_class_name) => {
@@ -60,7 +64,6 @@ function JobsData() {
                 body: JSON.stringify({ name, namespace, priority, priority_class_name })
             })
             const data = await response.json();
-            console.log(JSON.stringify(data))
             return data
         } catch (error) {
             console.error("Put error:", error);
@@ -138,7 +141,6 @@ function JobsData() {
 
         try {
             const res = await updatePriority(updatedRow.name, updatedRow.namespace, updatedRow.priority, "")
-            console.log(`client: ${JSON.stringify(res)}`)
         } catch (error) {
             console.error("Fetch error:", error);
         }

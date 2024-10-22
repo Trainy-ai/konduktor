@@ -5,11 +5,17 @@ Inside manifests directory (one with dashboard_deployment.yaml):
 ```
 kubectl apply -f dashboard_deployment.yaml
 ```
+Then, wait a minute or two for the pods to finish setup
 
-## 2. Port forward frontend and grafana
+## 2. Port forward frontend in a terminal
 ```
-kubectl port-forward svc/frontend 5173:5173 -n konduktor-dashboard &
-kubectl port-forward svc/kube-prometheus-stack-grafana 3000:80 -n prometheus &
+kubectl port-forward svc/frontend 5173:5173 -n konduktor-dashboard
 ```
 
-### v0.9 notes: only uses jobs from default namespace
+## 3. Port forward grafana in a terminal
+```
+kubectl port-forward svc/kube-prometheus-stack-grafana 3000:80 -n prometheus
+```
+
+## 4. Open dashboard at http://localhost:5173/
+

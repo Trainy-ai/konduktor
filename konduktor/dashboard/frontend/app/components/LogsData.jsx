@@ -24,7 +24,6 @@ function LogsData() {
                 }
             })
             const data = await response.json();
-            console.log(JSON.stringify(data))
             setNamespaces(data)
             return
         } catch (error) {
@@ -65,7 +64,6 @@ function LogsData() {
 
         socket.on('log_data', (data) => {
             setLogsData((prevLogs) => [...prevLogs, ...data]);
-            console.log('Received log data:', data);
         });
 
         socket.on('disconnect', () => {
@@ -81,7 +79,6 @@ function LogsData() {
     useEffect(() => {
         const socket = io('http://localhost:5173');
         socket.emit('update_namespaces', selectedNamespaces);
-        console.log('Sent namespaces to backend:', selectedNamespaces);
     }, [selectedNamespaces]);
 
     useEffect(() => {
@@ -112,6 +109,11 @@ function LogsData() {
                         <div key={index} className='py-1 px-2 flex flex-row box-border'>
                             <div className='w-36 min-w-36 max-w-36'>
                                 <p className='text-gray-500 text-[12px]'>{data.timestamp}</p>
+                            </div>
+                            <div className='flex justify-center mr-4'>
+                                <div className='bg-[rgb(0,0,0,0.08)] rounded-[4px] px-2 h-[18px]'>
+                                    <p className='text-gray-900 text-[12px]'>{data.namespace}</p>
+                                </div>
                             </div>
                             <div>
                                 <p className="text-gray-900 text-[12px] leading-4">{data.log}</p>

@@ -1218,6 +1218,9 @@ grafana:
       allow_embedding: true
     http:
       xframe_options: "allow"
+      cors:
+        allow_origins: "*"
+
 
       
 ## Flag to disable all the kubernetes component scrapers
