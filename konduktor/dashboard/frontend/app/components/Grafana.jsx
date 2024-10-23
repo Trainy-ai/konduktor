@@ -8,9 +8,6 @@ function Grafana() {
     const [isIframeLoaded, setIsIframeLoaded] = useState(false);
     const [isError, setIsError] = useState(false);
     const iframeRef = useRef(null);
-
-    console.log(`loaded: ${isIframeLoaded}`)
-    console.log(`error: ${isError}`)
   
     const handleLoad = () => {
         setIsIframeLoaded(true);

@@ -42,7 +42,6 @@ function JobsData() {
                 body: JSON.stringify({ name, namespace })
             })
             const data2 = await response.json()
-            console.log(JSON.stringify(data2))
 
             // Optimistically remove the row from the state
             const newData = data.filter((job) => job.name !== name || job.namespace !== namespace);
@@ -51,7 +50,6 @@ function JobsData() {
         } catch (error) {
             console.error("Delete error:", error)
         }
-        console.log('here after deleting')
     }
     
     const updatePriority = async (name, namespace, priority, priority_class_name) => {
