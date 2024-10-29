@@ -13,6 +13,10 @@ API_TIMEOUT = 5
 _configured = False
 _core_api = None
 
+# For dashboard
+_batch_api = None
+_crd_api = None
+
 
 def _load_config():
     global _configured
@@ -37,6 +41,20 @@ def core_api():
         _load_config()
         _core_api = kubernetes.client.CoreV1Api()
     return _core_api
+
+def batch_api():
+    global _batch_api
+    if _batch_api is None:
+        _load_config()
+        _batch_api = kubernetes.client.BatchV1Api()
+    return _batch_api
+
+def crd_api():
+    global _crd_api
+    if _crd_api is None:
+        _load_config()
+        _crd_api = kubernetes.client.CustomObjectsApi()
+    return _crd_api
 
 
 def api_exception():

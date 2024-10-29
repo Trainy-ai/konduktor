@@ -25,6 +25,12 @@ pytest-xdist = "^3.6.1"
 types-colorama = "^0.4.15.20240311"
 types-requests = "^2.32.0.20240622"
 
+[tool.poetry.group.dashboard.dependencies]
+Flask = "^3.0.3"
+flask-cors = "^5.0.0"
+flask-socketio = "^5.4.1"
+gunicorn = "^23.0.0"
+
 [tool.ruff]
 line-length = 88
 

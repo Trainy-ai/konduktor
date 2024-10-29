@@ -2,7 +2,7 @@ services:
   backend:
     build:
       context: ./backend
-    image: ryanattrainy/konduktor-dashboard:backend
+    image: ryanattrainy/konduktor-dashboard:backend1.01
     ports:
       - "5001:5001"  # Expose backend port
       - "3000:3000"  # Expose Grafana/Prometheus port
@@ -14,7 +14,7 @@ services:
   frontend:
     build:
       context: ./frontend
-    image: ryanattrainy/konduktor-dashboard:frontend
+    image: ryanattrainy/konduktor-dashboard:frontend1.01
     ports:
       - "5173:5173"
     depends_on:
