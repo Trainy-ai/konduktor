@@ -3,13 +3,12 @@ import time
 
 import requests
 from flask import Flask, jsonify, request
-
 from flask_cors import CORS
 from flask_socketio import SocketIO
-from kubernetes import client, config
+from kubernetes import client
 from kubernetes.client.exceptions import ApiException
 
-from konduktor.kube_client import core_api, batch_api, crd_api
+from konduktor.kube_client import batch_api, core_api, crd_api
 
 app = Flask(__name__)
 
@@ -33,9 +32,10 @@ CLIENT_CONNECTED = False
 FIRST_RUN = True
 LOG_CHECKPOINT_TIME = None
 LOG_CHECKPOINT_TIME2 = None
-SELECTED_NAMESPACES = []
+SELECTED_NAMESPACES: list[str] = []
 PROD_LOGS_URL = "http://loki.loki.svc.cluster.local:3100/loki/api/v1/query_range"
 DEV_LOGS_URL = "http://localhost:3100/loki/api/v1/query_range"
+
 
 # Get a listing of workloads in kueue
 def fetch_jobs():
@@ -132,8 +132,9 @@ def list_all_jobs():
     except ApiException as e:
         print(f"Failed to list jobs: {e}")
 
+
 def get_logs(FIRST_RUN, dev):
-    global log_checkpoint_time
+    global LOG_CHECKPOINT_TIME
 
     # Use the selected namespaces in the query
     namespace_filter = (
@@ -149,7 +150,7 @@ def get_logs(FIRST_RUN, dev):
         start_time = str(one_hour_ago)
     else:
         # calculate new start_time based on newest, last message
-        start_time = str(int(log_checkpoint_time) + 1)
+        start_time = str(int(LOG_CHECKPOINT_TIME) + 1)
 
     params = {"query": query, "start": start_time, "limit": 300}
 
@@ -181,8 +182,8 @@ def get_logs(FIRST_RUN, dev):
     return formatted_logs
 
 
-
 # ROUTES
+
 
 @app.route("/", methods=["GET"])
 def home():
@@ -298,6 +299,7 @@ def update_priority():
 
 # websocket connection for continuous log fetching
 
+
 @socketio.on("connect")
 def handle_connect():
     global CLIENT_CONNECTED, FIRST_RUN
@@ -321,10 +323,12 @@ def handle_connect():
 
     socketio.start_background_task(send_logs)
 
+
 @socketio.on("update_namespaces")
 def handle_update_namespaces(namespaces):
     global SELECTED_NAMESPACES
     SELECTED_NAMESPACES = namespaces
+
 
 @socketio.on("disconnect")
 def handle_disconnect():

@@ -42,12 +42,14 @@ def core_api():
         _core_api = kubernetes.client.CoreV1Api()
     return _core_api
 
+
 def batch_api():
     global _batch_api
     if _batch_api is None:
         _load_config()
         _batch_api = kubernetes.client.BatchV1Api()
     return _batch_api
+
 
 def crd_api():
     global _crd_api
