@@ -38,3 +38,7 @@ tolerations:
   operator: "Equal"
   values: "true"
   effect: "NoSchedule"
+- key: "cloud.google.com/gke-queued"
+  operator: "Equal"
+  values: "true"
+  effect: "NoSchedule"
