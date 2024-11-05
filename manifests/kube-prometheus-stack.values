@@ -3795,17 +3795,21 @@ prometheus:
     ## Prometheus StorageSpec for persistent data
     ## ref: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/user-guides/storage.md
     ##
-    storageSpec: {}
-    ## Using PersistentVolumeClaim
-    ##
-    #  volumeClaimTemplate:
-    #    spec:
-    #      storageClassName: gluster
-    #      accessModes: ["ReadWriteOnce"]
-    #      resources:
-    #        requests:
-    #          storage: 50Gi
-    #    selector: {}
+    # storageSpec: {}
+    storageSpec:
+    # Using PersistentVolumeClaim
+    #
+      volumeClaimTemplate:
+        spec:
+          claimName: prometheus-pvc
+          storageClassName: standard-rwo
+          # storageClassName: local-path # for k3s
+          # storageClassName: gp2 # for aws
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 50Gi
+        selector: {}
 
     ## Using tmpfs volume
     ##
