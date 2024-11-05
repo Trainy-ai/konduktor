@@ -67,7 +67,7 @@ spec:
       serviceAccountName: konduktor-service-account
       containers:
       - name: backend
-        image: ryanattrainy/konduktor-dashboard:backend1.12
+        image: ryanattrainy/konduktor-dashboard:backend1.121
         imagePullPolicy: Always
         ports:
         - containerPort: 5001
