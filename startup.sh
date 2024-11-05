@@ -18,5 +18,6 @@ echo "Installed packages in the virtual environment:"
 pip list
 
 # Start the backend service (Gunicorn)
-exec gunicorn -w 4 -b 0.0.0.0:5001 konduktor.dashboard.backend.main:app
+# exec gunicorn -w 1 -b 0.0.0.0:5001 konduktor.dashboard.backend.main:app
+python3 -m konduktor.dashboard.backend.main
 

@@ -1,15 +1,15 @@
-// used to host socket.io logs stuff in frontend server 
 const { createServer } = require('http');
 const next = require('next');
 const { Server: SocketIOServer } = require('socket.io');
-const ClientIO = require('socket.io-client'); // Client-side connection to Flask
+const ClientIO = require('socket.io-client');
+
 
 const dev = process.env.NODE_ENV !== 'production';
-const hostname = '127.0.0.1'; // or your production hostname
-const port = 5173; // This is the Next.js port
-
+const hostname = '127.0.0.1';
+const port = 5173;
 const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
+
 
 app.prepare().then(() => {
   const httpServer = createServer((req, res) => {
@@ -18,33 +18,53 @@ app.prepare().then(() => {
 
   const io = new SocketIOServer(httpServer, {
     cors: {
-      origin: "*", // Allow all origins (adjust in production if necessary)
+      origin: "*",
     },
   });
 
-  const backendUrl = process.env.NODE_ENV === 'development'
-    ? 'http://127.0.0.1:5000' // Development API
-    : 'http://backend.konduktor-dashboard.svc.cluster.local:5001'; // Production API
+  // Connect to Flask backend only when there are clients connected
+  let activeClients = 0;
+  let flaskSocket;
 
-  // Connect to the Flask backend's Socket.IO
-  const flaskSocket = ClientIO(backendUrl); // Flask backend URL
-
-  // When Next.js gets a client connection
   io.on('connection', (clientSocket) => {
     console.log('Client connected to Next.js server');
+    activeClients += 1;
 
-    // Forward any data received from Flask to the connected client
-    flaskSocket.on('log_data', (data) => {
-      clientSocket.emit('log_data', data); // Forward logs to the client
-    });
+    console.log(`activeClients on connect: ${activeClients}`)
 
-    // Receive updated namespaces from the client
-    clientSocket.on('update_namespaces', (namespaces) => {
-      flaskSocket.emit('update_namespaces', namespaces);  // Send to Flask
-    });
+    // Establish a connection to Flask only if this is the first client
+    if (activeClients === 1) {
+      const backendUrl = process.env.NODE_ENV === 'development'
+        ? 'http://127.0.0.1:5001'
+        : 'http://backend.konduktor-dashboard.svc.cluster.local:5001';
+
+      flaskSocket = ClientIO(backendUrl);
+
+      flaskSocket.on('log_data', (data) => {
+        io.emit('log_data', data); // Broadcast to all connected clients
+        console.log(`activeClients during log_data: ${activeClients}`)
+      });
+
+      // Receive updated namespaces from the client (forward to Flask)
+      clientSocket.on('update_namespaces', (namespaces) => {
+        flaskSocket.emit('update_namespaces', namespaces);  // Send to Flask
+        console.log(`activeClients during update_namespaces: ${activeClients}`)
+      });
+
+      console.log('Connected to Flask backend');
+    }
 
     clientSocket.on('disconnect', () => {
-      console.log('Client disconnected from Next.js');
+      activeClients -= 1;
+      console.log('Client disconnected from Next.js server');
+      console.log(`activeClients after disconnect: ${activeClients}`)
+
+      // Disconnect from Flask when no clients are connected
+      if (activeClients === 0 && flaskSocket) {
+        flaskSocket.disconnect();
+        flaskSocket = null;
+        console.log('Disconnected from Flask backend');
+      }
     });
   });
 

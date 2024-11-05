@@ -64,13 +64,13 @@ spec:
       labels:
         app: backend
     spec:
-      serviceAccountName: konduktor-service-account  # Specify the ServiceAccount here
+      serviceAccountName: konduktor-service-account
       containers:
       - name: backend
-        image: ryanattrainy/konduktor-dashboard:backend1.10
+        image: ryanattrainy/konduktor-dashboard:backend1.12
         imagePullPolicy: Always
         ports:
-        - containerPort: 5001  # Backend port
+        - containerPort: 5001
         command: ["/app/startup.sh"]
 ---
 apiVersion: v1
@@ -105,7 +105,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ryanattrainy/konduktor-dashboard:frontend1.02
+        image: ryanattrainy/konduktor-dashboard:frontend1.12
         imagePullPolicy: Always
         ports:
         - containerPort: 5173

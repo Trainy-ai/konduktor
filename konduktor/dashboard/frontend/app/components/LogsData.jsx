@@ -15,6 +15,8 @@ function LogsData() {
     const logContainerRef = useRef(null);
     const [searchQuery, setSearchQuery] = useState('')
 
+    const socketRef = useRef(null);
+
     const fetchData = async () => {
         try {
             const response = await fetch(`/api/namespaces`, {
@@ -55,30 +57,38 @@ function LogsData() {
     }, []);
 
     useEffect(() => {
-        // Connect to Next.js Socket.IO server
-        const socket = io('http://localhost:5173');  // The Next.js server's address
-
-        socket.on('connect', () => {
+        // Create and store the socket instance only once
+        if (!socketRef.current) {
+          socketRef.current = io('http://localhost:5173');  // Connect to Next.js server
+    
+          socketRef.current.on('connect', () => {
             console.log('Connected to Next.js Socket.IO server');
-        });
-
-        socket.on('log_data', (data) => {
+          });
+    
+          socketRef.current.on('log_data', (data) => {
             setLogsData((prevLogs) => [...prevLogs, ...data]);
-        });
-
-        socket.on('disconnect', () => {
+          });
+    
+          socketRef.current.on('disconnect', () => {
             console.log('Disconnected from Next.js Socket.IO server');
-        });
-
+          });
+        }
+    
+        // Clean up and disconnect the socket when the component unmounts
         return () => {
-            socket.disconnect();
+          if (socketRef.current) {
+            socketRef.current.disconnect();
+            socketRef.current = null;
+            console.log('Socket disconnected on component unmount');
+          }
         };
     }, []);
-
+    
     // Emit selected namespaces whenever they change
     useEffect(() => {
-        const socket = io('http://localhost:5173');
-        socket.emit('update_namespaces', selectedNamespaces);
+        if (socketRef.current) {
+          socketRef.current.emit('update_namespaces', selectedNamespaces);
+        }
     }, [selectedNamespaces]);
 
     useEffect(() => {

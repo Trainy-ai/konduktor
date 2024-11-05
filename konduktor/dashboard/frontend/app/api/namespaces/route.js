@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 const backendUrl = process.env.NODE_ENV === 'development'
-    ? 'http://127.0.0.1:5000' // Development API
+    ? 'http://127.0.0.1:5001' // Development API
     : 'http://backend:5001' // Production API
 
 // GET request for jobs

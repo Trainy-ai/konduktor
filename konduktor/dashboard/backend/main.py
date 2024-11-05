@@ -1,5 +1,6 @@
 import datetime
 import time
+from typing import Any, Dict, List
 
 import requests
 from flask import Flask, jsonify, request
@@ -17,7 +18,7 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 # SocketIO configuration
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", ping_interval=25, ping_timeout=60)
 
 
 # Use Kubernetes API clients
@@ -30,8 +31,8 @@ crd_client = crd_api()
 # Global variables
 CLIENT_CONNECTED = False
 FIRST_RUN = True
+BACKGROUND_TASK_RUNNING = False
 LOG_CHECKPOINT_TIME = None
-LOG_CHECKPOINT_TIME2 = None
 SELECTED_NAMESPACES: list[str] = []
 PROD_LOGS_URL = "http://loki.loki.svc.cluster.local:3100/loki/api/v1/query_range"
 DEV_LOGS_URL = "http://localhost:3100/loki/api/v1/query_range"
@@ -49,7 +50,7 @@ def fetch_jobs():
     return format_workloads(listing)
 
 
-def format_workloads(listing):
+def format_workloads(listing: Dict[str, Any]) -> List[Dict[str, Any]]:
     if not listing:
         return []
 
@@ -86,7 +87,18 @@ def format_workloads(listing):
     return res
 
 
-def format_log_entry(entry, namespace):
+def format_log_entry(entry: List[str], namespace: str) -> Dict[str, str]:
+    """
+    Formats a log entry and its corresponding namespace
+
+    Args:
+        entry (List[str]): A list of log entry strings to be formatted.
+        namespace (str): The namespace to apply to each log entry.
+
+    Returns:
+        Dict[str, str]: an object with the following properties:
+        timestamp, log (message), and namespace
+    """
     timestamp_ns = entry[0]
     log_message = entry[1]
     timestamp_s = int(timestamp_ns) / 1e9
@@ -133,14 +145,18 @@ def list_all_jobs():
         print(f"Failed to list jobs: {e}")
 
 
-def get_logs(FIRST_RUN, dev):
+def get_logs(FIRST_RUN: bool, dev: bool) -> List[Dict[str, str]]:
     global LOG_CHECKPOINT_TIME
+
+    # print(f'SELECTED NAMESPACES (GET_LOGS): {SELECTED_NAMESPACES}')
 
     # Use the selected namespaces in the query
     namespace_filter = (
         "|".join(SELECTED_NAMESPACES) if SELECTED_NAMESPACES else "default"
     )
     query = f'{{k8s_namespace_name=~"{namespace_filter}"}}'
+
+    # print(f'QUERY (GET_LOGS): {query}')
 
     if FIRST_RUN:
         # Calculate how many nanoseconds to look back when first time looking at logs
@@ -150,9 +166,11 @@ def get_logs(FIRST_RUN, dev):
         start_time = str(one_hour_ago)
     else:
         # calculate new start_time based on newest, last message
+        if LOG_CHECKPOINT_TIME is None:
+            LOG_CHECKPOINT_TIME = 0
         start_time = str(int(LOG_CHECKPOINT_TIME) + 1)
 
-    params = {"query": query, "start": start_time, "limit": 300}
+    params = {"query": query, "start": start_time, "limit": "300"}
 
     url = DEV_LOGS_URL if dev else PROD_LOGS_URL
     response = requests.get(url, params=params)
@@ -169,6 +187,7 @@ def get_logs(FIRST_RUN, dev):
             for value in row["values"]:
                 last = max(int(value[0]), last)
                 formatted_logs.append(format_log_entry(value, namespace))
+        # print('status 200 getting logs')
 
     if formatted_logs:
         # sort because sometimes loki API is wrong and logs are out of order
@@ -178,6 +197,8 @@ def get_logs(FIRST_RUN, dev):
             )
         )
         LOG_CHECKPOINT_TIME = last
+
+    # print(f'formatted logs length: {len(formatted_logs)}')
 
     return formatted_logs
 
@@ -302,26 +323,35 @@ def update_priority():
 
 @socketio.on("connect")
 def handle_connect():
-    global CLIENT_CONNECTED, FIRST_RUN
+    global CLIENT_CONNECTED, FIRST_RUN, BACKGROUND_TASK_RUNNING
     CLIENT_CONNECTED = True
     FIRST_RUN = True
     print("Client connected")
 
-    def send_logs():
-        global FIRST_RUN
-        while CLIENT_CONNECTED:
-            logs = []
-            # try succeeds in prod, otherwise user is in dev environment
-            try:
-                logs = get_logs(FIRST_RUN, False)
-            except Exception:
-                logs = get_logs(FIRST_RUN, True)
-            FIRST_RUN = False  # Set to False after the first run
-            if logs:
-                socketio.emit("log_data", logs)
-            time.sleep(5)
+    # Start the background task only if it's not already running
+    if not BACKGROUND_TASK_RUNNING:
+        BACKGROUND_TASK_RUNNING = True
+        socketio.start_background_task(send_logs)
 
-    socketio.start_background_task(send_logs)
+
+def send_logs():
+    global CLIENT_CONNECTED, FIRST_RUN, BACKGROUND_TASK_RUNNING
+    while CLIENT_CONNECTED:
+        logs = []
+        try:
+            # Attempt to get logs from the production setup; if fails, switch to dev
+            logs = get_logs(FIRST_RUN, False)
+        except Exception:
+            logs = get_logs(FIRST_RUN, True)
+
+        FIRST_RUN = False  # After the first successful fetch, set to False
+        if logs:
+            socketio.emit("log_data", logs)
+
+        time.sleep(5)
+
+    # Background task is no longer running after the loop
+    BACKGROUND_TASK_RUNNING = False
 
 
 @socketio.on("update_namespaces")
@@ -332,13 +362,11 @@ def handle_update_namespaces(namespaces):
 
 @socketio.on("disconnect")
 def handle_disconnect():
-    global CLIENT_CONNECTED, FIRST_RUN, LOG_CHECKPOINT_TIME, LOG_CHECKPOINT_TIME2
+    global CLIENT_CONNECTED, FIRST_RUN
     CLIENT_CONNECTED = False
     FIRST_RUN = True
-    LOG_CHECKPOINT_TIME = None
-    LOG_CHECKPOINT_TIME2 = None
     print("Client disconnected")
 
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True)
+    socketio.run(app, host="0.0.0.0", port=5001, debug=True, allow_unsafe_werkzeug=True)
