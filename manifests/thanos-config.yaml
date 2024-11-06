@@ -1,0 +1,7 @@
+type: s3
+prefix: MY_S3_PREFIX
+config:
+  bucket: konduktor-prometheus 
+  endpoint: s3.us-east-1.amazonaws.com 
+  access_key: MY_AWS_S3_ACCESS_KEY 
+  secret_key: MY_AWS_S3_SECRET_KEY 
