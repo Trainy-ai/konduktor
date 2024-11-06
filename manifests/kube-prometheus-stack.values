@@ -3791,8 +3791,8 @@ prometheus:
       volumeClaimTemplate:
         spec:
           claimName: prometheus-pvc
-          storageClassName: standard-rwo
-          # storageClassName: local-path # for k3s
+          # storageClassName: standard-rwo
+          storageClassName: local-path # for k3s
           # storageClassName: gp2 # for aws
           accessModes: ["ReadWriteOnce"]
           resources:
