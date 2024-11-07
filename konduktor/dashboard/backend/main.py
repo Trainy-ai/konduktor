@@ -1,3 +1,5 @@
+import logging
+import os
 from typing import Any, Dict, List
 
 from flask import Flask, jsonify, request
@@ -8,6 +10,16 @@ from kubernetes.client.exceptions import ApiException
 from konduktor.kube_client import batch_api, core_api, crd_api
 
 from .sockets import socketio
+
+# Configure the logger
+logging.basicConfig(
+    level=logging.DEBUG
+    if os.environ.get("KONDUKTOR_DEBUG") in [None, "1"]
+    else logging.INFO,
+    format="%(asctime)s - %(name)s - %(message)s",
+    datefmt="%d-%b-%y %H:%M:%S",
+)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
@@ -86,10 +98,10 @@ def list_all_workloads(namespace="default"):
             plural="workloads",
         )
         for workload in workloads.get("items", []):
-            print(f"Workload Name: {workload['metadata']['name']}")
+            logger.debug(f"Workload Name: {workload['metadata']['name']}")
 
     except ApiException as e:
-        print(f"Failed to list workloads: {e}")
+        logger.debug(f"Failed to list workloads: {e}")
 
 
 # for testing: prints jobs in native kubernetes kueue
@@ -98,14 +110,17 @@ def list_all_jobs():
         jobs = batch_client.list_job_for_all_namespaces(watch=False)  # Get all jobs
 
         if not jobs.items:
-            print("No jobs found.")
+            logger.debug("No jobs found.")
         else:
-            print("Jobs found:")
+            logger.debug("Jobs found:")
             for job in jobs.items:
-                print(f"Name: {job.metadata.name}, Namespace: {job.metadata.namespace}")
+                logger.debug(
+                    f"Name: {job.metadata.name},
+                    Namespace: {job.metadata.namespace}"
+                )
 
     except ApiException as e:
-        print(f"Failed to list jobs: {e}")
+        logger.debug(f"Failed to list jobs: {e}")
 """
 
 
@@ -149,26 +164,26 @@ def delete_job():
             name=name,
             body=delete_options,
         )
-        print(f"Kueue Workload '{name}' deleted successfully.")
+        logger.debug(f"Kueue Workload '{name}' deleted successfully.")
 
         """
         list_all_workloads()
         list_all_jobs()
 
-        print(f"Native Kubernetes Job Name: {native_job_name}")
+        logger.debug(f"Native Kubernetes Job Name: {native_job_name}")
 
         batch_client.delete_namespaced_job(
             name=native_job_name,
             namespace=namespace,
             body=delete_options
         )
-        print(f"Native Kubernetes Job {native_job_name} deleted successfully.")
+        logger.debug(f"Native Kubernetes Job {native_job_name} deleted successfully.")
         """
 
         return jsonify({"success": True, "status": 200})
 
     except ApiException as e:
-        print(f"Exception: {e}")
+        logger.debug(f"Exception: {e}")
         return jsonify({"error": str(e)}), e.status
 
 
@@ -187,7 +202,7 @@ def get_namespaces():
         namespace_list = [ns.metadata.name for ns in namespaces.items]
         return jsonify(namespace_list)
     except ApiException as e:
-        print(f"Exception: {e}")
+        logger.debug(f"Exception: {e}")
         return jsonify({"error": str(e)}), e.status
 
 
@@ -220,7 +235,7 @@ def update_priority():
         return jsonify({"success": True, "status": 200})
 
     except ApiException as e:
-        print(f"Exception: {e}")
+        logger.debug(f"Exception: {e}")
         return jsonify({"error": str(e)}), e.status
 
 
