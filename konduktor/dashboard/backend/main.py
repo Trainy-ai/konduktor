@@ -57,7 +57,6 @@ def format_workloads(listing: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     for job in listing["items"]:
         id = job["metadata"]["uid"]
-        # name = job["metadata"]["ownerReferences"][0]["name"]
         name = job["metadata"]["name"]
         created_at = job["metadata"]["creationTimestamp"]
         namespace = job["metadata"]["namespace"]
