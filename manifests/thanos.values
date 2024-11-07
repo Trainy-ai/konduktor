@@ -1,0 +1,46 @@
+## Install with thanos via
+## helm upgrade --install kube-prometheus-stack \
+## prometheus-community/kube-prometheus-stack   \
+##   --create-namespace   \
+##   --namespace prometheus   \
+##   --values kube-prometheus-stack.values  \
+##   --values thanos.values  \
+##   --wait
+## and create a secret with
+## kubectl -n prometheus create secret generic thanos-objstore-config --from-file=thanos-config.yaml
+# type: s3
+# prefix: my-prefix
+# config:
+#   bucket: konduktor-prometheus 
+#   endpoint: s3.us-east-1.amazonaws.com 
+#   access_key: XXXXXXXXX
+#   secret_key: XXXXXXXXX
+
+
+prometheus:
+  prometheusSpec:
+    disableCompaction: true
+    thanos:
+      objectStorageConfig:
+        existingSecret:
+          name: thanos-objstore-config  #secret that we will create further
+          key: thanos-config.yaml
+
+  thanosService:
+    enabled: true # this will enable a service for service discovery
+    annotations: {}
+    labels: {}
+    externalTrafficPolicy: Cluster
+    type: ClusterIP
+    portName: grpc
+    port: 10901
+    targetPort: "grpc"
+    httpPortName: http
+    httpPort: 10902
+    targetHttpPort: "http"
+    clusterIP: ""
+    nodePort: 30901
+    httpNodePort: 30902
+  
+  thanosServiceMonitor:
+    enabled: true
