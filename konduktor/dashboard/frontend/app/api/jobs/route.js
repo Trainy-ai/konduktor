@@ -18,7 +18,7 @@ export async function GET() {
         const data = await response.json()
         return new NextResponse(JSON.stringify(data))
     } catch (error) {
-        console.error("Server delete error:", error);
+        console.error("Server get error:", error);
         return new NextResponse(error)
     }
 }

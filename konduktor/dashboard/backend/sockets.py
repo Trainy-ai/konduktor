@@ -1,16 +1,18 @@
 import datetime
-import logging
 import os
 import time
-from typing import Dict, List
-
+import asyncio
 import requests
-from flask_socketio import SocketIO
+from typing import Dict, List
+from socketio import AsyncServer  # Import the AsyncServer for ASGI compatibility
+
+from konduktor import logging as konduktor_logging
 
 # SocketIO configuration
-socketio = SocketIO(cors_allowed_origins="*", ping_interval=25, ping_timeout=60)
+socketio = AsyncServer(cors_allowed_origins="*", ping_interval=25, ping_timeout=60, async_mode='asgi')
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
+logger = konduktor_logging.get_logger2(__name__)
 
 # Global variables
 CLIENT_CONNECTED = False
@@ -52,7 +54,7 @@ def format_log_entry(entry: List[str], namespace: str) -> Dict[str, str]:
 def get_logs(FIRST_RUN: bool) -> List[Dict[str, str]]:
     global LOG_CHECKPOINT_TIME
 
-    logger.debug(f"SELECTED NAMESPACES (GET_LOGS): {SELECTED_NAMESPACES}")
+    logger.debug(f"Selected namespaces: {SELECTED_NAMESPACES}")
 
     # Use the selected namespaces in the query
     namespace_filter = (
@@ -60,7 +62,7 @@ def get_logs(FIRST_RUN: bool) -> List[Dict[str, str]]:
     )
     query = f'{{k8s_namespace_name=~"{namespace_filter}"}}'
 
-    logger.debug(f"QUERY (GET_LOGS): {query}")
+    logger.debug(f"Loki logs query: {query}")
 
     if FIRST_RUN:
         # Calculate how many nanoseconds to look back when first time looking at logs
@@ -101,28 +103,28 @@ def get_logs(FIRST_RUN: bool) -> List[Dict[str, str]]:
         )
         LOG_CHECKPOINT_TIME = last
 
-    logger.debug(f"formatted logs length: {len(formatted_logs)}")
+    logger.debug(f"Formatted logs length: {len(formatted_logs)}")
 
     return formatted_logs
 
 
-def send_logs():
+async def send_logs():
     global CLIENT_CONNECTED, FIRST_RUN, BACKGROUND_TASK_RUNNING
     while CLIENT_CONNECTED:
         logs = get_logs(FIRST_RUN)
 
         FIRST_RUN = False  # After the first successful fetch, set to False
         if logs:
-            socketio.emit("log_data", logs)
+            await socketio.emit("log_data", logs)
 
-        time.sleep(5)
+        await asyncio.sleep(5)
 
     # Background task is no longer running after the loop
     BACKGROUND_TASK_RUNNING = False
 
 
-@socketio.on("connect")
-def handle_connect():
+@socketio.event
+async def connect(sid, environ):
     global CLIENT_CONNECTED, FIRST_RUN, BACKGROUND_TASK_RUNNING
     CLIENT_CONNECTED = True
     FIRST_RUN = True
@@ -134,15 +136,17 @@ def handle_connect():
         socketio.start_background_task(send_logs)
 
 
-@socketio.on("update_namespaces")
-def handle_update_namespaces(namespaces):
+@socketio.event
+async def update_namespaces(sid, namespaces):
     global SELECTED_NAMESPACES
     SELECTED_NAMESPACES = namespaces
+    logger.debug("Updated namespaces")
 
 
-@socketio.on("disconnect")
-def handle_disconnect():
-    global CLIENT_CONNECTED, FIRST_RUN
+@socketio.event
+async def disconnect(sid):
+    global CLIENT_CONNECTED, FIRST_RUN, BACKGROUND_TASK_RUNNING
     CLIENT_CONNECTED = False
     FIRST_RUN = True
+    BACKGROUND_TASK_RUNNING = False
     logger.debug("Client disconnected")

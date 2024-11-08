@@ -1,5 +1,14 @@
 ### Prereqs: kubectl is configured with remote machine/cluster
 
+# OPTION 1 (Automated Setup)
+
+To open the dashboard, run this inside the root konduktor directory:
+```
+./start_dashboard.sh
+```
+
+# OPTION 2 (Manual Setup)
+
 ## 1. Apply kubernetes manifest
 Inside manifests directory (one with dashboard_deployment.yaml):
 ```

@@ -24,7 +24,7 @@ app.prepare().then(() => {
 
   // Connect to Flask backend only when there are clients connected
   let activeClients = 0;
-  let flaskSocket;
+  let fastapiSocket;
 
   io.on('connection', (clientSocket) => {
     activeClients += 1;
@@ -35,15 +35,15 @@ app.prepare().then(() => {
         ? 'http://127.0.0.1:5001'
         : 'http://backend.konduktor-dashboard.svc.cluster.local:5001';
 
-      flaskSocket = ClientIO(backendUrl);
+      fastapiSocket = ClientIO(backendUrl);
 
-      flaskSocket.on('log_data', (data) => {
+      fastapiSocket.on('log_data', (data) => {
         io.emit('log_data', data); // Broadcast to all connected clients
       });
 
       // Receive updated namespaces from the client (forward to Flask)
       clientSocket.on('update_namespaces', (namespaces) => {
-        flaskSocket.emit('update_namespaces', namespaces);  // Send to Flask
+        fastapiSocket.emit('update_namespaces', namespaces);  // Send to Flask
       });
     }
 
@@ -51,9 +51,9 @@ app.prepare().then(() => {
       activeClients -= 1;
 
       // Disconnect from Flask when no clients are connected
-      if (activeClients === 0 && flaskSocket) {
-        flaskSocket.disconnect();
-        flaskSocket = null;
+      if (activeClients === 0 && fastapiSocket) {
+        fastapiSocket.disconnect();
+        fastapiSocket = null;
       }
     });
   });

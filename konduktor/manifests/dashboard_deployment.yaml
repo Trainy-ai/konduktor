@@ -67,7 +67,7 @@ spec:
       serviceAccountName: konduktor-service-account
       containers:
       - name: backend
-        image: ryanattrainy/konduktor-dashboard:backend1.13
+        image: ryanattrainy/konduktor-dashboard:backend1.15
         imagePullPolicy: Always
         ports:
         - containerPort: 5001
@@ -76,8 +76,6 @@ spec:
         - name: KONDUKTOR_DEBUG
           value: "0"  # Set debug mode: 1 (DEBUG) or 0 
         - name: LOGS_URL # Set loki logs URL 
-          # "http://loki.loki.svc.cluster.local:3100/loki/api/v1/query_range" for prod
-          # "http://localhost:3100/loki/api/v1/query_range" for local
           value: "http://loki.loki.svc.cluster.local:3100/loki/api/v1/query_range"
         
 ---
@@ -113,7 +111,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ryanattrainy/konduktor-dashboard:frontend1.13
+        image: ryanattrainy/konduktor-dashboard:frontend1.15
         imagePullPolicy: Always
         ports:
         - containerPort: 5173
