@@ -1,15 +1,16 @@
-import socketio
 from typing import Any, Dict, List
 
+import socketio
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from kubernetes import client
 from kubernetes.client.exceptions import ApiException
 
-from konduktor.kube_client import batch_api, core_api, crd_api
-from .sockets import socketio as sio
 from konduktor import logging as konduktor_logging
+from konduktor.kube_client import batch_api, core_api, crd_api
+
+from .sockets import socketio as sio
 
 """
 # Configure the logger
@@ -49,6 +50,7 @@ crd_client = crd_api()
 async def home():
     return JSONResponse({"home": "/"})
 
+
 @app.delete("/deleteJob")
 async def delete_job(request: Request):
     data = await request.json()
@@ -74,10 +76,12 @@ async def delete_job(request: Request):
         logger.debug(f"Exception: {e}")
         return JSONResponse({"error": str(e)}, status_code=e.status)
 
+
 @app.get("/getJobs")
 async def get_jobs():
     rows = fetch_jobs()
     return JSONResponse(rows)
+
 
 @app.get("/getNamespaces")
 async def get_namespaces():
@@ -90,6 +94,7 @@ async def get_namespaces():
     except ApiException as e:
         logger.debug(f"Exception: {e}")
         return JSONResponse({"error": str(e)}, status_code=e.status)
+
 
 @app.put("/updatePriority")
 async def update_priority(request: Request):
@@ -122,6 +127,7 @@ async def update_priority(request: Request):
     except ApiException as e:
         logger.debug(f"Exception: {e}")
         return JSONResponse({"error": str(e)}, status_code=e.status)
+
 
 # Get a listing of workloads in kueue
 def fetch_jobs():
@@ -170,6 +176,5 @@ def format_workloads(listing: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     return res
 
+
 app = socketio.ASGIApp(sio, app)
-
-

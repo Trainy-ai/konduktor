@@ -1,15 +1,18 @@
+import asyncio
 import datetime
 import os
 import time
-import asyncio
-import requests
 from typing import Dict, List
+
+import requests
 from socketio import AsyncServer  # Import the AsyncServer for ASGI compatibility
 
 from konduktor import logging as konduktor_logging
 
 # SocketIO configuration
-socketio = AsyncServer(cors_allowed_origins="*", ping_interval=25, ping_timeout=60, async_mode='asgi')
+socketio = AsyncServer(
+    cors_allowed_origins="*", ping_interval=25, ping_timeout=60, async_mode="asgi"
+)
 
 # logger = logging.getLogger(__name__)
 logger = konduktor_logging.get_logger2(__name__)
