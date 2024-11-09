@@ -12,17 +12,6 @@ from konduktor.kube_client import batch_api, core_api, crd_api
 
 from .sockets import socketio as sio
 
-"""
-# Configure the logger
-logging.basicConfig(
-    level=logging.DEBUG
-    if os.environ.get("KONDUKTOR_DEBUG") in [None, "1"]
-    else logging.INFO,
-    format="%(asctime)s - %(name)s - %(message)s",
-    datefmt="%d-%b-%y %H:%M:%S",
-)
-"""
-# logger = logging.getLogger(__name__)
 logger = konduktor_logging.get_logger2(__name__)
 
 # FastAPI app

@@ -94,6 +94,12 @@ To open the dashboard, run this inside the root konduktor directory:
 
     $ ./start_dashboard.sh
 
+If running into a permission error, try this instead:
+
+.. code-block:: console
+
+    $ chmod +x start_dashboard.sh && ./start_dashboard.sh
+
 .. figure:: ../images/dashboard-logs.png
    :width: 120%
    :align: center

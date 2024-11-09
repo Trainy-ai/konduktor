@@ -42,20 +42,15 @@ def get_logger(name: str):
 
 
 """Logger with KONDUKTOR_DEBUG specific logic"""
-
-
 def get_logger2(name: str):
     # Determine the logging level based on the KONDUKTOR_DEBUG environment variable
-    print("HERE 1")
     log_level = logging.INFO
     if os.environ.get("KONDUKTOR_DEBUG") in [None, "1"]:
-        print("HERE 2")
         log_level = logging.DEBUG
 
     # Configure the logger
     logger = logging.getLogger(name)
     if not logger.hasHandlers():  # Check if the logger already has handlers
-        print("HERE 3")
         logger.setLevel(log_level)
         ch = logging.StreamHandler()
         ch.setLevel(log_level)
