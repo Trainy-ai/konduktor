@@ -42,6 +42,8 @@ def get_logger(name: str):
 
 
 """Logger with KONDUKTOR_DEBUG specific logic"""
+
+
 def get_logger2(name: str):
     # Determine the logging level based on the KONDUKTOR_DEBUG environment variable
     log_level = logging.INFO
