@@ -1,0 +1,131 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: konduktor-dashboard
+---
+# ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: konduktor-service-account
+  namespace: konduktor-dashboard
+
+---
+# ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: node-access-role
+rules:
+- apiGroups: [""]
+  resources: ["services", "pods", "nodes", "pods/portforward", "namespaces"]
+  verbs: ["get", "list", "patch", "watch", "create"]
+
+# Add permissions to delete Kubernetes jobs
+- apiGroups: ["batch"]  # For Kubernetes native Jobs
+  resources: ["jobs"]
+  verbs: ["get", "list", "delete", "patch"]
+
+# Add permissions to delete Kueue workloads
+- apiGroups: ["kueue.x-k8s.io"]  # For Kueue workloads
+  resources: ["workloads"]
+  verbs: ["get", "list", "delete", "patch"]
+
+---
+# ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: node-access-binding
+subjects:
+- kind: ServiceAccount
+  name: konduktor-service-account  # Must match the name of the service account
+  namespace: konduktor-dashboard
+roleRef:
+  kind: ClusterRole
+  name: node-access-role  # Must match the ClusterRole name
+  apiGroup: rbac.authorization.k8s.io
+
+---
+# Backend Deployment + Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: konduktor-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      serviceAccountName: konduktor-service-account
+      containers:
+      - name: backend
+        image: ryanattrainy/konduktor-dashboard:backend1.16
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5001
+        command: ["/app/startup.sh"]
+        env:
+        - name: KONDUKTOR_DEBUG
+          value: "0"  # Set debug mode: 1 (DEBUG) or 0 
+        - name: LOGS_URL # Set loki logs URL 
+          value: "http://loki.loki.svc.cluster.local:3100/loki/api/v1/query_range"
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: konduktor-dashboard
+spec:
+  ports:
+  - name: backend-port
+    port: 5001
+    targetPort: 5001
+  selector:
+    app: backend
+
+---
+# Frontend Deployment + Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: konduktor-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: ryanattrainy/konduktor-dashboard:frontend1.16
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5173
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: konduktor-dashboard
+spec:
+  ports:
+  - name: frontend-port
+    port: 5173
+    targetPort: 5173
+  selector:
+    app: frontend
+

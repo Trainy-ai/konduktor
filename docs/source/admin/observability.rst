@@ -76,3 +76,36 @@ As well as (S)Xid errors by following :code:`dmesg` on each node. You can also p
    :width: 120%
    :align: center
    :alt: dashboard
+
+Dashboard
+------------
+
+This is a user-friendly localhost dashboard to manage workloads within a cluster, all in one place. 
+
+Features include:
+
+- Grafana konduktor dashboard
+- Loki logs (search + filtering by namespace)
+- Table to view, delete, and modify priority of workloads in queue
+
+To open the dashboard, run this inside the root konduktor directory:
+
+.. code-block:: console
+
+    $ ./start_dashboard.sh
+
+If running into a permission error, try this instead:
+
+.. code-block:: console
+
+    $ chmod +x start_dashboard.sh && ./start_dashboard.sh
+
+.. figure:: ../images/dashboard-logs.png
+   :width: 120%
+   :align: center
+   :alt: dashboard-logs
+
+.. figure:: ../images/dashboard-jobs.png
+   :width: 120%
+   :align: center
+   :alt: dashboard-jobs

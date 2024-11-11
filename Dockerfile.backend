@@ -1,0 +1,57 @@
+# Use Python 3.11 slim as the base image
+FROM python:3.11-slim AS base
+
+# Set environment variables for Python behavior
+ENV PYTHONFAULTHANDLER=1 \
+    PYTHONHASHSEED=random \
+    PYTHONUNBUFFERED=1
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Builder stage: Install dependencies and build the backend package
+FROM base AS builder
+
+# Set environment variables for pip and Poetry
+ENV PIP_DEFAULT_TIMEOUT=100 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1 \
+    POETRY_VERSION=1.3.1
+
+# Install Poetry
+RUN pip install "poetry==$POETRY_VERSION"
+
+# Copy the pyproject.toml and poetry.lock files
+COPY pyproject.toml poetry.lock ./
+
+# Copy the entire konduktor directory to the container
+COPY konduktor ./konduktor
+
+# List the contents of the konduktor directory to verify the copy
+RUN ls -la ./konduktor
+
+# Configure Poetry and install dependencies only for the dashboard group
+RUN poetry config virtualenvs.in-project true && \
+    poetry install --with dashboard --no-root
+
+# Final stage for production
+FROM base AS final
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the virtual environment from the builder stage
+COPY --from=builder /app/.venv ./.venv
+
+# Copy the konduktor directory from the builder stage
+COPY --from=builder /app/konduktor ./konduktor
+
+# Copy the startup script
+COPY startup.sh /app/startup.sh
+RUN chmod +x /app/startup.sh
+
+# Expose the port the app runs on
+EXPOSE 5001
+
+# Set the startup command
+CMD ["/app/startup.sh"]
