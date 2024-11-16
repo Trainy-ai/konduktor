@@ -1,0 +1,23 @@
+# Use the official Node.js 18 slim image
+FROM node:18-slim
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json from the /frontend folder
+COPY konduktor/dashboard/frontend/package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the entire frontend source code
+COPY konduktor/dashboard/frontend/ .
+
+# Build the frontend for production
+RUN npm run build
+
+# Expose the frontend port
+EXPOSE 5173
+
+# Start the frontend app
+CMD ["npm", "run", "start"]

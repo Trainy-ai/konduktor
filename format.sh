@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-RUFF_VERSION=$(ruff --version | head -n 1 | awk '{print $2}')
-MYPY_VERSION=$(mypy --version | awk '{print $2}')
+RUFF_VERSION=$(poetry run ruff --version | head -n 1 | awk '{print $2}')
+MYPY_VERSION=$(poetry run mypy --version | awk '{print $2}')
 
 echo "ruff ver $RUFF_VERSION"
 echo "mypy ver $MYPY_VERSION"
