@@ -12191,15 +12191,15 @@ data:
       qps: 50
       burst: 100
     #pprofBindAddress: :8083
-    #waitForPodsReady:
-    #  enable: false
-    #  timeout: 5m
-    #  blockAdmission: false
-    #  requeuingStrategy:
-    #    timestamp: Eviction
-    #    backoffLimitCount: null # null indicates infinite requeuing
-    #    backoffBaseSeconds: 60
-    #    backoffMaxSeconds: 3600
+    waitForPodsReady:
+     enable: true
+     timeout: 10m
+     blockAdmission: true
+     requeuingStrategy:
+       timestamp: Eviction
+       backoffLimitCount: 0 # null indicates infinite requeuing
+       backoffBaseSeconds: 60
+       backoffMaxSeconds: 3600
     #manageJobsWithoutQueueName: true
     #internalCertManagement:
     #  enable: false
@@ -12217,7 +12217,7 @@ data:
       - "kubeflow.org/pytorchjob"
       - "kubeflow.org/tfjob"
       - "kubeflow.org/xgboostjob"
-    #  - "pod"
+      - "pod"
     #  - "deployment" # requires enabling pod integration
     #  - "statefulset" # requires enabling pod integration
     #  externalFrameworks:
