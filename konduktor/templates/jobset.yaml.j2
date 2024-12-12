@@ -1,0 +1,59 @@
+apiVersion: jobset.x-k8s.io/v1alpha2
+kind: JobSet
+metadata:
+  name: {{ job_name }}
+  # TODO these need to be templated
+  labels:
+    kueue.x-k8s.io/queue-name: user-queue
+  annotations:
+    provreq.kueue.x-k8s.io/maxRunDurationSeconds: "600"
+spec:
+  replicatedJobs:
+  - name: workers
+    template:
+      spec:
+        parallelism: {{ num_nodes }}
+        completions: {{ num_nodes }}
+        backoffLimit: 0
+        template:
+          spec:
+            # nodeSelector:
+            #   cloud.google.com/gke-nodepool: a100-80gb-pool
+
+            # trigger this on GPU request
+            # tolerations:
+            # - key: "nvidia.com/gpu"
+            #   operator: "Exists"
+            containers:
+            - name: pytorch
+
+              # TODO: set these
+              image: {{ image_id }}
+
+              # TODO: set these dynamically
+              # resources:
+              #   limits:
+              #     cpu: 50
+              #     memory: 800G
+              #     nvidia.com/gpu: 8
+              #   requests:
+              #     cpu: 50
+              #     memory: 800G
+              #     nvidia.com/gpu: 8
+              env:
+              # need to add additional variables here to make cross-compatible with
+              # $SKYPILOT_NODE_RANK and $SKYPILOT_HOSTNAMES etc.
+              - name: MASTER_ADDR
+                value: "pytorch-workers-0-0.pytorch"
+              - name: MASTER_PORT
+                value: "3389"
+              - name: RANK
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.annotations['batch.kubernetes.io/job-completion-index']
+              # Force python to not buffer output and write directly to stdout, so we can view training logs via `kubectl logs`.
+              - name: PYTHONUNBUFFERED
+                value: "0"
+              command: ["bash", "-c"]
+              args: |
+                echo 'hello world'
