@@ -22,7 +22,7 @@ Konduktor can be self-hosted and run on any certified Kubernetes distribution or
 </p>
 
 For ML researchers
-- [Skypilot](https://skypilot.readthedocs.io/en/latest/docs/index.html) - user friendly batch job framework, where users only need to specify the resource requirements of their job and a script to launch that makes simple to scale work across multiple nodes. Works with most ML application frameworks. [Examples](https://github.com/skypilot-org/skypilot/tree/master/examples)
+- Konduktor CLI & SDK - user friendly batch job framework, where users only need to specify the resource requirements of their job and a script to launch that makes simple to scale work across multiple nodes. Works with most ML application frameworks out of the box.
 
 ```
 num_nodes: 100

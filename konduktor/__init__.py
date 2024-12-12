@@ -39,3 +39,7 @@ def _get_git_commit():
 __commit__ = _get_git_commit()
 __version__ = "1.0.0-dev0"
 __root_dir__ = os.path.dirname(os.path.abspath(__file__))
+
+
+from konduktor.task import Task
+from konduktor.resource import Resources
