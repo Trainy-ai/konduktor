@@ -12,7 +12,7 @@ from konduktor.kube_client import batch_api, core_api, crd_api
 
 from .sockets import socketio as sio
 
-logger = konduktor_logging.get_logger2(__name__)
+logger = konduktor_logging.get_logger(__name__)
 
 # FastAPI app
 app = FastAPI()

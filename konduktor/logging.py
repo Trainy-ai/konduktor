@@ -30,11 +30,17 @@ FORMATTER = NewLineFormatter(_FORMAT, datefmt=_DATE_FORMAT)
 
 
 def get_logger(name: str):
+    # Determine the logging level based on the KONDUKTOR_DEBUG environment variable
+    log_level = logging.INFO
+    if os.environ.get("KONDUKTOR_DEBUG", None) == "1":
+        log_level = logging.DEBUG
+
+    # Configure the logger
     logger = logging.getLogger(name)
     if not logger.hasHandlers():  # Check if the logger already has handlers
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(log_level)
         ch = logging.StreamHandler()
-        ch.setLevel(logging.INFO)
+        ch.setLevel(log_level)
         ch.setFormatter(FORMATTER)
         logger.addHandler(ch)
     logger.propagate = False

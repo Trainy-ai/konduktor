@@ -1,0 +1,30 @@
+## Install with:
+## helm install thanos oci://registry-1.docker.io/bitnamicharts/thanos \
+##    --values bitnami-thanos.values \
+##    --namespace prometheus
+##
+## Check the thanos storegateway and query with
+## kubectl port-forward -n prometheus svc/thanos-query-frontend 9090:9090
+
+storegateway:
+  enabled: true
+  # If you want to set resource requests/limits:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 500Mi
+
+existingObjstoreSecret: "thanos-objstore-config"
+
+existingObjstoreSecretItems:
+  - key: thanos-config.yaml
+    path: objstore.yml
+
+query:
+  enabled: true
+  # Point to the store gateway using service discovery or static addresses
+  stores:
+    - "dnssrv+_grpc._tcp.thanos-storegateway-headless.prometheus.svc.cluster.local"
