@@ -41,5 +41,7 @@ __version__ = "1.0.0-dev0"
 __root_dir__ = os.path.dirname(os.path.abspath(__file__))
 
 
-from konduktor.task import Task
+from konduktor.execution import launch
 from konduktor.resource import Resources
+from konduktor.task import Task
+

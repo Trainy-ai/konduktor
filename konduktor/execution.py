@@ -6,41 +6,38 @@ import enum
 from typing import List, Optional, Tuple, Union
 
 import colorama
-logger = konduktor_logging.init_logger(__name__)
+
+from konduktor import logging as konduktor_logging
+from konduktor.backends import JobsetBackend
+from konduktor.utils import ux_utils
+
+
+logger = konduktor_logging.get_logger(__name__)
 
 
 class Stage(enum.Enum):
     """Stages for a run of a konduktor.Task."""
-    # TODO: rename actual methods to be consistent.
-    PENDING = enum.auto()
-    RUN = enum.auto()
-    COMPLETED = enum.auto()
-    FAILED = enum.auto()
+    SYNC = enum.auto() # sync files to blob and creds to sharefs
+    PENDING = enum.auto() # job pending scheduling
+    EXEC = enum.auto() # job running
+    COMPLETED = enum.auto() # job completed
 
 
 def _execute(
-    entrypoint: 'konduktor.Task',
+    task: 'konduktor.Task',
     dryrun: bool = False,
-    down: bool = False,
     stream_logs: bool = True,
-    handle: Optional[backends.ResourceHandle] = None,
     stages: Optional[List[Stage]] = None,
-    job_name: Optional[str] = None,
-    detach: bool = False,
-    detach_setup: bool = False,
+    cluster_name: Optional[str] = None,
     detach_run: bool = False,
-) -> Tuple[Optional[str], Optional[backends.ResourceHandle]]:
-    """Execute an entrypoint.
-
-    If konduktor.Task is given
+) -> Optional[str]:
+    """Execute an task.
 
     Args:
-      entrypoint: konduktor.Task
+      task: konduktor.Task
       dryrun: bool; if True, only print the provision info (e.g., cluster
         yaml).
       stream_logs: bool; whether to stream all tasks' outputs to the client.
-      handle: Optional[backends.ResourceHandle]; if provided, execution will use
-        an existing backend cluster handle instead of provisioning a new one.
       cluster_name: Name of the cluster to create/reuse.  If None,
         auto-generate a name.
 
@@ -48,49 +45,56 @@ def _execute(
       workload_id: Optional[int]; the job ID of the submitted job. None if the
         backend is not CloudVmRayBackend, or no job is submitted to
         the cluster.
-      handle: Optional[backends.ResourceHandle]; the handle to the cluster. None
-        if dryrun.
     """
+    # (asaiacai): in the future we may support more backends but not likely
+    backend = JobsetBackend()
+
+    if dryrun:
+      logger.info('Dryrun finished.')
+      return None, None
+
+    # (asaiacai) should provisioning go somewhere around here?
+    do_workdir = (Stage.SYNC in stages and not dryrun and
+                    task.workdir is not None)
+    do_file_mounts = (Stage.SYNC in stages and not dryrun and
+                        (task.file_mounts is not None or
+                        task.storage_mounts is not None))
+    if do_workdir or do_file_mounts:
+        logger.info(ux_utils.starting_message('Mounting files.'))
+
+    if do_workdir:
+        backend.sync_workdir(task.workdir)
+
+    if do_file_mounts:
+        backend.sync_file_mounts(task.file_mounts,
+                                    task.storage_mounts)
+
+    if Stage.EXEC in stages:
+        job_id = backend.execute(task,
+                                detach_run,
+                                dryrun=dryrun)
+
+    # implement JobsetBackend
+    # sync_workdir
+    # sync_file_mounts
+    # execute                             
+    return job_id
 
     
-
-@timeline.event
-@usage_lib.entrypoint
 def launch(
-    task: Union['konduktor.Task'],
-    cluster_name: Optional[str] = None,
+    task: 'konduktor.Task',
+    cluster_name: str,
     dryrun: bool = False,
-    down: bool = False,
     stream_logs: bool = True,
-    detach_setup: bool = False,
     detach_run: bool = False,
-    no_setup: bool = False,
-    clone_disk_from: Optional[str] = None,
-) -> Tuple[Optional[int], Optional[backends.ResourceHandle]]:
-    # NOTE(dev): Keep the docstring consistent between the Python API and CLI.
+) -> Optional[int]:
     """Launch a task 
 
     Args:
         task: konduktor.Task
-        cluster_name: name of the cluster to create/reuse.  If None,
-            auto-generate a name.
-        retry_until_up: whether to retry launching the cluster until it is
-            up.
-        down: Tear down the cluster after all jobs finish (successfully or
-            abnormally). If --idle-minutes-to-autostop is also set, the
-            cluster will be torn down after the specified idle time.
-            Note that if errors occur during provisioning/data syncing/setting
-            up, the cluster will not be torn down for debugging purposes.
-        dryrun: if True, do not actually launch the cluster.
+        name: str name of the task
+        dryrun: if True, do not actually launch the task.
         stream_logs: if True, show the logs in the terminal.
-        optimize_target: target to optimize for. Choices: OptimizeTarget.COST,
-            OptimizeTarget.TIME.
-        detach_setup: If True, run setup in non-interactive mode as part of the
-            job itself. You can safely ctrl-c to detach from logging, and it
-            will not interrupt the setup process. To see the logs again after
-            detaching, use `konduktor logs`. To cancel setup, cancel the job via
-            `konduktor cancel`. Useful for long-running setup
-            commands.
         detach_run: If True, as soon as a job is submitted, return from this
             function and do not stream execution logs.
 
@@ -99,46 +103,27 @@ def launch(
 
             import konduktor
             task = konduktor.Task(run='echo hello konduktor')
-            konduktor.launch(task, cluster_name='my-cluster')
+            konduktor.launch(task)
 
     Raises:
       Other exceptions may be raised depending on the backend.
 
     Returns:
       workload_id: Optional[int]; the job ID of the submitted job.
-      handle: Optional[backends.ResourceHandle]; the handle to the cluster. None
-        if dryrun.
     """
-    entrypoint = task
-    if not _disable_controller_check:
-        controller_utils.check_cluster_name_not_controller(
-            cluster_name, operation_str='konduktor.launch')
 
-            handle = maybe_handle
-            stages = [
-                Stage.SYNC,
-                Stage.EXEC,
-                Stage.COMPLETED,
-                Stage.FAILED,
-            ]
+    stages = [
+      Stage.SYNC,
+      Stage.PENDING,
+      Stage.EXEC,
+      Stage.COMPLETED,
+    ]
 
     return _execute(
-        entrypoint=entrypoint,
+        task=task,
         dryrun=dryrun,
-        down=down,
         stream_logs=stream_logs,
-        handle=handle,
-        backend=backend,
-        retry_until_up=retry_until_up,
-        optimize_target=optimize_target,
         stages=stages,
         cluster_name=cluster_name,
-        detach_setup=detach_setup,
         detach_run=detach_run,
-        idle_minutes_to_autostop=idle_minutes_to_autostop,
-        no_setup=no_setup,
-        clone_disk_from=clone_disk_from,
-        _is_launched_by_jobs_controller=_is_launched_by_jobs_controller,
-        _is_launched_by_konduktor_serve_controller=
-        _is_launched_by_konduktor_serve_controller,
     )

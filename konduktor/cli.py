@@ -317,8 +317,8 @@ def _launch_with_confirm(
     task: konduktor.Task,
     *,
     dryrun: bool,
+    cluster_name: str,
     detach_run: bool,
-    detach_setup: bool = False,
     no_confirm: bool = False,
 ):
     """Launch a cluster with a Task."""
@@ -327,10 +327,8 @@ def _launch_with_confirm(
         task,
         dryrun=dryrun,
         stream_logs=True,
-        cluster_name=cluster,
-        detach_setup=detach_setup,
+        cluster_name=cluster_name,
         detach_run=detach_run,
-        down=down,
     )
 
 
@@ -537,25 +535,10 @@ def cli():
                 type=str,
                 nargs=-1,
                 )
-@click.option('--workload',
-              '-w',
-              default=None,
-              type=str,)
 @click.option('--dryrun',
               default=False,
               is_flag=True,
               help='If True, do not actually run the job.')
-@click.option(
-    '--detach-setup',
-    '-s',
-    default=False,
-    is_flag=True,
-    help=
-    ('If True, run setup in non-interactive mode as part of the job itself. '
-     'You can safely ctrl-c to detach from logging, and it will not interrupt '
-     'the setup process. To see the logs again after detaching, use `konduktor logs`.'
-     ' To cancel setup, cancel the job via `konduktor cancel`. Useful for long-'
-     'running setup commands.'))
 @click.option(
     '--detach-run',
     '-d',
@@ -576,10 +559,7 @@ def cli():
     help='Skip confirmation prompt.')
 def launch(
     entrypoint: Tuple[str, ...],
-    #TODO(asaiacai): rename cluster to workload
-    workload: Optional[str],
     dryrun: bool,
-    detach_setup: bool,
     detach_run: bool,
     name: Optional[str],
     workdir: Optional[str],
@@ -618,7 +598,7 @@ def launch(
 
     _launch_with_confirm(task,
                          dryrun=dryrun,
-                         detach_setup=detach_setup,
+                         cluster_name=name,
                          detach_run=detach_run,
                          no_confirm=yes,
                          )
