@@ -74,6 +74,9 @@ def _execute(
                                 detach_run,
                                 dryrun=dryrun)
 
+    # attach to head node output if detach_run is False
+
+
     # implement JobsetBackend
     # sync_workdir
     # sync_file_mounts

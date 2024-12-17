@@ -23,9 +23,15 @@ For each cloud/storage class we'll only have a single namespace at
 
 import enum
 
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 from konduktor import logging
 
 logger = logging.get_logger(__file__)
+
+Path = str
+SourceType = Union[Path, List[Path]]
+StorageHandle = Any
 
 class Storage(object):
     pass
@@ -41,14 +47,14 @@ class StoreType(enum.Enum):
 
     @classmethod
     def from_store(cls, store: 'AbstractStore') -> 'StoreType':
-        elif isinstance(store, GcsStore):
+        if isinstance(store, GcsStore):
             return StoreType.GCS
         else:
             with ux_utils.print_exception_no_traceback():
                 raise ValueError(f'Unknown store type: {store}')
 
     def store_prefix(self) -> str:
-        elif self == StoreType.GCS:
+        if self == StoreType.GCS:
             return 'gs://'
         else:
             with ux_utils.print_exception_no_traceback():
@@ -292,32 +298,20 @@ class Storage(object):
             self.storage_name = storage_name
             self.source = source
             self.mode = mode
-            # Only stores managed by sky are stored here in the
-            # global_user_state
-            self.sky_stores = {} if sky_stores is None else sky_stores
 
         def __repr__(self):
             return (f'StorageMetadata('
                     f'\n\tstorage_name={self.storage_name},'
                     f'\n\tsource={self.source},'
-                    f'\n\tmode={self.mode},'
-                    f'\n\tstores={self.sky_stores})')
+                    f'\n\tmode={self.mode},')
 
-        def add_store(self, store: AbstractStore) -> None:
-            storetype = StoreType.from_store(store)
-            self.sky_stores[storetype] = store.get_metadata()
-
-        def remove_store(self, store: AbstractStore) -> None:
-            storetype = StoreType.from_store(store)
-            if storetype in self.sky_stores:
-                del self.sky_stores[storetype]
 
     def __init__(self,
                  name: Optional[str] = None,
                  source: Optional[SourceType] = None,
                  stores: Optional[Dict[StoreType, AbstractStore]] = None,
                  persistent: Optional[bool] = True,
-                 mode: StorageMode = StorageMode.MOUNT,
+                 mode: StorageMode = StorageMode.COPY,
                  sync_on_reconstruction: bool = True) -> None:
         """Initializes a Storage object.
 
@@ -412,16 +406,8 @@ class Storage(object):
                 # If source is a pre-existing bucket, connect to the bucket
                 # If the bucket does not exist, this will error out
                 if isinstance(self.source, str):
-                    if self.source.startswith('s3://'):
-                        self.add_store(StoreType.S3)
-                    elif self.source.startswith('gs://'):
+                    if self.source.startswith('gs://'):
                         self.add_store(StoreType.GCS)
-                    elif data_utils.is_az_container_endpoint(self.source):
-                        self.add_store(StoreType.AZURE)
-                    elif self.source.startswith('r2://'):
-                        self.add_store(StoreType.R2)
-                    elif self.source.startswith('cos://'):
-                        self.add_store(StoreType.IBM)
 
     @staticmethod
     def _validate_source(
