@@ -4,5 +4,6 @@
 from konduktor.backends.jobset import JobsetBackend
 
 __all__ = [
-    "JobsetBackend"
+    "Backend",
+    "JobsetBackend",
 ]

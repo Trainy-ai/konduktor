@@ -83,10 +83,10 @@ class _RevertibleStatus:
 
 def safe_status(msg: str) -> Union['rich_console.Status', _NoOpConsoleStatus]:
     """A wrapper for multi-threaded console.status."""
-    from sky import sky_logging  # pylint: disable=import-outside-toplevel
+    from konduktor import logging  # pylint: disable=import-outside-toplevel
     global _status
     if (threading.current_thread() is threading.main_thread() and
-            not sky_logging.is_silent()):
+            not logging.is_silent()):
         if _status is None:
             _status = console.status(msg, refresh_per_second=8)
         return _RevertibleStatus(msg)

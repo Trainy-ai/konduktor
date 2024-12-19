@@ -15,6 +15,7 @@ import typing
 from typing import Dict, Generic, Optional
 
 import konduktor
+from konduktor.utils import ux_utils
 
 Path = str
 
@@ -51,11 +52,8 @@ class Backend:
         Returns:
             Job id if the task is submitted to the cluster, None otherwise.
         """
-        usage_lib.record_cluster_name_for_current_operation(
-            handle.get_cluster_name())
-        usage_lib.messages.usage.update_actual_task(task)
-        with rich_utils.safe_status(ux_utils.spinner_message('Submitting job')):
-            return self._execute(handle, task, detach_run, dryrun)
+        ux_utils.spinner_message('Submitting job')
+        return self._execute(task, detach_run, dryrun)
 
     def post_execute(self) -> None:
         """Post execute(): e.g., print helpful inspection messages."""

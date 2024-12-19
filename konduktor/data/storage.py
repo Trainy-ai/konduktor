@@ -311,8 +311,7 @@ class Storage(object):
                  source: Optional[SourceType] = None,
                  stores: Optional[Dict[StoreType, AbstractStore]] = None,
                  persistent: Optional[bool] = True,
-                 mode: StorageMode = StorageMode.COPY,
-                 sync_on_reconstruction: bool = True) -> None:
+                 mode: StorageMode = StorageMode.COPY,) -> None:
         """Initializes a Storage object.
 
         Three fields are required: the name of the storage, the source
@@ -708,28 +707,9 @@ class Storage(object):
         if isinstance(store_type, str):
             store_type = StoreType(store_type)
 
-        if store_type in self.stores:
-            if store_type == StoreType.AZURE:
-                azure_store_obj = self.stores[store_type]
-                assert isinstance(azure_store_obj, AzureBlobStore)
-                storage_account_name = azure_store_obj.storage_account_name
-                logger.info(f'Storage type {store_type} already exists under '
-                            f'storage account {storage_account_name!r}.')
-            else:
-                logger.info(f'Storage type {store_type} already exists.')
-            return self.stores[store_type]
-
         store_cls: Type[AbstractStore]
-        if store_type == StoreType.S3:
-            store_cls = S3Store
-        elif store_type == StoreType.GCS:
+        if store_type == StoreType.GCS:
             store_cls = GcsStore
-        elif store_type == StoreType.AZURE:
-            store_cls = AzureBlobStore
-        elif store_type == StoreType.R2:
-            store_cls = R2Store
-        elif store_type == StoreType.IBM:
-            store_cls = IBMCosStore
         else:
             with ux_utils.print_exception_no_traceback():
                 raise exceptions.StorageSpecError(
