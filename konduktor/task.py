@@ -327,20 +327,6 @@ class Task:
                                          f'{dst_path}:{src}')
             task.set_file_mounts(copy_mounts)
 
-        task_storage_mounts: Dict[str, storage_lib.Storage] = {}
-        all_storages = fm_storages
-        for storage in all_storages:
-            mount_path = storage[0]
-            assert mount_path, 'Storage mount path cannot be empty.'
-            try:
-                storage_obj = storage_lib.Storage.from_yaml_config(storage[1])
-            except exceptions.StorageSourceError as e:
-                # Patch the error message to include the mount path, if included
-                e.args = (e.args[0].replace('<destination_path>',
-                                            mount_path),) + e.args[1:]
-                raise e
-            task_storage_mounts[mount_path] = storage_obj
-        task.set_storage_mounts(task_storage_mounts)
 
         # Experimental configs.
         experimnetal_configs = config.pop('experimental', None)
@@ -362,7 +348,6 @@ class Task:
             resources_config[
                 '_cluster_config_overrides'] = cluster_config_override
         task.set_resources(konduktor.Resources.from_yaml_config(resources_config))
-
         assert not config, f'Invalid task args: {config.keys()}'
         return task
 
@@ -556,6 +541,7 @@ class Task:
         return self
 
 
+    # (asaiacai)TODO: this will probably be reduced by a lot
     def _get_preferred_store(
             self) -> Tuple[storage_lib.StoreType, Optional[str]]:
         """Returns the preferred store type and region for this task."""

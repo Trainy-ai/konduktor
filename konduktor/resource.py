@@ -1,12 +1,17 @@
 """Resources: compute requirements of Tasks."""
+import colorama
 import dataclasses
 import functools
 import textwrap
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
-import colorama
+from konduktor import logging
+from konduktor.utils import accelerator_registry
+from konduktor.utils import common_utils
+from konduktor.utils import log_utils
+from konduktor.utils import schemas
 
-# logger = konduktor_logging.init_logger(__name__)
+logger = logging.get_logger(__name__)
 
 _DEFAULT_DISK_SIZE_GB = 256
 
@@ -110,7 +115,6 @@ class Resources:
         # TODO: move these out of init to prevent repeated calls.
         self._try_validate_cpus_mem()
         self._try_validate_image_id()
-        self._try_validate_labels()
 
     def __repr__(self) -> str:
         """Returns a string representation for display.
@@ -332,7 +336,7 @@ class Resources:
             # Canonicalize the accelerator names.
             accelerators = {
                 accelerator_registry.canonicalize_accelerator_name(
-                    acc, self._cloud): acc_count
+                    acc): acc_count
                 for acc, acc_count in accelerators.items()
             }
 
@@ -349,42 +353,6 @@ class Resources:
         """
         if self._cpus is None and self._memory is None:
             return
-        if self._instance_type is not None:
-            # The assertion should be true because we have already executed
-            # _try_validate_instance_type() before this method.
-            # The _try_validate_instance_type() method infers and sets
-            # self.cloud if self.instance_type is not None.
-            assert self.cloud is not None
-            cpus, mem = self.cloud.get_vcpus_mem_from_instance_type(
-                self._instance_type)
-            if self._cpus is not None:
-                if self._cpus.endswith('+'):
-                    if cpus < float(self._cpus[:-1]):
-                        with ux_utils.print_exception_no_traceback():
-                            raise ValueError(
-                                f'{self.instance_type} does not have enough '
-                                f'vCPUs. {self.instance_type} has {cpus} '
-                                f'vCPUs, but {self._cpus} is requested.')
-                elif cpus != float(self._cpus):
-                    with ux_utils.print_exception_no_traceback():
-                        raise ValueError(
-                            f'{self.instance_type} does not have the requested '
-                            f'number of vCPUs. {self.instance_type} has {cpus} '
-                            f'vCPUs, but {self._cpus} is requested.')
-            if self.memory is not None:
-                if self.memory.endswith(('+', 'x')):
-                    if mem < float(self.memory[:-1]):
-                        with ux_utils.print_exception_no_traceback():
-                            raise ValueError(
-                                f'{self.instance_type} does not have enough '
-                                f'memory. {self.instance_type} has {mem} GB '
-                                f'memory, but {self.memory} is requested.')
-                elif mem != float(self.memory):
-                    with ux_utils.print_exception_no_traceback():
-                        raise ValueError(
-                            f'{self.instance_type} does not have the requested '
-                            f'memory. {self.instance_type} has {mem} GB '
-                            f'memory, but {self.memory} is requested.')
 
 
     def extract_docker_image(self) -> Optional[str]:
@@ -469,36 +437,6 @@ class Resources:
                         'image.')
 
 
-    def _try_validate_labels(self) -> None:
-        """Try to validate the labels attribute.
-
-        Raises:
-            ValueError: if the attribute is invalid.
-        """
-        if not self._labels:
-            return
-        if self.cloud is not None:
-            validated_clouds = [self.cloud]
-        else:
-            # If no specific cloud is set, validate label against ALL clouds.
-            # The label will be dropped if invalid for any one of the cloud
-            validated_clouds = konduktor_check.get_cached_enabled_clouds_or_refresh()
-        invalid_table = log_utils.create_table(['Label', 'Reason'])
-        for key, value in self._labels.items():
-            for cloud in validated_clouds:
-                valid, err_msg = cloud.is_label_valid(key, value)
-                if not valid:
-                    invalid_table.add_row([
-                        f'{key}: {value}',
-                        f'Label rejected due to {cloud}: {err_msg}'
-                    ])
-                    break
-        if len(invalid_table.rows) > 0:
-            with ux_utils.print_exception_no_traceback():
-                raise ValueError(
-                    'The following labels are invalid:'
-                    '\n\t' + invalid_table.get_string().replace('\n', '\n\t'))
-
     def get_accelerators_str(self) -> str:
         accelerators = self.accelerators
         if accelerators is None:
@@ -530,7 +468,6 @@ class Resources:
             return {Resources()}
         common_utils.validate_schema(config, schemas.get_resources_schema(),
                                      'Invalid resources YAML: ')
-
         def _override_resources(
                 base_resource_config: Dict[str, Any],
                 override_configs: List[Dict[str, Any]]) -> List[Resources]:
@@ -574,13 +511,27 @@ class Resources:
                 ]
                 accelerators = set(accelerators)
 
+        # Translate accelerators field to potential multiple resources.
+        if accelerators:
+            # In yaml file, we store accelerators as a list.
+            # In Task, we store a list of resources, each with 1 accelerator.
+            # This for loop is for format conversion.
+            tmp_resources_list = []
+            for acc in accelerators:
+                tmp_resource = config.copy()
+                tmp_resource['accelerators'] = acc
+                tmp_resources_list.append(
+                    Resources._from_yaml_config_single(tmp_resource))
+
+            assert isinstance(accelerators, (list, set)), accelerators
+            return type(accelerators)(tmp_resources_list)
+
+        return {Resources._from_yaml_config_single(config)}
+
     @classmethod
     def _from_yaml_config_single(cls, config: Dict[str, str]) -> 'Resources':
 
         resources_fields = {}
-        resources_fields['cloud'] = clouds.CLOUD_REGISTRY.from_str(
-            config.pop('cloud', None))
-        resources_fields['instance_type'] = config.pop('instance_type', None)
         resources_fields['cpus'] = config.pop('cpus', None)
         resources_fields['memory'] = config.pop('memory', None)
         resources_fields['accelerators'] = config.pop('accelerators', None)

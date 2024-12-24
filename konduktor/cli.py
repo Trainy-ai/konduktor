@@ -114,8 +114,7 @@ def _make_task_with_overrides(
                         nl=False)
             click.secho(entrypoint, bold=True)
 
-    override_params = _parse_override_params(cloud=cloud,
-                                             gpus=gpus,
+    override_params = _parse_override_params(gpus=gpus,
                                              cpus=cpus,
                                              memory=memory,
                                              image_id=image_id,
@@ -275,7 +274,6 @@ def _add_click_options(options: List[click.Option]):
 
 
 def _parse_override_params(
-        cloud: Optional[str] = None,
         gpus: Optional[str] = None,
         cpus: Optional[str] = None,
         memory: Optional[str] = None,
@@ -283,11 +281,6 @@ def _parse_override_params(
         disk_size: Optional[int] = None,) -> Dict[str, Any]:
     """Parses the override parameters into a dictionary."""
     override_params: Dict[str, Any] = {}
-    if cloud is not None:
-        if cloud.lower() == 'none':
-            override_params['cloud'] = None
-        else:
-            override_params['cloud'] = konduktor_clouds.CLOUD_REGISTRY.from_str(cloud)
     if gpus is not None:
         if gpus.lower() == 'none':
             override_params['accelerators'] = None

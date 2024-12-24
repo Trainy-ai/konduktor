@@ -26,7 +26,7 @@ class Backend:
     NAME = 'backend'
 
     # --- APIs ---
-    def check_resources_fit_cluster(self, task: 'konduktor.Task') -> None:
+    def check_resources_fit_cluster(self, task: 'konduktor.Task') -> bool:
         """Check whether resources of the task are satisfied by cluster."""
         raise NotImplementedError
 

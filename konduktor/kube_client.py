@@ -1,7 +1,8 @@
-import os
-
+import functools
 import kubernetes
+import os
 import urllib3
+from typing import Optional
 
 from konduktor import logging as konduktor_logging
 
@@ -9,9 +10,11 @@ logger = konduktor_logging.get_logger(__name__)
 
 # Timeout to use for API calls
 API_TIMEOUT = 5
+DEFAULT_NAMESPACE = 'default'
 
 _configured = False
 _core_api = None
+_jobset_api = None
 
 # For dashboard
 _batch_api = None
@@ -73,3 +76,45 @@ def max_retry_error():
 
 def stream():
     return kubernetes.stream.stream
+
+
+@functools.lru_cache()
+def get_kube_config_context_namespace(
+        context_name: Optional[str] = None) -> str:
+    """Get the current kubernetes context namespace from the kubeconfig file
+
+    Returns:
+        str | None: The current kubernetes context namespace if it exists, else
+            the default namespace.
+    """
+    
+    try:
+        contexts, current_context = kubernetes.config.list_kube_config_contexts()
+        if context_name is None:
+            context = current_context
+        else:
+            context = next((c for c in contexts if c['name'] == context_name),
+                           None)
+            if context is None:
+                return DEFAULT_NAMESPACE
+
+        if 'namespace' in context['context']:
+            return context['context']['namespace']
+        else:
+            return DEFAULT_NAMESPACE
+    except kubernetes.config.config_exception.ConfigException:
+        return DEFAULT_NAMESPACE
+
+
+@functools.lru_cache()
+def get_current_kube_config_context_name() -> Optional[str]:
+    """Get the current kubernetes context from the kubeconfig file
+
+    Returns:
+        str | None: The current kubernetes context if it exists, None otherwise
+    """
+    try:
+        _, current_context = kubernetes.config.list_kube_config_contexts()
+        return current_context['name']
+    except kubernetes.config.config_exception.ConfigException:
+        return None

@@ -40,23 +40,12 @@ def _get_single_resources_schema():
     """Schema for a single resource in a resources list."""
     # To avoid circular imports, only import when needed.
     # pylint: disable=import-outside-toplevel
-    from sky.clouds import service_catalog
     return {
         '$schema': 'https://json-schema.org/draft/2020-12/schema',
         'type': 'object',
         'required': [],
         'additionalProperties': False,
         'properties': {
-            'cloud': {
-                'type': 'string',
-                'case_insensitive_enum': list(service_catalog.ALL_CLOUDS)
-            },
-            'region': {
-                'type': 'string',
-            },
-            'zone': {
-                'type': 'string',
-            },
             'cpus': {
                 'anyOf': [{
                     'type': 'string',
@@ -83,63 +72,11 @@ def _get_single_resources_schema():
                     }
                 }]
             },
-            'instance_type': {
-                'type': 'string',
-            },
-            'use_spot': {
-                'type': 'boolean',
-            },
-            # Deprecated: use 'job_recovery' instead. This is for backward
-            # compatibility, and can be removed in 0.8.0.
-            'spot_recovery': {
-                'type': 'string',
-            },
-            'job_recovery': {
-                # Either a string or a dict.
-                'anyOf': [{
-                    'type': 'string',
-                }, {
-                    'type': 'object',
-                    'required': [],
-                    'additionalProperties': False,
-                    'properties': {
-                        'strategy': {
-                            'anyOf': [{
-                                'type': 'string',
-                            }, {
-                                'type': 'null',
-                            }],
-                        },
-                        'max_restarts_on_errors': {
-                            'type': 'integer',
-                            'minimum': 0,
-                        },
-                    }
-                }],
-            },
             'disk_size': {
                 'type': 'integer',
             },
             'disk_tier': {
                 'type': 'string',
-            },
-            'ports': {
-                'anyOf': [{
-                    'type': 'string',
-                }, {
-                    'type': 'integer',
-                }, {
-                    'type': 'array',
-                    'items': {
-                        'anyOf': [{
-                            'type': 'string',
-                        }, {
-                            'type': 'integer',
-                        }]
-                    }
-                }, {
-                    'type': 'null',
-                }],
             },
             'labels': {
                 'type': 'object',
@@ -172,30 +109,6 @@ def _get_single_resources_schema():
                 }, {
                     'type': 'null',
                 }]
-            },
-            # The following fields are for internal use only. Should not be
-            # specified in the task config.
-            '_docker_login_config': {
-                'type': 'object',
-                'required': ['username', 'password', 'server'],
-                'additionalProperties': False,
-                'properties': {
-                    'username': {
-                        'type': 'string',
-                    },
-                    'password': {
-                        'type': 'string',
-                    },
-                    'server': {
-                        'type': 'string',
-                    }
-                }
-            },
-            '_is_image_managed': {
-                'type': 'boolean',
-            },
-            '_requires_fuse': {
-                'type': 'boolean',
             },
             '_cluster_config_overrides': {
                 'type': 'object',
@@ -452,7 +365,7 @@ def _filter_schema(schema: dict, keys_to_keep: List[Tuple[str, ...]]) -> dict:
 
 def _experimental_task_schema() -> dict:
     config_override_schema = _filter_schema(get_config_schema(),
-                                            constants.OVERRIDEABLE_CONFIG_KEYS)
+                                            OVERRIDEABLE_CONFIG_KEYS)
     return {
         'experimental': {
             'type': 'object',
@@ -701,8 +614,7 @@ _REMOTE_IDENTITY_SCHEMA_KUBERNETES = {
 
 def get_config_schema():
     # pylint: disable=import-outside-toplevel
-    from sky.clouds import service_catalog
-    from sky.utils import kubernetes_enums
+    from konduktor.utils import kubernetes_enums
 
     resources_schema = {
         k: v
@@ -710,123 +622,13 @@ def get_config_schema():
         # Validation may fail if $schema is included.
         if k != '$schema'
     }
-    resources_schema['properties'].pop('ports')
-    controller_resources_schema = {
-        'type': 'object',
-        'required': [],
-        'additionalProperties': False,
-        'properties': {
-            'controller': {
-                'type': 'object',
-                'required': [],
-                'additionalProperties': False,
-                'properties': {
-                    'resources': resources_schema,
-                }
-            },
-        }
-    }
+
     cloud_configs = {
-        'aws': {
-            'type': 'object',
-            'required': [],
-            'additionalProperties': False,
-            'properties': {
-                'prioritize_reservations': {
-                    'type': 'boolean',
-                },
-                'specific_reservations': {
-                    'type': 'array',
-                    'items': {
-                        'type': 'string',
-                    },
-                },
-                'disk_encrypted': {
-                    'type': 'boolean',
-                },
-                'security_group_name':
-                    (_PRORPERTY_NAME_OR_CLUSTER_NAME_TO_PROPERTY),
-                **_LABELS_SCHEMA,
-                **_NETWORK_CONFIG_SCHEMA,
-            },
-            **_check_not_both_fields_present('instance_tags', 'labels')
-        },
-        'gcp': {
-            'type': 'object',
-            'required': [],
-            'additionalProperties': False,
-            'properties': {
-                'prioritize_reservations': {
-                    'type': 'boolean',
-                },
-                'specific_reservations': {
-                    'type': 'array',
-                    'items': {
-                        'type': 'string',
-                    },
-                },
-                'managed_instance_group': {
-                    'type': 'object',
-                    'required': ['run_duration'],
-                    'additionalProperties': False,
-                    'properties': {
-                        'run_duration': {
-                            'type': 'integer',
-                        },
-                        'provision_timeout': {
-                            'type': 'integer',
-                        }
-                    }
-                },
-                'force_enable_external_ips': {
-                    'type': 'boolean'
-                },
-                'enable_gvnic': {
-                    'type': 'boolean'
-                },
-                **_LABELS_SCHEMA,
-                **_NETWORK_CONFIG_SCHEMA,
-            },
-            **_check_not_both_fields_present('instance_tags', 'labels')
-        },
-        'azure': {
-            'type': 'object',
-            'required': [],
-            'additionalProperties': False,
-            'properties': {
-                'storage_account': {
-                    'type': 'string',
-                },
-                'resource_group_vm': {
-                    'type': 'string',
-                },
-            }
-        },
         'kubernetes': {
             'type': 'object',
             'required': [],
             'additionalProperties': False,
             'properties': {
-                'allowed_contexts': {
-                    'type': 'array',
-                    'items': {
-                        'type': 'string',
-                    },
-                },
-                'networking': {
-                    'type': 'string',
-                    'case_insensitive_enum': [
-                        type.value
-                        for type in kubernetes_enums.KubernetesNetworkingMode
-                    ]
-                },
-                'ports': {
-                    'type': 'string',
-                    'case_insensitive_enum': [
-                        type.value
-                        for type in kubernetes_enums.KubernetesPortMode
-                    ]
-                },
                 'pod_config': {
                     'type': 'object',
                     'required': [],
@@ -859,31 +661,6 @@ def get_config_schema():
                 },
             }
         },
-        'oci': {
-            'type': 'object',
-            'required': [],
-            'properties': {},
-            # Properties are either 'default' or a region name.
-            'additionalProperties': {
-                'type': 'object',
-                'required': [],
-                'additionalProperties': False,
-                'properties': {
-                    'compartment_ocid': {
-                        'type': 'string',
-                    },
-                    'image_tag_general': {
-                        'type': 'string',
-                    },
-                    'image_tag_gpu': {
-                        'type': 'string',
-                    },
-                    'vcn_subnet': {
-                        'type': 'string',
-                    },
-                }
-            },
-        },
     }
 
     admin_policy_schema = {
@@ -893,33 +670,7 @@ def get_config_schema():
                     r'(\.[a-zA-Z_][a-zA-Z0-9_]*)+$'),
     }
 
-    allowed_clouds = {
-        # A list of cloud names that are allowed to be used
-        'type': 'array',
-        'items': {
-            'type': 'string',
-            'case_insensitive_enum':
-                (list(service_catalog.ALL_CLOUDS) + ['cloudflare'])
-        }
-    }
 
-    docker_configs = {
-        'type': 'object',
-        'required': [],
-        'additionalProperties': False,
-        'properties': {
-            'run_options': {
-                'anyOf': [{
-                    'type': 'string',
-                }, {
-                    'type': 'array',
-                    'items': {
-                        'type': 'string',
-                    }
-                }]
-            }
-        }
-    }
     gpu_configs = {
         'type': 'object',
         'required': [],
@@ -946,12 +697,7 @@ def get_config_schema():
         'required': [],
         'additionalProperties': False,
         'properties': {
-            'jobs': controller_resources_schema,
-            'spot': controller_resources_schema,
-            'serve': controller_resources_schema,
-            'allowed_clouds': allowed_clouds,
             'admin_policy': admin_policy_schema,
-            'docker': docker_configs,
             'nvidia_gpus': gpu_configs,
             **cloud_configs,
         },

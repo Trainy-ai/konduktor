@@ -16,6 +16,9 @@ click = "^8.1.7"
 python-dotenv = "^1.0.1"
 posthog = "^3.7.4"
 rich = "^13.9.4"
+jobset = {git = "https://github.com/kubernetes-sigs/jobset.git", rev = "v0.7.2", subdirectory = "sdk/python"}
+jsonschema = "^4.23.0"
+prettytable = "^3.12.0"
 
 [tool.poetry.scripts]
 konduktor = 'konduktor:cli.main'
