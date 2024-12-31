@@ -14,12 +14,7 @@ socketio = AsyncServer(
     cors_allowed_origins="*", ping_interval=25, ping_timeout=60, async_mode="asgi"
 )
 
-<<<<<<< HEAD
-# logger = logging.getLogger(__name__)
-logger = konduktor_logging.get_logger2(__name__)
-=======
 logger = konduktor_logging.get_logger(__name__)
->>>>>>> 9214ad02ff23748361d8f4d82df4b7493ebb3c12
 
 # Global variables
 CLIENT_CONNECTED = False
