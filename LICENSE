@@ -74,9 +74,7 @@ limitations under the License.
 The modifications are proprietary and subject to the terms of the Trainy Software License Version 1.0
 Copyright 2024 Trainy Inc.
 
-Code in:
-   konduktor/cli.py
-modified from https://github.com/skypilot-org/skypilot
+Code is modified from https://github.com/skypilot-org/skypilot
 Git Revision: 9e50959e03146b599d9d1b3646573c913ec95bac
 
 The original files are licensed under the Apache License, Version 2.0 (the "License");
