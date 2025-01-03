@@ -22,7 +22,6 @@ For each cloud/storage class we'll only have a single namespace at
 """
 
 import enum
-
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from konduktor import logging

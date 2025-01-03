@@ -10,29 +10,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import difflib
 import functools
 import getpass
 import hashlib
 import inspect
-import jsonschema
+import jinja2
 import os
 import socket
 import sys
 import uuid
-import yaml
-
 from typing import Any, Callable, Dict, List, Optional, Union
 
-from konduktor.utils import constants
-from konduktor.utils import schemas
-from konduktor.utils import ux_utils
-from konduktor.utils import validator
+import jsonschema
+import yaml
+
+from konduktor.utils import constants, ux_utils, validator
 
 _USER_HASH_FILE = os.path.expanduser('~/.konduktor/user_hash')
 _usage_run_id = None
 USER_HASH_LENGTH = 8
 USER_HASH_LENGTH_IN_CLUSTER_NAME = 4
+
+def get_timestamp() -> str:
+    return datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
 def user_and_hostname_hash() -> str:
     """Returns a string containing <user>-<hostname hash last 4 chars>.
@@ -173,6 +175,12 @@ def get_user_hash(force_fresh_hash: bool = False) -> str:
     return user_hash
 
 
+def read_yaml(path: str) -> Dict[str, Any]:
+    with open(path, 'r', encoding='utf-8') as f:
+        config = yaml.safe_load(f)
+    return config
+
+
 def read_yaml_all(path: str) -> List[Dict[str, Any]]:
     with open(path, 'r', encoding='utf-8') as f:
         config = yaml.safe_load_all(f)
@@ -242,3 +250,49 @@ def validate_schema(obj, schema, err_msg_prefix='', skip_none=True):
     if err_msg:
         with ux_utils.print_exception_no_traceback():
             raise ValueError(err_msg)
+
+
+def dump_yaml(path: str, config: Union[List[Dict[str, Any]],
+                                       Dict[str, Any]]) -> None:
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(dump_yaml_str(config))
+
+
+def dump_yaml_str(config: Union[List[Dict[str, Any]], Dict[str, Any]]) -> str:
+    # https://github.com/yaml/pyyaml/issues/127
+    class LineBreakDumper(yaml.SafeDumper):
+
+        def write_line_break(self, data=None):
+            super().write_line_break(data)
+            if len(self.indents) == 1:
+                super().write_line_break()
+
+    if isinstance(config, list):
+        dump_func = yaml.dump_all  # type: ignore
+    else:
+        dump_func = yaml.dump  # type: ignore
+    return dump_func(config,
+                     Dumper=LineBreakDumper,
+                     sort_keys=False,
+                     default_flow_style=False)
+
+
+def fill_template(template_name: str, variables: Dict[str, Any],
+                  output_path: str) -> None:
+    """Create a file from a Jinja template and return the filename."""
+    assert template_name.endswith('.j2'), template_name
+    root_dir = os.path.dirname(os.path.dirname(__file__))
+    template_path = os.path.join(root_dir, 'templates', template_name)
+    if not os.path.exists(template_path):
+        raise FileNotFoundError(f'Template "{template_name}" does not exist.')
+    with open(template_path, 'r', encoding='utf-8') as fin:
+        template = fin.read()
+    output_path = os.path.abspath(os.path.expanduser(output_path))
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    # Write out yaml config.
+    j2_template = jinja2.Template(template)
+    content = j2_template.render(**variables)
+    with open(output_path, 'w', encoding='utf-8') as fout:
+        fout.write(content)
+

@@ -34,12 +34,12 @@ listed in "konduktor --help".  Take care to put logically connected commands clo
 each other.
 """
 
+import shlex
+from typing import Any, Dict, List, Optional, Tuple
+
 import click
 import dotenv
-import shlex
 import yaml
-
-from typing import Any, Dict, List, Tuple, Optional, Union
 
 import konduktor
 from konduktor.utils import common_utils
@@ -105,14 +105,14 @@ def _make_task_with_overrides(
                     nl=False)
         click.secho(entrypoint, bold=True)
     else:
-        if not entrypoint:
-            entrypoint = None
-        else:
-            # Treat entrypoint as a bash command.
-            click.secho(f'{entrypoint_name} from command: ',
-                        fg='yellow',
-                        nl=False)
-            click.secho(entrypoint, bold=True)
+        if len(entrypoint) == 0:
+            raise ValueError(
+                'no entrypoint specified, run with \n'
+                '`konduktor launch task.yaml'
+            )
+        raise ValueError(
+            f'{entrypoint} is not a valid YAML spec,'
+        )
 
     override_params = _parse_override_params(gpus=gpus,
                                              cpus=cpus,
@@ -124,15 +124,10 @@ def _make_task_with_overrides(
         _pop_and_ignore_fields_in_override_params(override_params,
                                                   field_to_ignore)
 
-    if is_yaml:
-        assert entrypoint is not None
-        task_configs = common_utils.read_yaml_all(entrypoint)
-        assert len(task_configs) == 1, "Only single tasks are supported"
-        task = konduktor.Task.from_yaml_config(task_configs[0], env)
-    else:
-        task = konduktor.Task(name='konduktor-cmd', run=entrypoint)
-        task.set_resources({konduktor.Resources()})
-        task.update_envs(env)
+    assert entrypoint is not None
+    task_configs = common_utils.read_yaml_all(entrypoint)
+    assert len(task_configs) == 1, "Only single tasks are supported"
+    task = konduktor.Task.from_yaml_config(task_configs[0], env)
 
     # Override.
     if workdir is not None:

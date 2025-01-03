@@ -3,7 +3,7 @@ import glob
 import os
 import shlex
 import subprocess
-from typing import Any, Dict, List
+from typing import List
 
 import colorama
 

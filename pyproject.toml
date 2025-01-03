@@ -19,6 +19,7 @@ rich = "^13.9.4"
 jobset = {git = "https://github.com/kubernetes-sigs/jobset.git", rev = "v0.7.2", subdirectory = "sdk/python"}
 jsonschema = "^4.23.0"
 prettytable = "^3.12.0"
+jinja2 = "^3.1.5"
 
 [tool.poetry.scripts]
 konduktor = 'konduktor:cli.main'

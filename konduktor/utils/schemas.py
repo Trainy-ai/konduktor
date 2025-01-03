@@ -75,29 +75,10 @@ def _get_single_resources_schema():
             'disk_size': {
                 'type': 'integer',
             },
-            'disk_tier': {
-                'type': 'string',
-            },
             'labels': {
                 'type': 'object',
                 'additionalProperties': {
                     'type': 'string'
-                }
-            },
-            'accelerator_args': {
-                'type': 'object',
-                'required': [],
-                'additionalProperties': False,
-                'properties': {
-                    'runtime_version': {
-                        'type': 'string',
-                    },
-                    'tpu_name': {
-                        'type': 'string',
-                    },
-                    'tpu_vm': {
-                        'type': 'boolean',
-                    }
                 }
             },
             'image_id': {
@@ -220,95 +201,6 @@ def get_storage_schema():
             }
         }
     }
-
-
-def get_service_schema():
-    """Schema for top-level `service:` field (for SkyServe)."""
-    # To avoid circular imports, only import when needed.
-    # pylint: disable=import-outside-toplevel
-    from sky.serve import load_balancing_policies
-    return {
-        '$schema': 'https://json-schema.org/draft/2020-12/schema',
-        'type': 'object',
-        'required': ['readiness_probe'],
-        'additionalProperties': False,
-        'properties': {
-            'readiness_probe': {
-                'anyOf': [{
-                    'type': 'string',
-                }, {
-                    'type': 'object',
-                    'required': ['path'],
-                    'additionalProperties': False,
-                    'properties': {
-                        'path': {
-                            'type': 'string',
-                        },
-                        'initial_delay_seconds': {
-                            'type': 'number',
-                        },
-                        'timeout_seconds': {
-                            'type': 'number',
-                        },
-                        'post_data': {
-                            'anyOf': [{
-                                'type': 'string',
-                            }, {
-                                'type': 'object',
-                            }]
-                        },
-                        'headers': {
-                            'type': 'object',
-                            'additionalProperties': {
-                                'type': 'string'
-                            }
-                        },
-                    }
-                }]
-            },
-            'replica_policy': {
-                'type': 'object',
-                'required': ['min_replicas'],
-                'additionalProperties': False,
-                'properties': {
-                    'min_replicas': {
-                        'type': 'integer',
-                        'minimum': 0,
-                    },
-                    'max_replicas': {
-                        'type': 'integer',
-                        'minimum': 0,
-                    },
-                    'target_qps_per_replica': {
-                        'type': 'number',
-                        'minimum': 0,
-                    },
-                    'dynamic_ondemand_fallback': {
-                        'type': 'boolean',
-                    },
-                    'base_ondemand_fallback_replicas': {
-                        'type': 'integer',
-                        'minimum': 0,
-                    },
-                    'upscale_delay_seconds': {
-                        'type': 'number',
-                    },
-                    'downscale_delay_seconds': {
-                        'type': 'number',
-                    },
-                }
-            },
-            'replicas': {
-                'type': 'integer',
-            },
-            'load_balancing_policy': {
-                'type': 'string',
-                'case_insensitive_enum': list(
-                    load_balancing_policies.LB_POLICIES.keys())
-            },
-        }
-    }
-
 
 def _filter_schema(schema: dict, keys_to_keep: List[Tuple[str, ...]]) -> dict:
     """Recursively filter a schema to include only certain keys.
@@ -683,11 +575,7 @@ def get_config_schema():
     }
 
     for cloud, config in cloud_configs.items():
-        if cloud == 'aws':
-            config['properties'].update({
-                'remote_identity': _PRORPERTY_NAME_OR_CLUSTER_NAME_TO_PROPERTY
-            })
-        elif cloud == 'kubernetes':
+        if cloud == 'kubernetes':
             config['properties'].update(_REMOTE_IDENTITY_SCHEMA_KUBERNETES)
         else:
             config['properties'].update(_REMOTE_IDENTITY_SCHEMA)
@@ -701,6 +589,4 @@ def get_config_schema():
             'nvidia_gpus': gpu_configs,
             **cloud_configs,
         },
-        # Avoid spot and jobs being present at the same time.
-        **_check_not_both_fields_present('spot', 'jobs')
     }

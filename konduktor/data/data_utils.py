@@ -1,17 +1,10 @@
 """
 """
-import concurrent.futures
-from enum import Enum
-from multiprocessing import pool
 import os
-import re
 import subprocess
-import textwrap
-import time
-from typing import Any, Callable, Dict, List, Optional, Tuple
 import urllib.parse
-
-from filelock import FileLock
+from multiprocessing import pool
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from konduktor import logging
 

@@ -1,6 +1,4 @@
 """Accelerator registry."""
-import typing
-from typing import Optional
 
 from konduktor.utils import ux_utils
 

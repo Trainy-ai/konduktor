@@ -1,5 +1,7 @@
-import prettytable
 from typing import List
+
+import prettytable
+
 
 def create_table(field_names: List[str], **kwargs) -> prettytable.PrettyTable:
     """Creates table with default style."""

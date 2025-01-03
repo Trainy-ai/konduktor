@@ -11,8 +11,7 @@
 # limitations under the License.
 
 """Konduktor backend interface."""
-import typing
-from typing import Dict, Generic, Optional
+from typing import Dict, Optional
 
 import konduktor
 from konduktor.utils import ux_utils

@@ -3,14 +3,11 @@
 See `Stage` for a Task's life cycle.
 """
 import enum
-from typing import List, Optional, Tuple, Union
-
-import colorama
+from typing import List, Optional
 
 from konduktor import logging as konduktor_logging
 from konduktor.backends import JobsetBackend
 from konduktor.utils import ux_utils
-
 
 logger = konduktor_logging.get_logger(__name__)
 
@@ -80,10 +77,10 @@ def _execute(
     # implement JobsetBackend
     # sync_workdir
     # sync_file_mounts
-    # execute                             
+    # execute
     return job_id
 
-    
+
 def launch(
     task: 'konduktor.Task',
     cluster_name: str,

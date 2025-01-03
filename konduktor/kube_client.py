@@ -1,8 +1,9 @@
 import functools
-import kubernetes
 import os
-import urllib3
 from typing import Optional
+
+import kubernetes
+import urllib3
 
 from konduktor import logging as konduktor_logging
 
@@ -32,7 +33,7 @@ def _load_config():
         logger.info("incluster k8s config loaded")
     except kubernetes.config.config_exception.ConfigException:
         # this should really only be loaded for debugging.
-        logger.warning("incluster config failed to load, attempting to use kubeconfig.")
+        logger.debug("incluster config failed to load, attempting to use kubeconfig.")
         kubernetes.config.load_kube_config()
         logger.info("KUBECONFIG loaded")
     _configured = True
@@ -87,7 +88,7 @@ def get_kube_config_context_namespace(
         str | None: The current kubernetes context namespace if it exists, else
             the default namespace.
     """
-    
+
     try:
         contexts, current_context = kubernetes.config.list_kube_config_contexts()
         if context_name is None:

@@ -11,7 +11,6 @@
 # limitations under the License.
 
 """Rich status spinner utils."""
-import contextlib
 import threading
 from typing import Union
 

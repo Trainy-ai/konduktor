@@ -1,15 +1,9 @@
 """Resources: compute requirements of Tasks."""
-import colorama
-import dataclasses
 import functools
-import textwrap
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Union
 
 from konduktor import logging
-from konduktor.utils import accelerator_registry
-from konduktor.utils import common_utils
-from konduktor.utils import log_utils
-from konduktor.utils import schemas
+from konduktor.utils import accelerator_registry, common_utils, schemas
 
 logger = logging.get_logger(__name__)
 
@@ -104,7 +98,7 @@ class Resources:
         # The key is None if the same image_id applies for all regions.
         self._image_id = image_id
         if isinstance(image_id, str):
-            self._image_id = {self._region: image_id.strip()}
+            self._image_id = image_id.strip()
 
         self._labels = labels
 
@@ -114,7 +108,6 @@ class Resources:
 
         # TODO: move these out of init to prevent repeated calls.
         self._try_validate_cpus_mem()
-        self._try_validate_image_id()
 
     def __repr__(self) -> str:
         """Returns a string representation for display.
@@ -126,11 +119,8 @@ class Resources:
 
         """
         accelerators = ''
-        accelerator_args = ''
         if self.accelerators is not None:
             accelerators = f', {self.accelerators}'
-            if self.accelerator_args is not None:
-                accelerator_args = f', accelerator_args={self.accelerator_args}'
 
         cpus = ''
         if self._cpus is not None:
@@ -156,7 +146,6 @@ class Resources:
         # separate columns. Also, Resources repr will be printed during
         # failover, and the region may be dynamically determined.
         hardware_str = (
-            f'{instance_type}'
             f'{cpus}{memory}{accelerators}{image_id}'
             f'{disk_size}')
         # It may have leading ',' (for example, instance_type not set) or empty
@@ -164,11 +153,7 @@ class Resources:
         while hardware_str and hardware_str[0] in (',', ' '):
             hardware_str = hardware_str[1:]
 
-        cloud_str = '<Cloud>'
-        if self.cloud is not None:
-            cloud_str = f'{self.cloud}'
-
-        return f'{cloud_str}({hardware_str})'
+        return f'({hardware_str})'
 
     @property
     def cloud(self):
@@ -216,10 +201,6 @@ class Resources:
         if self._accelerators is not None:
             return self._accelerators
         return None
-
-    @property
-    def job_recovery(self) -> Optional[Dict[str, Union[str, int]]]:
-        return self._job_recovery
 
     @property
     def disk_size(self) -> int:
@@ -343,7 +324,7 @@ class Resources:
             acc, _ = list(accelerators.items())[0]
 
         self._accelerators = accelerators
-        
+
 
     def _try_validate_cpus_mem(self) -> None:
         """Try to validate the cpus and memory attributes.
@@ -353,88 +334,6 @@ class Resources:
         """
         if self._cpus is None and self._memory is None:
             return
-
-
-    def extract_docker_image(self) -> Optional[str]:
-        if self.image_id is None:
-            return None
-        if len(self.image_id) == 1 and self.region in self.image_id:
-            image_id = self.image_id[self.region]
-            if image_id.startswith('docker:'):
-                return image_id[len('docker:'):]
-        return None
-
-    def _try_validate_image_id(self) -> None:
-        """Try to validate the image_id attribute.
-
-        Raises:
-            ValueError: if the attribute is invalid.
-        """
-        if self._image_id is None:
-            return
-
-        if self.extract_docker_image() is not None:
-            # TODO(tian): validate the docker image exists / of reasonable size
-            if self.cloud is not None:
-                self.cloud.check_features_are_supported(
-                    self, {clouds.CloudImplementationFeatures.DOCKER_IMAGE})
-            return
-
-        if self.cloud is None:
-            with ux_utils.print_exception_no_traceback():
-                raise ValueError(
-                    'Cloud must be specified when image_id is provided.')
-
-        try:
-            self._cloud.check_features_are_supported(
-                self,
-                requested_features={
-                    clouds.CloudImplementationFeatures.IMAGE_ID
-                })
-        except exceptions.NotSupportedError as e:
-            with ux_utils.print_exception_no_traceback():
-                raise ValueError(
-                    'image_id is only supported for AWS/GCP/Azure/IBM/OCI/'
-                    'Kubernetes, please explicitly specify the cloud.') from e
-
-        if self._region is not None:
-            if self._region not in self._image_id:
-                with ux_utils.print_exception_no_traceback():
-                    raise ValueError(
-                        f'image_id {self._image_id} should contain the image '
-                        f'for the specified region {self._region}.')
-            # Narrow down the image_id to the specified region.
-            self._image_id = {self._region: self._image_id[self._region]}
-
-        # Check the image_id's are valid.
-        for region, image_id in self._image_id.items():
-            if (image_id.startswith('konduktor:') and
-                    not self._cloud.is_image_tag_valid(image_id, region)):
-                region_str = f' ({region})' if region else ''
-                with ux_utils.print_exception_no_traceback():
-                    raise ValueError(
-                        f'Image tag {image_id!r} is not valid, please make sure'
-                        f' the tag exists in {self._cloud}{region_str}.')
-
-            if (self._cloud.is_same_cloud(clouds.AWS()) and
-                    not image_id.startswith('konduktor:') and region is None):
-                with ux_utils.print_exception_no_traceback():
-                    raise ValueError(
-                        'image_id is only supported for AWS in a specific '
-                        'region, please explicitly specify the region.')
-
-        # Validate the image exists and the size is smaller than the disk size.
-        for region, image_id in self._image_id.items():
-            # Check the image exists and get the image size.
-            # It will raise ValueError if the image does not exist.
-            image_size = self.cloud.get_image_size(image_id, region)
-            if image_size > self.disk_size:
-                with ux_utils.print_exception_no_traceback():
-                    raise ValueError(
-                        f'Image {image_id!r} is {image_size}GB, which is '
-                        f'larger than the specified disk_size: {self.disk_size}'
-                        ' GB. Please specify a larger disk_size to use this '
-                        'image.')
 
 
     def get_accelerators_str(self) -> str:
@@ -463,7 +362,7 @@ class Resources:
     @classmethod
     def from_yaml_config(
         cls, config: Optional[Dict[str, Any]]
-    ) -> Union[Set['Resources'], List['Resources']]:
+    ) -> 'Resources':
         if config is None:
             return {Resources()}
         common_utils.validate_schema(config, schemas.get_resources_schema(),
@@ -495,38 +394,12 @@ class Resources:
                 # validation above.
                 resources_list.extend(
                     list(Resources.from_yaml_config(new_resource_config)))
+
             return resources_list
 
         config = config.copy()
 
-        # Parse resources.accelerators field.
-        accelerators = config.get('accelerators')
-        if config and accelerators is not None:
-            if isinstance(accelerators, str):
-                accelerators = {accelerators}
-            elif isinstance(accelerators, dict):
-                accelerators = [
-                    f'{k}:{v}' if v is not None else f'{k}'
-                    for k, v in accelerators.items()
-                ]
-                accelerators = set(accelerators)
-
-        # Translate accelerators field to potential multiple resources.
-        if accelerators:
-            # In yaml file, we store accelerators as a list.
-            # In Task, we store a list of resources, each with 1 accelerator.
-            # This for loop is for format conversion.
-            tmp_resources_list = []
-            for acc in accelerators:
-                tmp_resource = config.copy()
-                tmp_resource['accelerators'] = acc
-                tmp_resources_list.append(
-                    Resources._from_yaml_config_single(tmp_resource))
-
-            assert isinstance(accelerators, (list, set)), accelerators
-            return type(accelerators)(tmp_resources_list)
-
-        return {Resources._from_yaml_config_single(config)}
+        return Resources._from_yaml_config_single(config)
 
     @classmethod
     def _from_yaml_config_single(cls, config: Dict[str, str]) -> 'Resources':

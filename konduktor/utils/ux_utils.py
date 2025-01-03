@@ -10,7 +10,6 @@ import colorama
 import rich.console as rich_console
 
 from konduktor import logging as konduktor_logging
-from konduktor.utils import common_utils
 
 if typing.TYPE_CHECKING:
     import pathlib

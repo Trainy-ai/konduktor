@@ -15,16 +15,13 @@ import inspect
 import json
 import os
 import re
-import typing
-import yaml
-from typing import (Any, Callable, Dict, Iterable, List, Optional, Set, Tuple,
-                    Union)
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
+import yaml
 
 import konduktor
 from konduktor.data import storage as storage_lib
-from konduktor.utils import common_utils
-from konduktor.utils import schemas
+from konduktor.utils import common_utils, schemas
 
 _VALID_NAME_REGEX = '[a-zA-Z0-9]+(?:[._-]{1,2}[a-zA-Z0-9]+)*'
 _VALID_NAME_DESCR = ('ASCII characters and may contain lowercase and'
@@ -175,6 +172,7 @@ class Task:
             documented above.
         """
         self.name = name
+        self.setup = setup
         self.run = run
         self.storage_mounts: Dict[str, storage_lib.Storage] = {}
         self.storage_plans: Dict[storage_lib.Storage,
@@ -187,9 +185,8 @@ class Task:
         self._num_nodes = 1
         self.num_nodes = num_nodes  # type: ignore
         # Default to CPU VM
-        self.resources: Union[List[konduktor.Resources],
-                              Set[konduktor.Resources]] = {konduktor.Resources()}
-        
+        self.resources: konduktor.Resources = konduktor.Resources()
+
         self.file_mounts: Optional[Dict[str, str]] = None
 
         # Check if the task is legal.
@@ -439,9 +436,7 @@ class Task:
         return self
 
     def set_resources(
-        self, resources: Union['resources_lib.Resources',
-                               List['resources_lib.Resources'],
-                               Set['resources_lib.Resources']]
+        self, resources: 'resources_lib.Resources',
     ) -> 'Task':
         """Sets the required resources to execute this task.
 
@@ -456,19 +451,16 @@ class Task:
           self: The current task, with resources set.
         """
         if isinstance(resources, konduktor.Resources):
-            resources = {resources}
+            resources = resources
         self.resources = resources
 
         return self
 
     def set_resources_override(self, override_params: Dict[str, Any]) -> 'Task':
         """Sets the override parameters for the resources."""
-        new_resources_list = []
-        for res in list(self.resources):
-            new_resources = res.copy(**override_params)
-            new_resources_list.append(new_resources)
+        new_resources = self.resources.copy(**override_params)
 
-        self.set_resources(type(self.resources)(new_resources_list))
+        self.set_resources(new_resources)
         return self
 
 
@@ -636,14 +628,7 @@ class Task:
         add_if_not_none('name', self.name)
 
         tmp_resource_config = {}
-        if len(self.resources) > 1:
-            resource_list = []
-            for r in self.resources:
-                resource_list.append(r.to_yaml_config())
-            key = 'ordered' if isinstance(self.resources, list) else 'any_of'
-            tmp_resource_config[key] = resource_list
-        else:
-            tmp_resource_config = list(self.resources)[0].to_yaml_config()
+        tmp_resource_config = self.resources.to_yaml_config()
 
         add_if_not_none('resources', tmp_resource_config)
 

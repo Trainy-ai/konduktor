@@ -63,11 +63,19 @@ then:
 import copy
 import os
 import pprint
-from typing import Any, Dict, Iterable, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import yaml
 
-logger = logging.init_logger(__name__)
+from konduktor import logging
+from konduktor.utils import common_utils, schemas
+
+logger = logging.get_logger(__name__)
+
+# overrides are specified in task YAMLs.
+OVERRIDEABLE_CONFIG_KEYS: List[Tuple[str, ...]] = [
+    ('kubernetes', 'pod_config'),
+]
 
 # The config path is discovered in this order:
 #
@@ -174,17 +182,17 @@ def get_nested(keys: Tuple[str, ...],
         The value of the nested key, or 'default_value' if not found.
     """
     assert not (
-        keys in constants.OVERRIDEABLE_CONFIG_KEYS and
+        keys in OVERRIDEABLE_CONFIG_KEYS and
         override_configs is None), (
             f'Override configs must be provided when keys {keys} is within '
-            'constants.OVERRIDEABLE_CONFIG_KEYS: '
-            f'{constants.OVERRIDEABLE_CONFIG_KEYS}')
+            'OVERRIDEABLE_CONFIG_KEYS: '
+            f'{OVERRIDEABLE_CONFIG_KEYS}')
     assert not (
-        keys not in constants.OVERRIDEABLE_CONFIG_KEYS and
+        keys not in OVERRIDEABLE_CONFIG_KEYS and
         override_configs is not None
     ), (f'Override configs must not be provided when keys {keys} is not within '
-        'constants.OVERRIDEABLE_CONFIG_KEYS: '
-        f'{constants.OVERRIDEABLE_CONFIG_KEYS}')
+        'OVERRIDEABLE_CONFIG_KEYS: '
+        f'{OVERRIDEABLE_CONFIG_KEYS}')
     return _dict.get_nested(keys, default_value, override_configs)
 
 
