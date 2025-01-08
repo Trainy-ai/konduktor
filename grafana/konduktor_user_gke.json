@@ -195,7 +195,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "DCGM_FI_DEV_GPU_UTIL{gpu=~\"${gpu}\", exported_pod=~\"${pod}\"}\n* on (exported_pod) group_left(kube_pod_labels)\nlabel_replace(kube_pod_labels{namespace='default', label_kueue_x_k8s_io_pod_group_name=\"${workloads}\"}, \"exported_pod\", \"$1\", \"pod\", \"(.+)\")",
+          "expr": "DCGM_FI_DEV_GPU_UTIL{gpu=~\"${gpu}\", exported_pod=~\"${pod}\"}\n* on (exported_pod) group_left(kube_pod_labels)\nlabel_replace(kube_pod_labels{namespace='default', label_kueue_x_k8s_io_pod_group_name=~\"${workloads}\"}, \"exported_pod\", \"$1\", \"pod\", \"(.+)\")",
           "interval": "",
           "legendFormat": "GPU {{gpu}} {{exported_pod}}",
           "range": true,
@@ -301,7 +301,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "DCGM_FI_PROF_SM_ACTIVE{gpu=~\"${gpu}\", exported_pod=~\"${pod}\"} * 100\n* on (exported_pod) group_left(kube_pod_labels)\nlabel_replace(kube_pod_labels{namespace='default', label_kueue_x_k8s_io_pod_group_name=\"${workloads}\"}, \"exported_pod\", \"$1\", \"pod\", \"(.+)\")",
+          "expr": "DCGM_FI_PROF_SM_ACTIVE{gpu=~\"${gpu}\", exported_pod=~\"${pod}\"} * 100\n* on (exported_pod) group_left(kube_pod_labels)\nlabel_replace(kube_pod_labels{namespace='default', label_kueue_x_k8s_io_pod_group_name=~\"${workloads}\"}, \"exported_pod\", \"$1\", \"pod\", \"(.+)\")",
           "interval": "",
           "legendFormat": "GPU {{gpu}} {{exported_pod}}",
           "range": true,
@@ -405,7 +405,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "DCGM_FI_DEV_GPU_TEMP{gpu=~\"${gpu}\", exported_pod=~\"${pod}\"}\n* on (exported_pod) group_left(kube_pod_labels)\nlabel_replace(kube_pod_labels{namespace='default', label_kueue_x_k8s_io_pod_group_name=\"${workloads}\"}, \"exported_pod\", \"$1\", \"pod\", \"(.+)\")",
+          "expr": "DCGM_FI_DEV_GPU_TEMP{gpu=~\"${gpu}\", exported_pod=~\"${pod}\"}\n* on (exported_pod) group_left(kube_pod_labels)\nlabel_replace(kube_pod_labels{namespace='default', label_kueue_x_k8s_io_pod_group_name=~\"${workloads}\"}, \"exported_pod\", \"$1\", \"pod\", \"(.+)\")",
           "instant": false,
           "interval": "",
           "legendFormat": "GPU {{gpu}} {{exported_pod}}",
@@ -509,7 +509,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "DCGM_FI_DEV_POWER_USAGE{gpu=~\"${gpu}\", exported_pod=~\"${pod}\"}\n* on (exported_pod) group_left(kube_pod_labels)\nlabel_replace(kube_pod_labels{namespace='default', label_kueue_x_k8s_io_pod_group_name=\"${workloads}\"}, \"exported_pod\", \"$1\", \"pod\", \"(.+)\")",
+          "expr": "DCGM_FI_DEV_POWER_USAGE{gpu=~\"${gpu}\", exported_pod=~\"${pod}\"}\n* on (exported_pod) group_left(kube_pod_labels)\nlabel_replace(kube_pod_labels{namespace='default', label_kueue_x_k8s_io_pod_group_name=~\"${workloads}\"}, \"exported_pod\", \"$1\", \"pod\", \"(.+)\")",
           "interval": "",
           "legendFormat": "GPU {{gpu}} {{exported_pod}}",
           "range": true,
@@ -615,7 +615,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "DCGM_FI_PROF_PIPE_TENSOR_ACTIVE{gpu=~\"${gpu}\", exported_pod=~\"${pod}\"}\n* on (exported_pod) group_left(kube_pod_labels)\nlabel_replace(kube_pod_labels{namespace='default', label_kueue_x_k8s_io_pod_group_name=\"${workloads}\"}, \"exported_pod\", \"$1\", \"pod\", \"(.+)\")",
+          "expr": "DCGM_FI_PROF_PIPE_TENSOR_ACTIVE{gpu=~\"${gpu}\", exported_pod=~\"${pod}\"}\n* on (exported_pod) group_left(kube_pod_labels)\nlabel_replace(kube_pod_labels{namespace='default', label_kueue_x_k8s_io_pod_group_name=~\"${workloads}\"}, \"exported_pod\", \"$1\", \"pod\", \"(.+)\")",
           "interval": "",
           "legendFormat": "GPU {{gpu}} {{exported_pod}}",
           "range": true,
@@ -721,7 +721,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "DCGM_FI_DEV_NVLINK_BANDWIDTH_TOTAL{gpu=~\"${gpu}\", exported_pod=~\"${pod}\"} * 1e6\n* on (exported_pod) group_left(kube_pod_labels)\nlabel_replace(kube_pod_labels{namespace='default', label_kueue_x_k8s_io_pod_group_name=\"${workloads}\"}, \"exported_pod\", \"$1\", \"pod\", \"(.+)\")",
+          "expr": "DCGM_FI_DEV_NVLINK_BANDWIDTH_TOTAL{gpu=~\"${gpu}\", exported_pod=~\"${pod}\"} * 1e6\n* on (exported_pod) group_left(kube_pod_labels)\nlabel_replace(kube_pod_labels{namespace='default', label_kueue_x_k8s_io_pod_group_name=~\"${workloads}\"}, \"exported_pod\", \"$1\", \"pod\", \"(.+)\")",
           "interval": "",
           "legendFormat": "GPU {{gpu}} {{exported_pod}}",
           "range": true,
@@ -834,7 +834,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -908,7 +909,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1091,7 +1093,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1167,7 +1170,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "yellow",
@@ -1435,7 +1439,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1573,7 +1578,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1630,7 +1636,7 @@
       "type": "stat"
     }
   ],
-  "refresh": "",
+  "refresh": "1m",
   "schemaVersion": 40,
   "tags": [],
   "templating": {
@@ -1641,18 +1647,18 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "definition": "label_values(kube_pod_labels,label_kueue_x_k8s_io_pod_group_name)",
+        "definition": "query_result(last_over_time(kube_pod_labels{namespace='default'}[$__range]))",
         "includeAll": true,
         "multi": true,
         "name": "workloads",
         "options": [],
         "query": {
-          "qryType": 1,
-          "query": "label_values(kube_pod_labels,label_kueue_x_k8s_io_pod_group_name)",
+          "qryType": 3,
+          "query": "query_result(last_over_time(kube_pod_labels{namespace='default'}[$__range]))",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
-        "refresh": 1,
-        "regex": "",
+        "refresh": 2,
+        "regex": "/.*label_kueue_x_k8s_io_pod_group_name=\"([^\"]*).*/",
         "type": "query"
       },
       {
@@ -1674,7 +1680,7 @@
       },
       {
         "current": {},
-        "definition": "label_values(kube_pod_labels{namespace=\"default\", label_kueue_x_k8s_io_pod_group_name=\"$workloads\"},pod)",
+        "definition": "label_values(kube_pod_labels{namespace=\"default\", label_kueue_x_k8s_io_pod_group_name=~\"$workloads\"},pod)",
         "hide": 1,
         "includeAll": true,
         "label": "pod",
@@ -1683,7 +1689,7 @@
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(kube_pod_labels{namespace=\"default\", label_kueue_x_k8s_io_pod_group_name=\"$workloads\"},pod)",
+          "query": "label_values(kube_pod_labels{namespace=\"default\", label_kueue_x_k8s_io_pod_group_name=~\"$workloads\"},pod)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -1693,13 +1699,13 @@
     ]
   },
   "time": {
-    "from": "now-15m",
-    "to": "now"
+    "from": "2025-01-07T02:00:00.000Z",
+    "to": "2025-01-07T07:59:59.000Z"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Konduktor - user (GKE)",
   "uid": "Oxed_c6W5",
-  "version": 39,
+  "version": 49,
   "weekStart": ""
 }
