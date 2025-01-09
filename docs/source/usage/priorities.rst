@@ -44,7 +44,7 @@ and now you can launch the request
 .. code-block:: console
 
     # launch a low priority task
-    $ sky launch -y -d -c low task.yaml
+    $ sky launch -y -d -c low low.yaml
 
 
     # list workloads in kueue
