@@ -1001,6 +1001,14 @@ grafana:
             value: Prometheus
           - name: DS_LOKI
             value: loki
+      konduktor-user-gke-dashboard:
+        url: https://raw.githubusercontent.com/Trainy-ai/konduktor/main/grafana/konduktor_user_gke.json
+        datasource:
+          - name: DS_PROMETHEUS
+            value: Prometheus
+          - name: DS_LOKI
+            value: loki
+      
 
   dashboardProviders:
     dashboardproviders.yaml:
@@ -3805,6 +3813,7 @@ prometheus:
           storageClassName: standard-rwo
           # storageClassName: local-path # for k3s
           # storageClassName: gp2 # for aws
+          # storageClassName: compute-csi-default-sc # for nebius
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
