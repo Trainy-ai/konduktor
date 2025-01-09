@@ -990,7 +990,7 @@
           },
           "editorMode": "code",
           "expr": "kube_pod_labels{namespace=\"default\", pod=~\"${pod}\", label_kueue_x_k8s_io_pod_group_name=~\"${workloads}\"} * on(pod) group_left(node, host_ip) kube_pod_info * on(host_ip) group_left(instance) label_replace(100 * (1 - (node_filesystem_avail_bytes{job=\"node-exporter\", fstype!=\"\", mountpoint=\"/home\"} / node_filesystem_size_bytes{job=\"node-exporter\", fstype!=\"\", mountpoint=\"/home\"})), \"host_ip\", \"$1\", \"instance\", \"(.*):.*\")",
-          "legendFormat": "{{node}} USED BY {{pod}}",
+          "legendFormat": "{{pod}} ON {{node}}",
           "range": true,
           "refId": "A"
         }
@@ -1095,7 +1095,7 @@
           },
           "editorMode": "code",
           "expr": "kube_pod_labels{namespace='default', pod=~\"${pod}\", label_kueue_x_k8s_io_pod_group_name=~\"${workloads}\"} * on(pod) group_left(node, host_ip) kube_pod_info * on(host_ip) group_left(instance) label_replace(100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes), \"host_ip\", \"$1\", \"instance\", \"(.*):.*\")",
-          "legendFormat": "{{node}} USED BY {{pod}}",
+          "legendFormat": "{{pod}} ON {{node}}",
           "range": true,
           "refId": "A"
         }
@@ -1535,7 +1535,7 @@
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 104
+            "y": 206
           },
           "id": 45,
           "options": {
@@ -1569,7 +1569,7 @@
       "type": "row"
     },
     {
-      "collapsed": false,
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1577,83 +1577,85 @@
         "y": 112
       },
       "id": 41,
-      "panels": [],
-      "title": "XID Errors",
-      "type": "row"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "links": [],
-          "mappings": [],
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 9,
-        "w": 24,
-        "x": 0,
-        "y": 113
-      },
-      "id": 42,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
+      "panels": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
           },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "DCGM_FI_DEV_XID_ERRORS{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"}",
-          "instant": true,
-          "interval": "",
-          "legendFormat": "GPU {{gpu}} instance {{instance}}",
-          "range": false,
-          "refId": "A"
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "links": [],
+              "mappings": [],
+              "max": 1,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "none"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 24,
+            "x": 0,
+            "y": 215
+          },
+          "id": 42,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "percentChangeColorMode": "standard",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showPercentChange": false,
+            "textMode": "auto",
+            "wideLayout": true
+          },
+          "pluginVersion": "11.4.0",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "DCGM_FI_DEV_XID_ERRORS{instance=~\"${instance}:9400\", gpu=~\"${gpu}\"}",
+              "instant": true,
+              "interval": "",
+              "legendFormat": "GPU {{gpu}} instance {{instance}}",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "XID Errors",
+          "type": "stat"
         }
       ],
       "title": "XID Errors",
-      "type": "stat"
+      "type": "row"
     }
   ],
   "preload": false,
@@ -1664,12 +1666,8 @@
     "list": [
       {
         "current": {
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": {
           "type": "prometheus",
@@ -1738,6 +1736,6 @@
   "timezone": "",
   "title": "Konduktor - user (GKE)",
   "uid": "Oxed_c6W5",
-  "version": 34,
+  "version": 36,
   "weekStart": ""
 }
