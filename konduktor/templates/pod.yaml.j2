@@ -17,25 +17,50 @@ kubernetes:
           # this is set during jobset definition since we need to know the jobset
           # name and number of nodes to set all the environment variables correctly here
           # as well as the additional from the job definition
-          env: []
+          env:
+          # flush logs immediately to stdout for more reactive log streaming
+          - name: PYTHONUNBUFFERED
+            value: "0"
+          - name: NODE_HOST_IPS
+            value: "{{ node_hostnames }}"
+          - name: MASTER_ADDR
+            value: "{{ master_addr }}"
+          - name: RANK
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.annotations['batch.kubernetes.io/job-completion-index']
+          - name: NUM_NODES
+            value: "{{ num_nodes }}"
+          - name: NUM_GPUS_PER_NODE
+            value: "{{ num_gpus }}"
+          # these are for compatibility with skypilot
+          - name: SKYPILOT_NODE_IPS
+            value: "{{ node_hostnames }}"
+          - name: SKYPILOT_NODE_RANK
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.annotations['batch.kubernetes.io/job-completion-index']
+          - name: SKYPILOT_NUM_NODES
+            value: "{{ num_nodes }}"
+          - name: SKYPILOT_NUM_GPUS_PER_NODE
+            value: "{{ num_gpus }}"
           command: ["bash", "-c"]
           # TODO(asaiacai): should we just mount this as a configmap instead?
           args:
             - |
               {{ run_cmd | indent( width=14 ) }}
-
       resources:
         limits:
           cpu: {{ cpu }}
           memory: {{ memory }}
           # TODO(asaiacai): need to decide whether we include fabric configuration here
-          {% if num_gpus is not none %}
+          {% if num_gpus > 0 %}
           nvidia.com/gpu: {{ num_gpus }}
           {% endif %}
         requests:
           cpu: {{ cpu }}
           memory: {{ memory }}
-          {% if num_gpus is not none %}
+          {% if num_gpus > 0 %}
           nvidia.com/gpu: {{num_gpus}}
           {% endif %}
 

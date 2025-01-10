@@ -3,12 +3,13 @@ https://jobset.sigs.k8s.io/
 https://kueue.sigs.k8s.io/docs/tasks/run/jobsets/
 """
 
+import json
 import pprint
 import tempfile
 from typing import Any, Dict, Optional
 
 import konduktor
-from konduktor import kube_client, logging
+from konduktor import config, kube_client, logging
 from konduktor.backends import backend
 from konduktor.utils import common_utils, kubernetes_utils
 
@@ -27,13 +28,16 @@ def create_pod_spec(task: 'konduktor.Task') -> Dict[str, Any]:
         Dict[str, Any]: k8s pod spec
     """
 
-    with tempfile.NamedTemporaryFile() as temp:
-        # fill in the pod template with some of the
-        if task.resources.accelerators:
-            num_gpus = list(task.resources.accelerators.values())[0]
-        else:
-            num_gpus = None
+    # fill out the templating variables
+    if task.resources.accelerators:
+        num_gpus = list(task.resources.accelerators.values())[0]
+    else:
+        num_gpus = 0
+    task.name = f"{task.name}-{common_utils.get_usage_run_id()[:4]}"
+    node_hostnames = ",".join([f"{task.name}-workers-0-{idx}.{task.name}" for idx in range(task.num_nodes)])
+    master_addr = f"{task.name}-workers-0-0.{task.name}"
 
+    with tempfile.NamedTemporaryFile() as temp:
         common_utils.fill_template(
             'pod.yaml.j2',
             {
@@ -42,8 +46,11 @@ def create_pod_spec(task: 'konduktor.Task') -> Dict[str, Any]:
                 'memory': kubernetes_utils.parse_memory_resource(task.resources.memory),
                 'image_id': task.resources.image_id,
                 'num_gpus': num_gpus,
+                'master_addr': master_addr,
+                'num_nodes': task.num_nodes,
                 'job_name': task.name, # append timestamp and user id here?
-                'run_cmd': task.run
+                'run_cmd': task.run,
+                'node_hostnames': node_hostnames,
             },
             temp.name
         )
@@ -53,12 +60,15 @@ def create_pod_spec(task: 'konduktor.Task') -> Dict[str, Any]:
         kubernetes_utils.combine_pod_config_fields(temp.name, pod_config)
         pod_config = common_utils.read_yaml(temp.name)
 
-    # TODO(asaiacai): have some schema validations here
+    # TODO(asaiacai): have some schema validations. see
+    # https://github.com/skypilot-org/skypilot/pull/4466
+
     return pod_config
 
 
-def create_jobset(namespace: str, task: 'konduktor.Task', pod_spec: Dict[str, Any]):
+def create_jobset(namespace: str, task: 'konduktor.Task', pod_spec: Dict[str, Any]) -> Dict[str, Any]:
     """Creates a jobset based on the task definition and pod spec
+    and returns the created jobset spec
     """
     with tempfile.NamedTemporaryFile() as temp:
         common_utils.fill_template(
@@ -73,21 +83,25 @@ def create_jobset(namespace: str, task: 'konduktor.Task', pod_spec: Dict[str, An
         )
         jobset_spec = common_utils.read_yaml(temp.name)
     jobset_spec['jobset']['spec']['replicatedJobs'][0]['template']['spec']['template'] = pod_spec
-    # TODO(asaiacai): set environment variables here
-    try:
-        response = kube_client.crd_api().create_namespaced_custom_object(
-            group=JOBSET_API_GROUP,
-            version=JOBSET_API_VERSION,
-            namespace=namespace,
-            plural=JOBSET_PLURAL,
-            body=jobset_spec['jobset']
-        )
-        import pdb; pdb.set_trace()
-        pprint(response)
-    except kube_client.api_exception() as err:
-        print(
-            f"Exception when calling CustomObjectsApi->create_namespaced_custom_object: {err}"
-        )
+    # try:
+    jobset = kube_client.crd_api().create_namespaced_custom_object(
+        group=JOBSET_API_GROUP,
+        version=JOBSET_API_VERSION,
+        namespace=namespace,
+        plural=JOBSET_PLURAL,
+        body=jobset_spec['jobset']
+    )
+    logger.info(f"Created job {task.name}")
+    return jobset
+    # except kube_client.api_exception() as err:
+    #     try:
+    #         error_body = json.loads(err.body)
+    #         error_message = error_body.get('message', '')
+    #     except json.JSONDecodeError:
+    #         error_message = str(e.body)
+    #     else:
+    #         # Re-raise the exception if it's a different error
+    #         raise err
 
 def list_jobset(namespace: str):
     """Lists all jobsets in this namespace
@@ -97,10 +111,15 @@ def list_jobset(namespace: str):
             JOBSET_API_GROUP, JOBSET_API_VERSION, namespace, JOBSET_PLURAL
         )
         pprint(response)
-    except kube_client.api_exception():
-        print(
-            f"Exception when calling CustomObjectsApi->create_namespaced_custom_object: {err}"
-        )
+    except kube_client.api_exception() as err:
+        try:
+            error_body = json.loads(e.body)
+            error_message = error_body.get('message', '')
+        except json.JSONDecodeError:
+            error_message = str(e.body)
+        else:
+            # Re-raise the exception if it's a different error
+            raise err
 
 def get_jobset(namespace: str, job_name: str):
     """Retrieves jobset in this namespace
@@ -115,9 +134,14 @@ def get_jobset(namespace: str, job_name: str):
         )
         pprint(response)
     except kube_client.api_exception() as err:
-        print(
-            f"Exception when calling CustomObjectsApi->create_namespaced_custom_object: {err}"
-        )
+        try:
+            error_body = json.loads(e.body)
+            error_message = error_body.get('message', '')
+        except json.JSONDecodeError:
+            error_message = str(e.body)
+        else:
+            # Re-raise the exception if it's a different error
+            raise err
 
 
 class JobsetBackend(backend.Backend):
@@ -135,7 +159,7 @@ class JobsetBackend(backend.Backend):
     def _execute(
         self,
         task: 'konduktor.Task',
-        detach_run: bool,
+        detach_run: bool = False,
         dryrun: bool = False) -> Optional[int]:
         """Executes the task on the cluster. By creating a jobset
 
@@ -145,8 +169,9 @@ class JobsetBackend(backend.Backend):
 
         if task.run is None:
             raise ValueError("run commands are empty")
-        else:
-            valid_resource = self.check_resources_fit_cluster(task)
+        
+        if task.name is None:
+            raise ValueErorr("no name for the task was specified. You must specify a name for this task")
 
 
         # first define the pod spec then create the jobset definition
@@ -155,13 +180,11 @@ class JobsetBackend(backend.Backend):
         namespace = kube_client.get_kube_config_context_namespace(context)
         create_jobset(namespace, task, pod_spec['kubernetes']['pod_config'])
 
+        if not detach_run:
+            # wait for job state to be up
+            pass
 
-    def check_resources_fit_cluster(self, task: 'konduktor.Task') -> bool:
-        """Check whether resources of the task are satisfied by clusterqueue.
-        We return true if the maximum amount the request will be satisfied by the
-        the resource quota in the Kueue clusterqueue assigned to the requested
-        local queue.
-        """
-        #(asaiacai) TODO: might not even use this outside of checking kueue resource quotas
-        logger.error("i'm just doing passthrough right now from `check_resources_fit_cluster`")
-        return True
+            # stream logs from loki
+
+
+

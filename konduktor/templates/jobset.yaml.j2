@@ -2,8 +2,12 @@ jobset:
   apiVersion: jobset.x-k8s.io/v1alpha2
   kind: JobSet
   metadata:
-    name: {{ job_name }}-{{ user_id }}-{{ timestamp }}
-    trainy.ai/job-name: {{ job_name }} 
+    name: {{ job_name }}
+    labels:
+      trainy.ai/job-name: {{ job_name }}
+      trainy.ai/user-id: {{ user_id }}
+      trainy.ai/timestamp: {{ timestamp }}
+      trainy.ai/konduktor-managed: "true"
   spec:
     replicatedJobs:
     - name: workers

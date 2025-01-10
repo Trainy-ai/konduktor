@@ -44,6 +44,13 @@ line-length = 88
 # pyflakes, pycodestyle, isort
 select = ["F", "E", "W", "I001"]
 
+[tool.ruff.format]
+# 5. Use single quotes in `ruff format`.
+quote-style = "single"
+
+[tool.ruff.lint.flake8-quotes]
+docstring-quotes = "double"
+
 [tool.mypy]
 python_version = "3.10"
 follow_imports = "skip"
