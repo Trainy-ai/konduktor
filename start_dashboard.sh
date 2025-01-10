@@ -29,7 +29,7 @@ else
     echo "Waiting for Grafana deployment to be available..."
     kubectl wait --for=condition=available deployment/kube-prometheus-stack-grafana -n prometheus --timeout=120s
 
-    # Wait 20 seconds to ensure pods are up and ready
+    # Wait 10 seconds to ensure pods are up and ready
     echo "Waiting for pods to finish setup..."
     sleep 10
 fi
