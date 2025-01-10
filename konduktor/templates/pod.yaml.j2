@@ -44,6 +44,9 @@ kubernetes:
             value: "{{ num_nodes }}"
           - name: SKYPILOT_NUM_GPUS_PER_NODE
             value: "{{ num_gpus }}"
+          volumeMounts:
+            - name: shared-memory
+            mountPath: /dev/shm
           command: ["bash", "-c"]
           # TODO(asaiacai): should we just mount this as a configmap instead?
           args:
@@ -63,6 +66,11 @@ kubernetes:
           {% if num_gpus > 0 %}
           nvidia.com/gpu: {{num_gpus}}
           {% endif %}
+      volumes:
+        - name: shared-memory
+          emptyDir:
+            medium: "Memory"
+            sizeLimit: 4Gi
 
         
         
