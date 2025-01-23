@@ -83,25 +83,24 @@ def create_jobset(namespace: str, task: 'konduktor.Task', pod_spec: Dict[str, An
         )
         jobset_spec = common_utils.read_yaml(temp.name)
     jobset_spec['jobset']['spec']['replicatedJobs'][0]['template']['spec']['template'] = pod_spec
-    # try:
-    jobset = kube_client.crd_api().create_namespaced_custom_object(
-        group=JOBSET_API_GROUP,
-        version=JOBSET_API_VERSION,
-        namespace=namespace,
-        plural=JOBSET_PLURAL,
-        body=jobset_spec['jobset']
-    )
-    logger.info(f"Created job {task.name}")
-    return jobset
-    # except kube_client.api_exception() as err:
-    #     try:
-    #         error_body = json.loads(err.body)
-    #         error_message = error_body.get('message', '')
-    #     except json.JSONDecodeError:
-    #         error_message = str(e.body)
-    #     else:
-    #         # Re-raise the exception if it's a different error
-    #         raise err
+    try:
+        jobset = kube_client.crd_api().create_namespaced_custom_object(
+            group=JOBSET_API_GROUP,
+            version=JOBSET_API_VERSION,
+            namespace=namespace,
+            plural=JOBSET_PLURAL,
+            body=jobset_spec['jobset']
+        )
+        return jobset
+    except kube_client.api_exception() as err:
+        try:
+            error_body = json.loads(err.body)
+            error_message = error_body.get('message', '')
+        except json.JSONDecodeError:
+            error_message = str(e.body)
+        else:
+            # Re-raise the exception if it's a different error
+            raise err
 
 def list_jobset(namespace: str):
     """Lists all jobsets in this namespace
@@ -181,10 +180,8 @@ class JobsetBackend(backend.Backend):
         create_jobset(namespace, task, pod_spec['kubernetes']['pod_config'])
 
         if not detach_run:
-            # wait for job state to be up
+            # wait for job state to be up and stream until job returns a status code
             pass
-
             # stream logs from loki
-
 
 

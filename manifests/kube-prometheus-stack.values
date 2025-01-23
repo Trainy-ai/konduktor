@@ -2085,7 +2085,7 @@ kube-state-metrics:
     create: true
   releaseLabel: true
   extraArgs:
-    - --metric-labels-allowlist=pods=[kueue.x-k8s.io/pod-group-name]
+    - --metric-labels-allowlist=pods=[kueue.x-k8s.io/pod-group-name,batch.kubernetes.io/job-name]
   prometheus:
     monitor:
       enabled: true
