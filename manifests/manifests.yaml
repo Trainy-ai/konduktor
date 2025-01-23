@@ -12193,7 +12193,7 @@ data:
     #pprofBindAddress: :8083
     waitForPodsReady:
      enable: true
-     timeout: 10m
+     timeout: 20m
      blockAdmission: true
      requeuingStrategy:
        timestamp: Eviction

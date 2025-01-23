@@ -1008,6 +1008,13 @@ grafana:
             value: Prometheus
           - name: DS_LOKI
             value: loki
+      konduktor-user-nebius-dashboard:
+        url: https://raw.githubusercontent.com/Trainy-ai/konduktor/main/grafana/konduktor_user_nebius.json
+        datasource:
+          - name: DS_PROMETHEUS
+            value: Prometheus
+          - name: DS_LOKI
+            value: loki
       
 
   dashboardProviders:
