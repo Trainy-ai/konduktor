@@ -20,6 +20,7 @@ jobset = {git = "https://github.com/kubernetes-sigs/jobset.git", rev = "v0.7.2",
 jsonschema = "^4.23.0"
 prettytable = "^3.12.0"
 jinja2 = "^3.1.5"
+kr8s = "^0.20.1"
 
 [tool.poetry.scripts]
 konduktor = 'konduktor:cli.main'
